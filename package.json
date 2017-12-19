@@ -10,6 +10,7 @@
     "prop-types": "^15.6.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.0.3",
     "eslint": "^4.9.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.7.0",
