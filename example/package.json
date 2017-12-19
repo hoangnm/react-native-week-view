@@ -6,6 +6,7 @@
     "postinstall": "yarn run clean:example",
     "clean:example": "rm -rf node_modules/react-native-week-view/{node_modules,example}",
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "sync": "rm -rf ./node_modules/react-native-week-view; rsync -v -a --exclude .git --exclude example --exclude node_modules ../ ./node_modules/react-native-week-view/",
     "test": "jest"
   },
   "dependencies": {
@@ -17,7 +18,8 @@
     "babel-jest": "21.2.0",
     "babel-preset-react-native": "4.0.0",
     "jest": "21.2.1",
-    "react-test-renderer": "16.0.0"
+    "react-test-renderer": "16.0.0",
+    "sane": "^2.2.0"
   },
   "jest": {
     "preset": "react-native"
