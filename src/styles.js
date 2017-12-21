@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const GREY_COLOR = '#E9EDF0';
 const LIGHT_COLOR = '#FFF';
 const ROW_HEIGHT = 40;
-const CONTENT_OFFSET = 16;
+export const CONTENT_OFFSET = 16;
 
 const styles = StyleSheet.create({
   container: {
