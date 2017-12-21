@@ -41,6 +41,30 @@ const styles = StyleSheet.create({
     paddingTop: CONTENT_OFFSET,
     backgroundColor: LIGHT_COLOR,
   },
+  scheduleItems: {
+    position: 'absolute',
+    flexDirection: 'row',
+    left: 20,
+    right: 0,
+    bottom: 0,
+    top: 0,
+    backgroundColor: 'transparent',
+  },
+  scheduleItem: {
+    alignItems: 'center',
+    position: 'absolute',
+    paddingVertical: 8,
+    paddingHorizontal: 2,
+    borderRadius: 0,
+    borderTopWidth: 10,
+    left: 10,
+    flex: 1,
+  },
+  description: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 17,
+  },
 });
 
 export default styles;
