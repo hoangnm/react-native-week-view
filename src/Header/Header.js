@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
 import moment from 'moment';
 
@@ -73,6 +74,12 @@ const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
       })}
     </View>
   );
+};
+
+WeekViewHeader.propTypes = {
+  numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
+  selectedDate: PropTypes.instanceOf(Date).isRequired,
+  style: View.propTypes.style,
 };
 
 export default WeekViewHeader;

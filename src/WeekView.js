@@ -39,6 +39,12 @@ const TimeLabel = ({ time }) => { // eslint-disable-line react/prop-types
 };
 
 class WeekView extends Component {
+  constructor(props) {
+    super(props);
+
+    this.time = this.generateTimes();
+  }
+
   onEventPress = (item) => {
     const { onEventPress } = this.props;
     if (onEventPress) {
@@ -168,7 +174,6 @@ class WeekView extends Component {
     const sortedEvents = this.sortEventByDates(events);
     let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
     totalEvents = this.getEventsWithPosition(totalEvents);
-    const times = this.generateTimes();
 
     return (
       <View style={styles.container}>
@@ -178,12 +183,12 @@ class WeekView extends Component {
         <ScrollView>
           <View style={styles.timeLineContainer}>
             <View style={styles.timeColumn}>
-              {times.map((time) => {
+              {this.times.map((time) => {
                 return (<TimeLabel key={`${time}`} time={time} />);
               })}
             </View>
             <View style={styles.eventColumn}>
-              {times.map((time) => {
+              {this.times.map((time) => {
                 return (<TimeRow key={time} time={time} />);
               })}
               <View style={styles.scheduleItems}>
@@ -224,8 +229,6 @@ WeekView.propTypes = {
 
 WeekView.defaultProps = {
   events: [],
-  headerStyle: null,
-  onEventPress: null,
   selectedDate: new Date(),
 };
 

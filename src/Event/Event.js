@@ -34,9 +34,4 @@ Event.propTypes = {
   style: View.propTypes.style,
 };
 
-Event.defaultProps = {
-  onPress: null,
-  style: null,
-};
-
 export default Event;
