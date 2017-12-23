@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import moment from 'moment';
 
+import Header from './Header';
+
 import styles, { CONTENT_OFFSET } from './styles';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -154,6 +156,9 @@ class WeekView extends Component {
 
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+          <Header numberOfDays={1} selectedDate={moment()} />
+        </View>
         <ScrollView>
           <View style={styles.timeLineContainer}>
             <View style={styles.timeColumn}>

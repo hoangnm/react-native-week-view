@@ -9,6 +9,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    height: 50,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   timeLineContainer: {
     flexDirection: 'row',
   },
