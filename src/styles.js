@@ -3,11 +3,17 @@ import { StyleSheet } from 'react-native';
 const GREY_COLOR = '#E9EDF0';
 const LIGHT_COLOR = '#FFF';
 const ROW_HEIGHT = 40;
-const CONTENT_OFFSET = 16;
+export const CONTENT_OFFSET = 16;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    height: 50,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   timeLineContainer: {
     flexDirection: 'row',
@@ -36,10 +42,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  event: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   eventColumn: {
     flex: 1,
     paddingTop: CONTENT_OFFSET,
     backgroundColor: LIGHT_COLOR,
+  },
+  scheduleItems: {
+    position: 'absolute',
+    flexDirection: 'row',
+    left: 20,
+    right: 0,
+    bottom: 0,
+    top: 0,
+    backgroundColor: 'transparent',
+  },
+  scheduleItem: {
+    alignItems: 'center',
+    position: 'absolute',
+    paddingVertical: 8,
+    paddingHorizontal: 2,
+    borderRadius: 0,
+    borderTopWidth: 10,
+    left: 10,
+    flex: 1,
+  },
+  description: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 17,
   },
 });
 
