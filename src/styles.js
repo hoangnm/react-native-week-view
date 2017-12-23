@@ -42,6 +42,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  event: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   eventColumn: {
     flex: 1,
     paddingTop: CONTENT_OFFSET,

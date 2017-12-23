@@ -38,10 +38,14 @@ const TimeLabel = ({ time }) => { // eslint-disable-line react/prop-types
 };
 
 class WeekView extends Component {
-  getEventsByNumberOfDays = (events, selectedDate) => {
+  getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
     const total = [];
-    const numberOfDays = 1;
-    for (let i = 0; i < numberOfDays; i += 1) {
+    let initial = 0;
+    if (numberOfDays === 7) {
+      initial = 1;
+      initial -= moment().isoWeekday();
+    }
+    for (let i = initial; i < (numberOfDays + initial); i += 1) {
       let dates = events.filter((item) => {
         const date = moment(selectedDate);
         date.add(i, 'd');
@@ -121,7 +125,7 @@ class WeekView extends Component {
     });
   };
   getEventItemWidth = () => {
-    return EVENTS_CONTAINER_WIDTH;
+    return EVENTS_CONTAINER_WIDTH / this.props.numberOfDays;
   };
 
   sortEventByDates = (events) => {
@@ -148,16 +152,19 @@ class WeekView extends Component {
     const {
       events,
       selectedDate,
+      numberOfDays,
+      onEventPress,
     } = this.props;
+
     const sortedEvents = this.sortEventByDates(events);
-    let totalEvents = this.getEventsByNumberOfDays(sortedEvents, selectedDate);
+    let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
     totalEvents = this.getEventsWithPosition(totalEvents);
     const times = this.generateTimes();
 
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Header numberOfDays={1} selectedDate={moment()} />
+          <Header numberOfDays={numberOfDays} selectedDate={selectedDate} />
         </View>
         <ScrollView>
           <View style={styles.timeLineContainer}>
@@ -172,26 +179,27 @@ class WeekView extends Component {
               })}
               <View style={styles.scheduleItems}>
                 {totalEvents.map((eventsInSection, sectionIndex) => {
-                  return (
-                    <View
-                      key={sectionIndex}
-                      style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
-                    >
-                      {eventsInSection.map((item, index) => {
-                      return (
-                        <TouchableOpacity
-                          key={index}
-                          style={[styles.scheduleItem, item.style, {
-                            backgroundColor: item.data.color,
-                            borderTopColor: item.data.headerColor,
-                          }]}
-                        >
-                          <Text style={styles.description}>{item.data.description}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                    </View>);
-                })}
+                    return (
+                      <View
+                        key={sectionIndex}
+                        style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
+                      >
+                        {eventsInSection.map((item, index) => {
+                        return (
+                          <TouchableOpacity
+                            onPress={() => onEventPress(item.data)}
+                            key={index}
+                            style={[styles.scheduleItem, item.style, {
+                              backgroundColor: item.data.color,
+                              borderTopColor: item.data.headerColor,
+                            }]}
+                          >
+                            <Text style={styles.description}>{item.data.description}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                      </View>);
+                  })}
               </View>
             </View>
           </View>
