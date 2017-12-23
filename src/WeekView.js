@@ -192,7 +192,6 @@ class WeekView extends Component {
                             key={index}
                             style={[styles.scheduleItem, item.style, {
                               backgroundColor: item.data.color,
-                              borderTopColor: item.data.headerColor,
                             }]}
                           >
                             <Text style={styles.description}>{item.data.description}</Text>
@@ -214,7 +213,7 @@ WeekView.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
   events: PropTypes.arrayOf(PropTypes.shape({
     color: PropTypes.string,
-    id: PropTypes.string.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     description: PropTypes.string,
     startDate: PropTypes.instanceOf(Date).isRequired,
     endDate: PropTypes.instanceOf(Date).isRequired,

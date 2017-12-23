@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 2,
     borderRadius: 0,
-    borderTopWidth: 10,
     left: 10,
     flex: 1,
   },
