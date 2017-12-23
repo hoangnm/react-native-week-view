@@ -162,7 +162,6 @@ class WeekView extends Component {
       events,
       selectedDate,
       numberOfDays,
-      onEventPress,
       headerStyle,
     } = this.props;
 
@@ -220,12 +219,14 @@ WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   onEventPress: PropTypes.func,
   headerStyle: View.propTypes.style,
+  selectedDate: PropTypes.instanceOf(Date),
 };
 
 WeekView.defaultProps = {
   events: [],
   headerStyle: null,
   onEventPress: null,
+  selectedDate: new Date(),
 };
 
 export default WeekView;
