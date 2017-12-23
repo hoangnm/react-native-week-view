@@ -49,7 +49,12 @@ export default class App extends Component<{}> {
 
     return (
       <View style={styles.container}>
-        <WeekView events={events} numberOfDays={3} onEventPress={() => Alert.alert('select')} />
+        <WeekView
+          events={events}
+          numberOfDays={3}
+          onEventPress={() => Alert.alert('select')}
+          headerStyle={styles.headerStyle}
+        />
       </View>
     );
   }
@@ -60,5 +65,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
     paddingTop: 22,
+  },
+  headerStyle: {
+    backgroundColor: '#4286f4',
   },
 });

@@ -48,11 +48,11 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
-const WeekViewHeader = ({ numberOfDays, selectedDate }) => {
+const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
   const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <View style={[styles.oneDayHeader, { width: numberOfDays > 1 ? 60 : '100%' }]}>
         <Text
           style={[styles.text, { fontSize: getFontSizeHeader(numberOfDays) }]}
