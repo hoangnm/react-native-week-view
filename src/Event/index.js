@@ -11,7 +11,7 @@ const Event = ({ event, onPress, style }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.scheduleItem, style, {
+      style={[styles.item, style, {
         backgroundColor: event.color,
       }]}
     >
