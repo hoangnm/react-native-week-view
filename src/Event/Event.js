@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import styles from './styles';
+import styles from './Event.styles';
 
 const Event = ({ event, onPress, style }) => {
   return (

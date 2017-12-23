@@ -9,7 +9,7 @@ import {
 import moment from 'moment';
 
 import Header from './Header';
-import Event from './Event';
+import Event from './Event/Event';
 
 import styles, { CONTENT_OFFSET } from './styles';
 
