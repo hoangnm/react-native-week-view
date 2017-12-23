@@ -4,12 +4,12 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import moment from 'moment';
 
 import Header from './Header';
+import Event from './Event';
 
 import styles, { CONTENT_OFFSET } from './styles';
 
@@ -39,6 +39,13 @@ const TimeLabel = ({ time }) => { // eslint-disable-line react/prop-types
 };
 
 class WeekView extends Component {
+  onEventPress = (item) => {
+    const { onEventPress } = this.props;
+    if (onEventPress) {
+      onEventPress(item.data);
+    }
+  };
+
   getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
     const total = [];
     let initial = 0;
@@ -125,6 +132,7 @@ class WeekView extends Component {
       return eventsWithStyle;
     });
   };
+
   getEventItemWidth = () => {
     return EVENTS_CONTAINER_WIDTH / this.props.numberOfDays;
   };
@@ -186,17 +194,14 @@ class WeekView extends Component {
                         key={sectionIndex}
                         style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
                       >
-                        {eventsInSection.map((item, index) => {
+                        {eventsInSection.map((item) => {
                         return (
-                          <TouchableOpacity
-                            onPress={() => onEventPress(item.data)}
-                            key={index}
-                            style={[styles.scheduleItem, item.style, {
-                              backgroundColor: item.data.color,
-                            }]}
-                          >
-                            <Text style={styles.description}>{item.data.description}</Text>
-                          </TouchableOpacity>
+                          <Event
+                            key={item.data.id}
+                            event={item.data}
+                            style={item.style}
+                            onPress={this.onEventPress}
+                          />
                         );
                       })}
                       </View>);
@@ -212,19 +217,15 @@ class WeekView extends Component {
 
 WeekView.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
-  events: PropTypes.arrayOf(PropTypes.shape({
-    color: PropTypes.string,
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    description: PropTypes.string,
-    startDate: PropTypes.instanceOf(Date).isRequired,
-    endDate: PropTypes.instanceOf(Date).isRequired,
-  })),
+  events: PropTypes.arrayOf(Event.propTypes.event),
+  onEventPress: PropTypes.func,
   headerStyle: View.propTypes.style,
 };
 
 WeekView.defaultProps = {
   events: [],
   headerStyle: null,
+  onEventPress: null,
 };
 
 export default WeekView;
