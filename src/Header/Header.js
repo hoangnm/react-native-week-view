@@ -1,6 +1,8 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View } from 'react-native';
 import moment from 'moment';
+
+import styles from './Header.styles';
 
 const getBorder = (items, index) => {
   return {
@@ -72,27 +74,5 @@ const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  oneDayHeader: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  column: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: '#fff',
-    borderTopWidth: 1,
-  },
-  text: {
-    color: '#fff',
-  },
-});
 
 export default WeekViewHeader;

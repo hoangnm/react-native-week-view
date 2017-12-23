@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import moment from 'moment';
 
-import Header from './Header';
+import Header from './Header/Header';
 import Event from './Event/Event';
 
 import styles, { CONTENT_OFFSET } from './styles';
