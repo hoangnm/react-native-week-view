@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   Text,
   View,
@@ -208,5 +209,20 @@ class WeekView extends Component {
     );
   }
 }
+
+WeekView.propTypes = {
+  numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
+  events: PropTypes.arrayOf(PropTypes.shape({
+    color: PropTypes.string,
+    id: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    startDate: PropTypes.instanceOf(Date).isRequired,
+    endDate: PropTypes.instanceOf(Date).isRequired,
+  })),
+};
+
+WeekView.defaultProps = {
+  events: [],
+};
 
 export default WeekView;
