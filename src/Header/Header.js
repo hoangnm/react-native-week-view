@@ -14,13 +14,14 @@ const getBorder = (items, index) => {
 
 const getColumns = (numberOfDays, selectedDate) => {
   const columns = [];
+  const currentDate = moment(selectedDate);
   let initial = 0;
   if (numberOfDays === 7) {
     initial = 1;
     initial -= moment().isoWeekday();
   }
   for (let i = initial; i < (numberOfDays + initial); i += 1) {
-    let date = moment(selectedDate);
+    let date = currentDate;
     date = date.add(i, 'd');
     columns.push(date.toDate());
   }
@@ -31,8 +32,8 @@ const getFormattedDate = (date) => {
   return moment(date).format('MMM D');
 };
 
-const getCurrentMonth = (selectedDate) => {
-  return moment(selectedDate).format('MMMM Y');
+const getCurrentMonth = (date) => {
+  return moment(date).format('MMMM Y');
 };
 
 const getFontSizeHeader = (numberOfDays) => {
@@ -51,27 +52,54 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
+// components
+
+const Column = ({ column, style, numberOfDays }) => { // eslint-disable-line react/prop-types
+  return (
+    <View style={[styles.column, style]}>
+      <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
+        {getFormattedDate(column)}
+      </Text>
+    </View>
+  );
+};
+
+const Columns = ({ columns, numberOfDays }) => { // eslint-disable-line react/prop-types
+  return (
+    <View style={styles.columns}>
+      {columns.map((column, index) => {
+        return (
+          <Column
+            key={column}
+            column={column}
+            numberOfDays={numberOfDays}
+            style={getBorder(columns, index)}
+          />
+        );
+      })}
+    </View>
+  );
+};
+
+const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react/prop-types
+  return (
+    <View style={[styles.oneDayHeader, { width: numberOfDays > 1 ? 60 : '100%' }]}>
+      <Text
+        style={[styles.text, { fontSize: getFontSizeHeader(numberOfDays) }]}
+      >
+        {getCurrentMonth(selectedDate)}
+      </Text>
+    </View>
+  );
+};
+
 const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
   const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
 
   return (
     <View style={[styles.container, style]}>
-      <View style={[styles.oneDayHeader, { width: numberOfDays > 1 ? 60 : '100%' }]}>
-        <Text
-          style={[styles.text, { fontSize: getFontSizeHeader(numberOfDays) }]}
-        >
-          {getCurrentMonth(selectedDate)}
-        </Text>
-      </View>
-      {columns && columns.map((column, index) => {
-        return (
-          <View key={index} style={[styles.column, getBorder(columns, index)]}>
-            <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
-              {getFormattedDate(column)}
-            </Text>
-          </View>
-        );
-      })}
+      <Title numberOfDays={numberOfDays} selectedDate={selectedDate} />
+      {columns && <Columns columns={columns} numberOfDays={numberOfDays} />}
     </View>
   );
 };
