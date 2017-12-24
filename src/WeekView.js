@@ -42,7 +42,7 @@ class WeekView extends Component {
   constructor(props) {
     super(props);
 
-    this.time = this.generateTimes();
+    this.times = this.generateTimes();
   }
 
   onEventPress = (item) => {
