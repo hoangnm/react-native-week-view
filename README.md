@@ -7,3 +7,4 @@
 - [ ] allow to set custom date format for header.
 - [ ] update example for more cases (3 days, one day).
 - [ ] update document.
+- [ ] clean up code.
