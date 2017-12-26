@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   event: {
     flex: 1,
     overflow: 'hidden',
+    borderColor: GREY_COLOR,
   },
   eventColumn: {
     flex: 1,
