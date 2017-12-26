@@ -8,10 +8,10 @@ import {
 } from 'react-native';
 import moment from 'moment';
 
-import Header from './Header/Header';
-import Event from './Event/Event';
+import Header from '../Header/Header';
+import Event from '../Event/Event';
 
-import styles, { CONTENT_OFFSET } from './styles';
+import styles, { CONTENT_OFFSET } from './WeekView.styles';
 
 const { width: screenWidth } = Dimensions.get('window');
 const TIME_LABELS_COUNT = 48;
