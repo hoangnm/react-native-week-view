@@ -26,21 +26,21 @@ export default class App extends Component<{}> {
     const events = [
       {
         id: 1,
-        description: 'Truck 1',
+        description: 'Event 1',
         startDate: this.generateDates(0),
         endDate: this.generateDates(2),
         color: 'blue',
       },
       {
         id: 2,
-        description: 'Truck 2',
+        description: 'Event 2',
         startDate: this.generateDates(1),
         endDate: this.generateDates(4),
         color: 'red',
       },
       {
         id: 3,
-        description: 'Truck 3',
+        description: 'Event 3',
         startDate: this.generateDates(-5),
         endDate: this.generateDates(-3),
         color: 'green',
@@ -51,7 +51,7 @@ export default class App extends Component<{}> {
       <View style={styles.container}>
         <WeekView
           events={events}
-          numberOfDays={3}
+          numberOfDays={7}
           onEventPress={() => Alert.alert('select')}
           headerStyle={styles.headerStyle}
         />
