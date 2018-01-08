@@ -14,14 +14,13 @@ const getBorder = (items, index) => {
 
 const getColumns = (numberOfDays, selectedDate) => {
   const columns = [];
-  const currentDate = moment(selectedDate);
   let initial = 0;
   if (numberOfDays === 7) {
     initial = 1;
     initial -= moment().isoWeekday();
   }
   for (let i = initial; i < (numberOfDays + initial); i += 1) {
-    let date = currentDate;
+    let date = moment(selectedDate);
     date = date.add(i, 'd');
     columns.push(date.toDate());
   }

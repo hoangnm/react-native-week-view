@@ -169,6 +169,7 @@ class WeekView extends Component {
       selectedDate,
       numberOfDays,
       headerStyle,
+      style,
     } = this.props;
 
     const sortedEvents = this.sortEventByDates(events);
@@ -176,10 +177,7 @@ class WeekView extends Component {
     totalEvents = this.getEventsWithPosition(totalEvents);
 
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Header style={headerStyle} numberOfDays={numberOfDays} selectedDate={selectedDate} />
-        </View>
+      <View style={[styles.container, style]}>
         <ScrollView>
           <View style={styles.timeLineContainer}>
             <View style={styles.timeColumn}>
