@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import moment from 'moment';
 
-import Header from '../Header/Header';
 import Event from '../Event/Event';
 
 import styles, { CONTENT_OFFSET } from './WeekView.styles';
@@ -168,7 +167,6 @@ class WeekView extends Component {
       events,
       selectedDate,
       numberOfDays,
-      headerStyle,
       style,
     } = this.props;
 
@@ -221,7 +219,7 @@ WeekView.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
   events: PropTypes.arrayOf(Event.propTypes.event),
   onEventPress: PropTypes.func,
-  headerStyle: View.propTypes.style,
+  style: View.propTypes.style,
   selectedDate: PropTypes.instanceOf(Date),
 };
 

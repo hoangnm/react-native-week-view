@@ -45,7 +45,6 @@ const getFontSizeHeader = (numberOfDays) => {
 
 const getDayTextStyles = (numberOfDays) => {
   const fontSize = numberOfDays === 7 ? 12 : 14;
-
   return {
     fontSize,
   };
@@ -94,7 +93,6 @@ const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react
 
 const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
   const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
-
   return (
     <View style={[styles.container, style]}>
       <Title numberOfDays={numberOfDays} selectedDate={selectedDate} />

@@ -18,10 +18,11 @@ export default class Swipeable extends Component {
     this.state = {
       currentMoment: props.selectedDate,
     };
+    this.calendar = null;
   }
 
   componentDidMount() {
-    this._calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
+    this.calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -31,7 +32,7 @@ export default class Swipeable extends Component {
   }
 
   componentDidUpdate() {
-    this._calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
+    this.calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
   }
 
   scrollEnded = (event) => {
@@ -53,39 +54,49 @@ export default class Swipeable extends Component {
     }, 100);
   };
 
-  render() {
-    const { numberOfDays, headerStyle } = this.props;
-    const { currentMoment } = this.state;
+  scrollViewRef = (ref) => {
+    this.calendar = ref;
+  }
+
+  prepareDates = (currentMoment, numberOfDays) => {
     const dates = [];
     for (let i = -2; i < 3; i += 1) {
       const date = moment(currentMoment).add(numberOfDays * i, 'd');
       dates.push(date);
     }
+    return dates;
+  };
+
+  render() {
+    const { numberOfDays, headerStyle } = this.props;
+    const { currentMoment } = this.state;
+    const dates = this.prepareDates(currentMoment, numberOfDays);
     return (
       <View style={styles.container} onLayout={this.onContainerLayout}>
         <View style={styles.header}>
           <Header style={headerStyle} selectedDate={currentMoment} numberOfDays={numberOfDays} />
         </View>
         <ScrollView
-          ref={ref => this._calendar = ref}
+          ref={this.scrollViewRef}
           horizontal
           scrollEnabled={numberOfDays > 1}
           pagingEnabled
-          removeClippedSubviews={this.props.removeClippedSubviews}
           scrollEventThrottle={1000}
           showsHorizontalScrollIndicator={false}
           automaticallyAdjustContentInsets={false}
           onMomentumScrollEnd={event => this.scrollEnded(event)}
         >
           {dates.map((date) => {
-            return (<WeekView
-              key={date}
-              style={{ width: SCREEN_WIDTH }}
-              selectedDate={date.toDate()}
-              numberOfDays={numberOfDays}
-              onEventPress={this.props.onEventPress}
-              events={this.props.events}
-            />);
+            return (
+              <WeekView
+                key={date}
+                style={{ width: SCREEN_WIDTH }}
+                selectedDate={date.toDate()}
+                numberOfDays={numberOfDays}
+                onEventPress={this.props.onEventPress}
+                events={this.props.events}
+              />
+            );
           })}
         </ScrollView>
       </View>
@@ -96,4 +107,5 @@ export default class Swipeable extends Component {
 Swipeable.propTypes = {
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
+  headerStyle: View.propTypes.style,
 };
