@@ -10,7 +10,8 @@ import {
   View,
   Alert,
 } from 'react-native';
-import WeekView from 'react-native-week-view';
+// import WeekView from 'react-native-week-view';
+import WeekView from './src/Swipeable/Swipeable';
 
 export default class App extends Component<{}> {
   selectedDate = new Date();
@@ -53,7 +54,7 @@ export default class App extends Component<{}> {
         <WeekView
           events={events}
           selectedDate={this.selectedDate}
-          numberOfDays={7}
+          numberOfDays={3}
           onEventPress={() => Alert.alert('select')}
           headerStyle={styles.headerStyle}
         />

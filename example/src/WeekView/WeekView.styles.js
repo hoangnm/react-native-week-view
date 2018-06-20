@@ -1,13 +1,24 @@
 import { StyleSheet } from 'react-native';
 
+const LIGHT_COLOR = '#FFF';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: LIGHT_COLOR,
   },
   header: {
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  timeLineContainer: {
+    flexDirection: 'row',
+  },
+  timeColumn: {
+    flex: -1,
+    paddingTop: 10,
+    width: 40,
   },
   timeLabel: {
     flex: -1,
@@ -16,11 +27,6 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 12,
     textAlign: 'center',
-  },
-  timeColumn: {
-    flex: -1,
-    paddingTop: 10,
-    width: 40,
   },
 });
 

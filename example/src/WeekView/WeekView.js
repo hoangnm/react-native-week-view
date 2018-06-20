@@ -53,25 +53,14 @@ class WeekView extends Component {
       style,
     } = this.props;
     return (
-      <View style={[styles.container, style]}>
-        <ScrollView>
-          <View style={styles.timeLineContainer}>
-            {/* <View style={styles.timeColumn}>
-              {this.times.map((time) => {
-                return (<TimeLabel key={`${time}`} time={time} />);
-              })}
-            </View> */}
-            <View style={styles.eventColumn}>
-              <Events
-                times={this.times}
-                events={events}
-                numberOfDays={numberOfDays}
-                onEventPress={this.onEventPress}
-                selectedDate={selectedDate}
-              />
-            </View>
-          </View>
-        </ScrollView>
+      <View style={styles.container}>
+        <Events
+          times={this.times}
+          events={events}
+          numberOfDays={numberOfDays}
+          onEventPress={this.onEventPress}
+          selectedDate={selectedDate}
+        />
       </View>
     );
   }

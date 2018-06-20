@@ -32,7 +32,7 @@ export default class Swipeable extends Component {
   }
 
   componentDidMount() {
-    this.calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
+    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -42,7 +42,7 @@ export default class Swipeable extends Component {
   }
 
   componentDidUpdate() {
-    this.calendar.scrollTo({ y: 0, x: 2 * SCREEN_WIDTH, animated: false });
+    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
   }
   generateTimes = () => {
     const times = [];
@@ -57,7 +57,7 @@ export default class Swipeable extends Component {
 
   scrollEnded = (event) => {
     const position = event.nativeEvent.contentOffset.x;
-    const currentPage = position / SCREEN_WIDTH;
+    const currentPage = position / (SCREEN_WIDTH - 40);
     const { onSwipePrev, onSwipeNext } = this.props;
     setTimeout(() => {
       const newMoment = moment(this.state.currentMoment)
@@ -96,36 +96,40 @@ export default class Swipeable extends Component {
         <View style={styles.header}>
           <Header style={headerStyle} selectedDate={currentMoment} numberOfDays={numberOfDays} />
         </View>
-        <ScrollView
-          ref={this.scrollViewRef}
-          horizontal
-          scrollEnabled={numberOfDays > 1}
-          pagingEnabled
-          scrollEventThrottle={1000}
-          showsHorizontalScrollIndicator={false}
-          automaticallyAdjustContentInsets={false}
-          onMomentumScrollEnd={event => this.scrollEnded(event)}
-        >
-          <View style={{ flexDirection: 'row', height: 300 }}>
+        <ScrollView>
+          <View style={{ flexDirection: 'row' }}>
             <View style={styles.timeColumn}>
               {this.times.map((time) => {
                 return (<TimeLabel key={`${time}`} time={time} />);
               })}
             </View>
-            {/* <View style={{flex : 1 }}>
-          {dates.map((date) => {
-            return (
-              <WeekView
-                key={date}
-                style={{ width: SCREEN_WIDTH }}
-                selectedDate={date.toDate()}
-                numberOfDays={numberOfDays}
-                onEventPress={this.props.onEventPress}
-                events={this.props.events}
-              />
-            );
-          })}
-          </View> */}
+            <View style={{ flex : 1 }}>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                automaticallyAdjustContentInsets={false}
+                onMomentumScrollEnd={event => this.scrollEnded(event)}
+                ref={this.scrollViewRef}
+              >
+                {dates.map((date) => {
+                  return (
+                  <View
+                    key={date}
+                    style={{ flex: 1, width: SCREEN_WIDTH - 40 }}
+                  >
+                    <WeekView
+                      key={dates}
+                      style={{ width: SCREEN_WIDTH }}
+                      selectedDate={date.toDate()}
+                      numberOfDays={numberOfDays}
+                      onEventPress={this.props.onEventPress}
+                      events={this.props.events}
+                    />
+                  </View>
+                  );
+                })}
+              </ScrollView>
+          </View>
           </View>
         </ScrollView>
       </View>

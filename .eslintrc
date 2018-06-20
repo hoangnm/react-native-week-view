@@ -12,7 +12,9 @@
     "import/no-extraneous-dependencies": 0,
     "import/extensions": 0,
     "react/no-typos": 0,
-    "react/require-default-props": 0
+    "react/require-default-props": 0,
+    "no-unused-expressions": 0,
+    "react/prop-types": 0
   },
   "plugins": [
     "react"
