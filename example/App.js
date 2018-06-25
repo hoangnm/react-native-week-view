@@ -10,8 +10,7 @@ import {
   View,
   Alert,
 } from 'react-native';
-// import WeekView from 'react-native-week-view';
-import WeekView from './src/Swipeable/Swipeable';
+import WeekView from 'react-native-week-view';
 
 export default class App extends Component<{}> {
   selectedDate = new Date();
