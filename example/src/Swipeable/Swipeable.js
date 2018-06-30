@@ -97,13 +97,13 @@ export default class Swipeable extends Component {
           <Header style={headerStyle} selectedDate={currentMoment} numberOfDays={numberOfDays} />
         </View>
         <ScrollView>
-          <View style={styles.scrollViewContent}>
+          <View style={{ flexDirection: 'row' }}>
             <View style={styles.timeColumn}>
               {this.times.map((time) => {
                 return (<TimeLabel key={`${time}`} time={time} />);
               })}
             </View>
-            <View style={styles.eventsColumn}>
+            <View style={{ flex : 1 }}>
               <ScrollView
                 horizontal
                 pagingEnabled
@@ -113,23 +113,23 @@ export default class Swipeable extends Component {
               >
                 {dates.map((date) => {
                   return (
-                    <View
-                      key={date}
-                      style={{ flex: 1, width: SCREEN_WIDTH - 40 }}
-                    >
-                      <WeekView
-                        key={dates}
-                        times={this.times}
-                        selectedDate={date.toDate()}
-                        numberOfDays={numberOfDays}
-                        onEventPress={this.props.onEventPress}
-                        events={this.props.events}
-                      />
-                    </View>
+                  <View
+                    key={date}
+                    style={{ flex: 1, width: SCREEN_WIDTH - 40 }}
+                  >
+                    <WeekView
+                      key={dates}
+                      style={{ width: SCREEN_WIDTH }}
+                      selectedDate={date.toDate()}
+                      numberOfDays={numberOfDays}
+                      onEventPress={this.props.onEventPress}
+                      events={this.props.events}
+                    />
+                  </View>
                   );
                 })}
               </ScrollView>
-            </View>
+          </View>
           </View>
         </ScrollView>
       </View>

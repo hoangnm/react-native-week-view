@@ -53,7 +53,7 @@ export default class App extends Component<{}> {
         <WeekView
           events={events}
           selectedDate={this.selectedDate}
-          numberOfDays={7}
+          numberOfDays={3}
           onEventPress={() => Alert.alert('select')}
           headerStyle={styles.headerStyle}
         />
