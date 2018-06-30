@@ -7,27 +7,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: LIGHT_COLOR,
   },
-  header: {
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timeLineContainer: {
-    flexDirection: 'row',
-  },
-  timeColumn: {
-    flex: -1,
-    paddingTop: 10,
-    width: 40,
-  },
-  timeLabel: {
-    flex: -1,
-    height: 40,
-  },
-  timeText: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
 });
 
 export default styles;

@@ -94,7 +94,12 @@ export default class Swipeable extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Header formatDate={formatDateHeader} style={headerStyle} selectedDate={currentMoment} numberOfDays={numberOfDays} />
+          <Header
+            style={headerStyle}
+            formatDate={formatDateHeader}
+            selectedDate={currentMoment}
+            numberOfDays={numberOfDays}
+          />
         </View>
         <ScrollView>
           <View style={styles.scrollViewContent}>
