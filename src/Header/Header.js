@@ -27,8 +27,8 @@ const getColumns = (numberOfDays, selectedDate) => {
   return columns;
 };
 
-const getFormattedDate = (date) => {
-  return moment(date).format('MMM D');
+const getFormattedDate = (date, format = 'MMM D') => {
+  return moment(date).format(format);
 };
 
 const getCurrentMonth = (date) => {
@@ -52,17 +52,17 @@ const getDayTextStyles = (numberOfDays) => {
 
 // components
 
-const Column = ({ column, style, numberOfDays }) => { // eslint-disable-line react/prop-types
+const Column = ({ column, style, numberOfDays, format }) => {
   return (
     <View style={[styles.column, style]}>
       <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
-        {getFormattedDate(column)}
+        {getFormattedDate(column, format)}
       </Text>
     </View>
   );
 };
 
-const Columns = ({ columns, numberOfDays }) => { // eslint-disable-line react/prop-types
+const Columns = ({ columns, numberOfDays, format }) => {
   return (
     <View style={styles.columns}>
       {columns.map((column, index) => {
@@ -72,6 +72,7 @@ const Columns = ({ columns, numberOfDays }) => { // eslint-disable-line react/pr
             column={column}
             numberOfDays={numberOfDays}
             style={getBorder(columns, index)}
+            format={format}
           />
         );
       })}
@@ -91,12 +92,12 @@ const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react
   );
 };
 
-const WeekViewHeader = ({ numberOfDays, selectedDate, style }) => {
+const WeekViewHeader = ({ numberOfDays, selectedDate, formatDate, style }) => {
   const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
   return (
     <View style={[styles.container, style]}>
       <Title numberOfDays={numberOfDays} selectedDate={selectedDate} />
-      {columns && <Columns columns={columns} numberOfDays={numberOfDays} />}
+      {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} />}
     </View>
   );
 };

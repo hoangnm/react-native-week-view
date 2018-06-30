@@ -56,6 +56,7 @@ export default class App extends Component<{}> {
           numberOfDays={3}
           onEventPress={() => Alert.alert('select')}
           headerStyle={styles.headerStyle}
+          formatDateHeader="MMM D"
         />
       </View>
     );
