@@ -54,7 +54,7 @@ export default class App extends Component<{}> {
           events={events}
           selectedDate={this.selectedDate}
           numberOfDays={3}
-          onEventPress={() => Alert.alert('select')}
+          onEventPress={(event) => Alert.alert('eventId:' + event.id)}
           headerStyle={styles.headerStyle}
           formatDateHeader="MMM D"
         />

@@ -10,7 +10,7 @@ import styles from './Event.styles';
 const Event = ({ event, onPress, style }) => {
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => onPress(event)}
       style={[styles.item, style, {
         backgroundColor: event.color,
       }]}

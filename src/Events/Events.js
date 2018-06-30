@@ -28,10 +28,10 @@ const TimeRow = () => {
 };
 
 class Events extends Component {
-  onEventPress = (item) => {
+  onEventPress = (event) => {
     const { onEventPress } = this.props;
     if (onEventPress) {
-      onEventPress(item.data);
+      onEventPress(event);
     }
   };
 
@@ -140,7 +140,6 @@ class Events extends Component {
       events,
       numberOfDays,
       selectedDate,
-      onEventPress,
       times,
     } = this.props;
     const sortedEvents = this.sortEventByDates(events);
@@ -164,7 +163,7 @@ class Events extends Component {
                       key={item.data.id}
                       event={item.data}
                       style={item.style}
-                      onPress={onEventPress}
+                      onPress={this.onEventPress}
                     />
                   );
                 })}

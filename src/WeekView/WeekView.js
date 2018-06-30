@@ -8,19 +8,13 @@ import Events from '../Events/Events';
 import styles from './WeekView.styles';
 
 class WeekView extends Component {
-  onEventPress = (item) => {
-    const { onEventPress } = this.props;
-    if (onEventPress) {
-      onEventPress(item.data);
-    }
-  };
-
   render() {
     const {
       events,
       selectedDate,
       numberOfDays,
       times,
+      onEventPress,
     } = this.props;
     return (
       <View style={styles.container}>
@@ -28,7 +22,7 @@ class WeekView extends Component {
           times={times}
           events={events}
           numberOfDays={numberOfDays}
-          onEventPress={this.onEventPress}
+          onEventPress={onEventPress}
           selectedDate={selectedDate}
         />
       </View>

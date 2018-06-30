@@ -88,7 +88,13 @@ export default class Swipeable extends Component {
   };
 
   render() {
-    const { numberOfDays, headerStyle, formatDateHeader } = this.props;
+    const {
+      numberOfDays,
+      headerStyle,
+      formatDateHeader,
+      onEventPress,
+      events,
+    } = this.props;
     const { currentMoment } = this.state;
     const dates = this.prepareDates(currentMoment, numberOfDays);
     return (
@@ -127,8 +133,8 @@ export default class Swipeable extends Component {
                         times={this.times}
                         selectedDate={date.toDate()}
                         numberOfDays={numberOfDays}
-                        onEventPress={this.props.onEventPress}
-                        events={this.props.events}
+                        onEventPress={onEventPress}
+                        events={events}
                       />
                     </View>
                   );
