@@ -4,6 +4,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollViewContent: {
+    flexDirection: 'row',
+  },
   header: {
     height: 50,
     justifyContent: 'center',
@@ -21,6 +24,9 @@ const styles = StyleSheet.create({
     flex: -1,
     paddingTop: 10,
     width: 40,
+  },
+  eventsColumn: {
+    flex: 1,
   },
 });
 
