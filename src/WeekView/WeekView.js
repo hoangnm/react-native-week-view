@@ -16,6 +16,7 @@ class WeekView extends Component {
       times,
       onEventPress,
     } = this.props;
+    const date = selectedDate || new Date();
     return (
       <View style={styles.container}>
         <Events
@@ -23,7 +24,7 @@ class WeekView extends Component {
           events={events}
           numberOfDays={numberOfDays}
           onEventPress={onEventPress}
-          selectedDate={selectedDate}
+          selectedDate={date}
         />
       </View>
     );
@@ -39,7 +40,6 @@ WeekView.propTypes = {
 
 WeekView.defaultProps = {
   events: [],
-  selectedDate: new Date(),
 };
 
 export default WeekView;
