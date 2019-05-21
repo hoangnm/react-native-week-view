@@ -105,7 +105,6 @@ const WeekViewHeader = ({ numberOfDays, selectedDate, formatDate, style }) => {
 WeekViewHeader.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
-  style: View.propTypes.style,
 };
 
 export default WeekViewHeader;
