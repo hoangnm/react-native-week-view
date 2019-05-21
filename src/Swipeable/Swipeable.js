@@ -154,6 +154,15 @@ export default class Swipeable extends Component {
 }
 
 Swipeable.propTypes = {
+  events: PropTypes.object,
+  numberOfDays: PropTypes.oneOf([3, 5, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
+  formatDateHeader: PropTypes.string,
+  onEventPress: PropTypes.func,
+  headerStyle: PropTypes.object,
 };
+
+Swipeable.defaultProps = {
+  numberOfDays: 3,
+}

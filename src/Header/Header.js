@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import styles from './Header.styles';
 
+
 const getBorder = (items, index) => {
   return {
     borderLeftWidth: index === 0 ? 1 : 0,
@@ -27,7 +28,7 @@ const getColumns = (numberOfDays, selectedDate) => {
   return columns;
 };
 
-const getFormattedDate = (date, format = 'MMM D') => {
+const getFormattedDate = (date, format) => {
   return moment(date).format(format);
 };
 
@@ -105,6 +106,12 @@ const WeekViewHeader = ({ numberOfDays, selectedDate, formatDate, style }) => {
 WeekViewHeader.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
+  formatDate: PropTypes.string,
+  style: PropTypes.object,
+};
+
+WeekViewHeader.defaultProps = {
+  formatDate: 'MMM D',
 };
 
 export default WeekViewHeader;
