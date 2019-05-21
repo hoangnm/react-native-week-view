@@ -151,5 +151,4 @@ export default class Swipeable extends Component {
 Swipeable.propTypes = {
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
-  headerStyle: View.propTypes.style,
 };
