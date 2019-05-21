@@ -32,7 +32,9 @@ export default class Swipeable extends Component {
   }
 
   componentDidMount() {
-    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
+    requestAnimationFrame(() => {
+      this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -44,6 +46,7 @@ export default class Swipeable extends Component {
   componentDidUpdate() {
     this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
   }
+
   generateTimes = () => {
     const times = [];
     for (let i = 0; i < TIME_LABELS_COUNT; i += 1) {
@@ -56,22 +59,24 @@ export default class Swipeable extends Component {
   };
 
   scrollEnded = (event) => {
-    const position = event.nativeEvent.contentOffset.x;
-    const currentPage = position / (SCREEN_WIDTH - 40);
+    const { nativeEvent: { contentOffset, contentSize }} = event;
+    const { x: position } = contentOffset;
+    const { width: innerWidth } = contentSize;
+    const newPage = (position / innerWidth) * 5;
     const { onSwipePrev, onSwipeNext } = this.props;
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       const newMoment = moment(this.state.currentMoment)
-        .add((currentPage - 2) * this.props.numberOfDays, 'd')
+        .add((newPage - 2) * this.props.numberOfDays, 'd')
         .toDate();
 
       this.setState({ currentMoment: newMoment });
 
-      if (currentPage < 2) {
+      if (newPage < 2) {
         onSwipePrev && onSwipePrev(newMoment);
-      } else if (currentPage > 2) {
+      } else if (newPage > 2) {
         onSwipeNext && onSwipeNext(newMoment);
       }
-    }, 100);
+    });
   };
 
   scrollViewRef = (ref) => {
@@ -111,7 +116,7 @@ export default class Swipeable extends Component {
           <View style={styles.scrollViewContent}>
             <View style={styles.timeColumn}>
               {this.times.map((time) => {
-                return (<TimeLabel key={`${time}`} time={time} />);
+                return (<TimeLabel key={time} time={time} />);
               })}
             </View>
             <View style={styles.eventsColumn}>
@@ -119,7 +124,7 @@ export default class Swipeable extends Component {
                 horizontal
                 pagingEnabled
                 automaticallyAdjustContentInsets={false}
-                onMomentumScrollEnd={event => this.scrollEnded(event)}
+                onMomentumScrollEnd={this.scrollEnded}
                 ref={this.scrollViewRef}
               >
                 {dates.map((date) => {
