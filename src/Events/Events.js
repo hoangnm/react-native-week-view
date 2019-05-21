@@ -98,8 +98,8 @@ class Events extends Component {
           const previousEvent = eventsWithStyle[j];
           // if left and top of previous event collides with current item,
           // move current item to the right and update new width for both
-          const foundDuplicate = previousEvent.style.left === event.style.left &&
-          previousEvent.style.top + previousEvent.style.height >= event.style.top;
+          const foundDuplicate = previousEvent.style.left === event.style.left
+          && previousEvent.style.top + previousEvent.style.height >= event.style.top;
           if (foundDuplicate) {
             numberOfDuplicate += 1;
             event.style = { // eslint-disable-line no-param-reassign
@@ -116,7 +116,8 @@ class Events extends Component {
   };
 
   getEventItemWidth = () => {
-    return EVENTS_CONTAINER_WIDTH / this.props.numberOfDays;
+    const { numberOfDays } = this.props;
+    return EVENTS_CONTAINER_WIDTH / numberOfDays;
   };
 
   getEventStyles = (events, index) => {
@@ -152,12 +153,12 @@ class Events extends Component {
         })}
         <View style={styles.scheduleItems}>
           {totalEvents.map((eventsInSection, sectionIndex) => {
-              return (
-                <View
-                  key={sectionIndex}
-                  style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
-                >
-                  {eventsInSection.map((item) => {
+            return (
+              <View
+                key={sectionIndex}
+                style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
+              >
+                {eventsInSection.map((item) => {
                   return (
                     <Event
                       key={item.data.id}
@@ -167,8 +168,9 @@ class Events extends Component {
                     />
                   );
                 })}
-                </View>);
-            })}
+              </View>
+            );
+          })}
         </View>
       </View>
     );

@@ -59,14 +59,15 @@ export default class Swipeable extends Component {
   };
 
   scrollEnded = (event) => {
-    const { nativeEvent: { contentOffset, contentSize }} = event;
+    const { nativeEvent: { contentOffset, contentSize } } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
     const newPage = (position / innerWidth) * 5;
-    const { onSwipePrev, onSwipeNext } = this.props;
+    const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
+    const { currentMoment } = this.state;
     requestAnimationFrame(() => {
-      const newMoment = moment(this.state.currentMoment)
-        .add((newPage - 2) * this.props.numberOfDays, 'd')
+      const newMoment = moment(currentMoment)
+        .add((newPage - 2) * numberOfDays, 'd')
         .toDate();
 
       this.setState({ currentMoment: newMoment });
@@ -162,7 +163,3 @@ Swipeable.propTypes = {
   onEventPress: PropTypes.func,
   headerStyle: PropTypes.object,
 };
-
-Swipeable.defaultProps = {
-  numberOfDays: 3,
-}

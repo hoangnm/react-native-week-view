@@ -44,7 +44,9 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
-const Column = ({ column, style, numberOfDays, format }) => {
+const Column = ({
+  column, style, numberOfDays, format,
+}) => {
   return (
     <View style={[styles.column, style]}>
       <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
@@ -84,7 +86,9 @@ const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react
   );
 };
 
-const WeekViewHeader = ({ numberOfDays, selectedDate, formatDate, style }) => {
+const WeekViewHeader = ({
+  numberOfDays, selectedDate, formatDate, style,
+}) => {
   const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
   return (
     <View style={[styles.container, style]}>
