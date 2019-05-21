@@ -155,7 +155,7 @@ export default class Swipeable extends Component {
 }
 
 Swipeable.propTypes = {
-  events: PropTypes.object,
+  events: PropTypes.array,
   numberOfDays: PropTypes.oneOf([3, 5, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
