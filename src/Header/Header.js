@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
 import moment from 'moment';
 
-import styles from './Header.styles';
+import { getFormattedDate, getCurrentMonth } from '../utils';
 
+import styles from './Header.styles';
 
 const getBorder = (items, index) => {
   return {
@@ -28,14 +29,6 @@ const getColumns = (numberOfDays, selectedDate) => {
   return columns;
 };
 
-const getFormattedDate = (date, format) => {
-  return moment(date).format(format);
-};
-
-const getCurrentMonth = (date) => {
-  return moment(date).format('MMMM Y');
-};
-
 const getFontSizeHeader = (numberOfDays) => {
   if (numberOfDays > 1) {
     return 12;
@@ -50,8 +43,6 @@ const getDayTextStyles = (numberOfDays) => {
     fontSize,
   };
 };
-
-// components
 
 const Column = ({ column, style, numberOfDays, format }) => {
   return (
