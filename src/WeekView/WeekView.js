@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-} from 'react-native';
 
 import Events from '../Events/Events';
-import styles from './WeekView.styles';
 
 class WeekView extends Component {
   render() {
@@ -18,15 +14,13 @@ class WeekView extends Component {
     } = this.props;
     const date = selectedDate || new Date();
     return (
-      <View style={styles.container}>
-        <Events
-          times={times}
-          events={events}
-          numberOfDays={numberOfDays}
-          onEventPress={onEventPress}
-          selectedDate={date}
-        />
-      </View>
+      <Events
+        times={times}
+        events={events}
+        numberOfDays={numberOfDays}
+        onEventPress={onEventPress}
+        selectedDate={date}
+      />
     );
   }
 }

@@ -14,13 +14,6 @@ import styles from './Swipeable.styles';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TIME_LABELS_COUNT = 48;
 
-const TimeLabel = ({ time }) => {
-  return (
-    <View style={styles.timeLabel}>
-      <Text style={styles.timeText}>{time}</Text>
-    </View>
-  );
-};
 export default class Swipeable extends Component {
   constructor(props) {
     super(props);
@@ -33,7 +26,7 @@ export default class Swipeable extends Component {
 
   componentDidMount() {
     requestAnimationFrame(() => {
-      this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
+      this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
     });
   }
 
@@ -44,7 +37,7 @@ export default class Swipeable extends Component {
   }
 
   componentDidUpdate() {
-    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 40), animated: false });
+    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
   }
 
   generateTimes = () => {
@@ -116,37 +109,35 @@ export default class Swipeable extends Component {
         <ScrollView>
           <View style={styles.scrollViewContent}>
             <View style={styles.timeColumn}>
-              {this.times.map((time) => {
-                return (<TimeLabel key={time} time={time} />);
-              })}
+              {this.times.map(time => (
+                <View key={time} style={styles.timeLabel}>
+                  <Text style={styles.timeText}>{time}</Text>
+                </View>
+              ))}
             </View>
-            <View style={styles.eventsColumn}>
-              <ScrollView
-                horizontal
-                pagingEnabled
-                automaticallyAdjustContentInsets={false}
-                onMomentumScrollEnd={this.scrollEnded}
-                ref={this.scrollViewRef}
-              >
-                {dates.map((date) => {
-                  return (
-                    <View
-                      key={date}
-                      style={{ flex: 1, width: SCREEN_WIDTH - 40 }}
-                    >
-                      <WeekView
-                        key={dates}
-                        times={this.times}
-                        selectedDate={date.toDate()}
-                        numberOfDays={numberOfDays}
-                        onEventPress={onEventPress}
-                        events={events}
-                      />
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            </View>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              automaticallyAdjustContentInsets={false}
+              onMomentumScrollEnd={this.scrollEnded}
+              ref={this.scrollViewRef}
+            >
+              {dates.map(date => (
+                <View
+                  key={date}
+                  style={{ flex: 1, width: SCREEN_WIDTH - 60 }}
+                >
+                  <WeekView
+                    key={dates}
+                    times={this.times}
+                    selectedDate={date.toDate()}
+                    numberOfDays={numberOfDays}
+                    onEventPress={onEventPress}
+                    events={events}
+                  />
+                </View>
+              ))}
+            </ScrollView>
           </View>
         </ScrollView>
       </View>
@@ -156,7 +147,7 @@ export default class Swipeable extends Component {
 
 Swipeable.propTypes = {
   events: PropTypes.array,
-  numberOfDays: PropTypes.oneOf([3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   formatDateHeader: PropTypes.string,
