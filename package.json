@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
   "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/hoangnm/react-native-week-view.git"
+  },  
   "keywords": [
     "android",
     "ios",
