@@ -28,6 +28,9 @@ class Events extends Component {
   };
 
   getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
+    // total stores events in each day of numberOfDays
+    // example: [[event1, event2], [event3, event4], [event5]], each child array
+    // is events for specific day in range
     const total = [];
     let initial = 0;
     if (numberOfDays === 7) {
@@ -35,23 +38,26 @@ class Events extends Component {
       initial -= moment().isoWeekday();
     }
     for (let i = initial; i < (numberOfDays + initial); i += 1) {
-      let dates = events.filter((item) => {
-        const date = moment(selectedDate);
-        date.add(i, 'd');
-        return date.isSame(item.startDate, 'day') || date.isSame(item.endDate, 'day');
+      // current date in numberOfDays, calculated from selected date
+      const currenDate = moment(selectedDate).add(i, 'd');
+
+      // filter events that have startDate/endDate in current date
+      let filteredEvents = events.filter((item) => {
+        return currenDate.isSame(item.startDate, 'day') || currenDate.isSame(item.endDate, 'day');
       });
-      dates = dates.map((item) => {
-        const date = moment(selectedDate).add(i, 'd');
-        let newDate = moment(item.startDate);
-        if (!date.isSame(item.startDate, 'day')) {
-          newDate = moment(item.startDate).add(i, 'd').startOf('day');
+
+      filteredEvents = filteredEvents.map((item) => {
+        let { startDate } = item;
+        // if endDate is in next day, set starDate to begin time of current date (00:00)
+        if (!currenDate.isSame(startDate, 'day')) {
+          startDate = currenDate.startOf('day').toDate();
         }
         return {
           ...item,
-          startDate: newDate.toDate(),
+          startDate,
         };
       });
-      total.push(dates);
+      total.push(filteredEvents);
     }
     return total;
   };
