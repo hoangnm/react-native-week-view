@@ -21,12 +21,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   timeColumn: {
-    flex: -1,
     paddingTop: 10,
-    width: 40,
-  },
-  eventsColumn: {
-    flex: 1,
+    width: 60,
   },
 });
 

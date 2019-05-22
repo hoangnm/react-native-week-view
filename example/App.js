@@ -15,6 +15,7 @@ import WeekView from 'react-native-week-view';
 
 export default class App extends Component<{}> {
   selectedDate = new Date();
+  
   generateDates = (hours, minutes) => {
     const date = new Date();
     date.setHours(date.getHours() + hours);

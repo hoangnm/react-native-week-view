@@ -82,10 +82,10 @@ class Events extends Component {
     const itemWidth = this.getEventItemWidth();
     return totalEvents.map((events) => {
       // get position and width for each event
-      const eventsWithStyle = events.map((item, index) => {
+      const eventsWithStyle = events.map((item) => {
         return {
           data: item,
-          style: this.getStyleForEvent(item, index),
+          style: this.getStyleForEvent(item),
         };
       });
       eventsWithStyle.forEach((event, i) => {
@@ -118,13 +118,6 @@ class Events extends Component {
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
   };
 
-  getEventStyles = (events, index) => {
-    return {
-      borderLeftWidth: index === 0 ? 1 : 0,
-      borderRightWidth: index < events.length - 1 ? 1 : 0,
-    };
-  };
-
   sortEventByDates = (events) => {
     const sortedEvents = events.slice(0)
       .sort((a, b) => {
@@ -155,7 +148,7 @@ class Events extends Component {
           {totalEvents.map((eventsInSection, sectionIndex) => (
             <View
               key={sectionIndex}
-              style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
+              style={styles.event}
             >
               {eventsInSection.map(item => (
                 <Event

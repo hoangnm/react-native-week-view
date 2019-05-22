@@ -7,13 +7,6 @@ import { getFormattedDate, getCurrentMonth } from '../utils';
 
 import styles from './Header.styles';
 
-const getBorder = (items, index) => {
-  return {
-    borderLeftWidth: index === 0 ? 1 : 0,
-    borderRightWidth: index < items.length - 1 ? 1 : 0,
-  };
-};
-
 const getColumns = (numberOfDays, selectedDate) => {
   const columns = [];
   let initial = 0;
@@ -45,10 +38,10 @@ const getDayTextStyles = (numberOfDays) => {
 };
 
 const Column = ({
-  column, style, numberOfDays, format,
+  column, numberOfDays, format,
 }) => {
   return (
-    <View style={[styles.column, style]}>
+    <View style={styles.column}>
       <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
         {getFormattedDate(column, format)}
       </Text>
@@ -59,13 +52,12 @@ const Column = ({
 const Columns = ({ columns, numberOfDays, format }) => {
   return (
     <View style={styles.columns}>
-      {columns.map((column, index) => {
+      {columns.map((column) => {
         return (
           <Column
             key={column}
             column={column}
             numberOfDays={numberOfDays}
-            style={getBorder(columns, index)}
             format={format}
           />
         );
@@ -76,7 +68,7 @@ const Columns = ({ columns, numberOfDays, format }) => {
 
 const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react/prop-types
   return (
-    <View style={[styles.oneDayHeader, { width: numberOfDays > 1 ? 60 : '100%' }]}>
+    <View style={styles.title}>
       <Text
         style={[styles.text, { fontSize: getFontSizeHeader(numberOfDays) }]}
       >
@@ -89,7 +81,7 @@ const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react
 const WeekViewHeader = ({
   numberOfDays, selectedDate, formatDate, style,
 }) => {
-  const columns = numberOfDays > 1 && getColumns(numberOfDays, selectedDate);
+  const columns = getColumns(numberOfDays, selectedDate);
   return (
     <View style={[styles.container, style]}>
       <Title numberOfDays={numberOfDays} selectedDate={selectedDate} />
