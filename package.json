@@ -8,7 +8,10 @@
   "repository": {
     "type" : "git",
     "url" : "https://github.com/hoangnm/react-native-week-view.git"
-  },  
+  },
+  "bugs": {
+    "url": "https://github.com/hoangnm/react-native-week-view/issues"
+  },
   "keywords": [
     "android",
     "ios",
@@ -18,6 +21,7 @@
     "weekview",
     "calendar"
   ],
+  "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
   "dependencies": {
     "moment": "^2.19.3",
     "prop-types": "^15.7.2"
