@@ -5,6 +5,15 @@
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
   "license": "MIT",
+  "keywords": [
+    "android",
+    "ios",
+    "react-native",
+    "react",
+    "react-component",
+    "weekview",
+    "calendar"
+  ],
   "dependencies": {
     "moment": "^2.19.3",
     "prop-types": "^15.7.2"
