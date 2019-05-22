@@ -18,6 +18,6 @@
 ## TODO
 - [x] allow to swipe between weeks or days.
 - [ ] allow to set custom date format for header.
-- [ ] update example for more cases (3 days, one day).
+- [ ] allow to drag drop events to specific time and date.
+- [ ] update example for more cases (1 day, 7 days).
 - [ ] update document.
-- [ ] clean up code.
