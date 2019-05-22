@@ -4,6 +4,7 @@
 ## Props
 * **`events`** _(Array)_ - Events to display
 * **`onEventPress`** _(Function)_ - Callback when event item is clicked
+* **`numberOfDays`** _(Number)_ - set number of days to show in view, can be `1`, `3`, `7`.
 * **`dateHeaderFormat`** _(String)_ - Format for dates of header, default is `MMM D`
 ## Event Object
 ```
