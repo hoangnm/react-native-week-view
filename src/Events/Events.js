@@ -19,14 +19,6 @@ const CONTENT_HEIGHT = ROW_HEIGHT * TIME_LABELS_COUNT;
 const TIME_LABEL_WIDTH = 40;
 const EVENTS_CONTAINER_WIDTH = screenWidth - TIME_LABEL_WIDTH - 35;
 
-const TimeRow = () => {
-  return (
-    <View style={styles.timeRow}>
-      <View style={styles.timeLabelLine} />
-    </View>
-  );
-};
-
 class Events extends Component {
   onEventPress = (event) => {
     const { onEventPress } = this.props;
@@ -147,30 +139,28 @@ class Events extends Component {
     let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
     totalEvents = this.getEventsWithPosition(totalEvents);
     return (
-      <View style={{ paddingTop: 16 }}>
-        {times.map((time) => {
-          return (<TimeRow key={time} time={time} />);
-        })}
-        <View style={styles.scheduleItems}>
-          {totalEvents.map((eventsInSection, sectionIndex) => {
-            return (
-              <View
-                key={sectionIndex}
-                style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
-              >
-                {eventsInSection.map((item) => {
-                  return (
-                    <Event
-                      key={item.data.id}
-                      event={item.data}
-                      style={item.style}
-                      onPress={this.onEventPress}
-                    />
-                  );
-                })}
-              </View>
-            );
-          })}
+      <View style={styles.container}>
+        {times.map(time => (
+          <View key={time} style={styles.timeRow}>
+            <View style={styles.timeLabelLine} />
+          </View>
+        ))}
+        <View style={styles.events}>
+          {totalEvents.map((eventsInSection, sectionIndex) => (
+            <View
+              key={sectionIndex}
+              style={[styles.event, this.getEventStyles(totalEvents, sectionIndex)]}
+            >
+              {eventsInSection.map(item => (
+                <Event
+                  key={item.data.id}
+                  event={item.data}
+                  style={item.style}
+                  onPress={this.onEventPress}
+                />
+              ))}
+            </View>
+          ))}
         </View>
       </View>
     );

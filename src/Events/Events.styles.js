@@ -5,6 +5,9 @@ const ROW_HEIGHT = 40;
 export const CONTENT_OFFSET = 16;
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: 16,
+  },
   timeRow: {
     flex: 0,
     height: ROW_HEIGHT,
@@ -21,7 +24,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderColor: GREY_COLOR,
   },
-  scheduleItems: {
+  events: {
     position: 'absolute',
     flexDirection: 'row',
     left: 20,
