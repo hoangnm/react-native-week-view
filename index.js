@@ -1,3 +1,1 @@
-import Swipeable from './src/Swipeable/Swipeable';
-
-export { Swipeable as default };
+export { default } from './src/WeekView/WeekView';
