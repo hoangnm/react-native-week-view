@@ -82,33 +82,30 @@ class Events extends Component {
     const itemWidth = this.getEventItemWidth();
     return totalEvents.map((events) => {
       // get position and width for each event
-      const eventsWithStyle = events.map((item) => {
-        return {
-          data: item,
-          style: this.getStyleForEvent(item),
-        };
-      });
-      eventsWithStyle.forEach((event, i) => {
+      const eventsWithStyle = events.reduce((eventsAcc, event, i) => {
         let numberOfDuplicate = 1;
+        const style = this.getStyleForEvent(event);
         // check if previous events have the same position or not,
         // start from 0 to current index of event item
         for (let j = 0; j < i; j += 1) {
-          const previousEvent = eventsWithStyle[j];
+          const previousEvent = eventsAcc[j];
           // if left and top of previous event collides with current item,
           // move current item to the right and update new width for both
-          const foundDuplicate = previousEvent.style.left === event.style.left
-          && previousEvent.style.top + previousEvent.style.height >= event.style.top;
+          const foundDuplicate = previousEvent.style.left === style.left
+          && previousEvent.style.top + previousEvent.style.height >= style.top;
           if (foundDuplicate) {
             numberOfDuplicate += 1;
-            event.style = { // eslint-disable-line no-param-reassign
-              ...event.style,
-              left: 5 + (itemWidth / numberOfDuplicate),
-              width: itemWidth / numberOfDuplicate,
-            };
+            style.left = 5 + (itemWidth / numberOfDuplicate);
+            style.width = itemWidth / numberOfDuplicate;
             previousEvent.style.width = itemWidth / numberOfDuplicate;
           }
         }
-      });
+        eventsAcc.push({
+          data: event,
+          style,
+        });
+        return eventsAcc;
+      }, []);
       return eventsWithStyle;
     });
   };

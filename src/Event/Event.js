@@ -30,6 +30,7 @@ const eventPropTypes = PropTypes.shape({
 Event.propTypes = {
   event: eventPropTypes.isRequired,
   onPress: PropTypes.func,
+  style: PropTypes.object,
 };
 
 export default Event;
