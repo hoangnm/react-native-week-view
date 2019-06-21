@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 moment.locale('en');
 
 export const getFormattedDate = (date, format, lang) => {
