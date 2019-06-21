@@ -104,7 +104,8 @@ export default class WeekView extends Component {
             formatDate={formatDateHeader}
             selectedDate={currentMoment}
             numberOfDays={numberOfDays}
-          />
+            lang={this.props.lang}
+      />
         </View>
         <ScrollView>
           <View style={styles.scrollViewContent}>
@@ -154,8 +155,10 @@ WeekView.propTypes = {
   onEventPress: PropTypes.func,
   headerStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
+  lang: PropTypes.oneOf(moment.locales()),
 };
 
 WeekView.defaultProps = {
   events: [],
+  lang: 'en',
 };
