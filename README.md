@@ -9,6 +9,7 @@
 * **`selectedDate`** _(Date)_ - Intial date to show week/days in view
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
+* **`locale`** _(String)_ - locale for the header, this library depends on `moment` library, so it should work for all supported locales from `moment`.
 ## Event Object
 ```
 {
@@ -21,7 +22,7 @@
 ```
 ## TODO
 - [x] allow to swipe between weeks or days.
-- [ ] allow to set custom date format for header.
+- [ ] header should be swipeable with columns.
 - [ ] allow to drag drop events to specific time and date.
 - [ ] update example for more cases (1 day, 7 days).
 - [ ] update document.

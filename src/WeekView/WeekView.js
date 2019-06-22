@@ -7,6 +7,7 @@ import {
   Text,
 } from 'react-native';
 import moment from 'moment';
+import { setLocale } from '../utils';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import styles from './WeekView.styles';
@@ -21,6 +22,7 @@ export default class WeekView extends Component {
       currentMoment: props.selectedDate,
     };
     this.calendar = null;
+    setLocale(props.locale);
     this.times = this.generateTimes();
   }
 
@@ -33,6 +35,9 @@ export default class WeekView extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.selectedDate) {
       this.setState({ currentMoment: nextProps.selectedDate });
+    }
+    if (nextProps.locale !== this.props.locale) {
+      setLocale(nextProps.locale);
     }
   }
 
@@ -104,8 +109,7 @@ export default class WeekView extends Component {
             formatDate={formatDateHeader}
             selectedDate={currentMoment}
             numberOfDays={numberOfDays}
-            lang={this.props.lang}
-      />
+          />
         </View>
         <ScrollView>
           <View style={styles.scrollViewContent}>
@@ -155,10 +159,10 @@ WeekView.propTypes = {
   onEventPress: PropTypes.func,
   headerStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
-  lang: PropTypes.oneOf(moment.locales()),
+  locale: PropTypes.string,
 };
 
 WeekView.defaultProps = {
   events: [],
-  lang: 'en',
+  locale: 'en',
 };
