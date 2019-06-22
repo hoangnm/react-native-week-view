@@ -38,18 +38,18 @@ const getDayTextStyles = (numberOfDays) => {
 };
 
 const Column = ({
-  column, numberOfDays, format, lang
+  column, numberOfDays, format,
 }) => {
   return (
     <View style={styles.column}>
       <Text style={[styles.text, getDayTextStyles(numberOfDays)]}>
-        {getFormattedDate(column, format, lang)}
+        {getFormattedDate(column, format)}
       </Text>
     </View>
   );
 };
 
-const Columns = ({ columns, numberOfDays, format, lang }) => {
+const Columns = ({ columns, numberOfDays, format }) => {
   return (
     <View style={styles.columns}>
       {columns.map((column) => {
@@ -59,7 +59,6 @@ const Columns = ({ columns, numberOfDays, format, lang }) => {
             column={column}
             numberOfDays={numberOfDays}
             format={format}
-            lang={lang}
           />
         );
       })}
@@ -67,26 +66,26 @@ const Columns = ({ columns, numberOfDays, format, lang }) => {
   );
 };
 
-const Title = ({ numberOfDays, selectedDate, lang }) => { // eslint-disable-line react/prop-types
+const Title = ({ numberOfDays, selectedDate }) => { // eslint-disable-line react/prop-types
   return (
     <View style={styles.title}>
       <Text
         style={[styles.text, { fontSize: getFontSizeHeader(numberOfDays) }]}
       >
-        {getCurrentMonth(selectedDate, lang)}
+        {getCurrentMonth(selectedDate)}
       </Text>
     </View>
   );
 };
 
 const WeekViewHeader = ({
-  numberOfDays, selectedDate, formatDate, style, lang
+  numberOfDays, selectedDate, formatDate, style,
 }) => {
   const columns = getColumns(numberOfDays, selectedDate);
   return (
     <View style={[styles.container, style]}>
-      <Title numberOfDays={numberOfDays} selectedDate={selectedDate} lang={lang} />
-      {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} lang={lang}/>}
+      <Title numberOfDays={numberOfDays} selectedDate={selectedDate} />
+      {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} />}
     </View>
   );
 };
@@ -96,12 +95,10 @@ WeekViewHeader.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   formatDate: PropTypes.string,
   style: PropTypes.object,
-  lang: PropTypes.oneOf(moment.locales()),
 };
 
 WeekViewHeader.defaultProps = {
   formatDate: 'MMM D',
-  lang: 'en'
 };
 
 export default WeekViewHeader;

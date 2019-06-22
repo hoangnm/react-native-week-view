@@ -59,6 +59,7 @@ export default class App extends Component<{}> {
           onEventPress={(event) => Alert.alert('eventId:' + event.id)}
           headerStyle={styles.headerStyle}
           formatDateHeader="MMM D"
+          locale="en"
         />
       </View>
     );
