@@ -9,7 +9,7 @@
 * **`selectedDate`** _(Date)_ - Intial date to show week/days in view
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
-* **`locale`** _(String)_ - locale for the header, this library depends on `moment` library, so it should work for all supported locales from `moment`.
+* **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
 ## Event Object
 ```
 {
@@ -19,6 +19,20 @@
   endDate: new Date(),
   color: 'blue',
 }
+```
+## Locales customization
+There's a `addLocale` function to add customized locale for component. This component depends on `momentjs`, we can refer to https://momentjs.com/docs/#/customization/ for more information.
+
+Example:
+```
+export WeekView, { addLocale } from 'react-native-week-view';
+// add customized localed before using locale prop.
+addLocale('fr', {
+  months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'),
+  monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'),
+  weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
+  weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
+});
 ```
 ## TODO
 - [x] allow to swipe between weeks or days.

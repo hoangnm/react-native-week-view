@@ -2,7 +2,6 @@
  * Sample React Native App
  * https://github.com/facebook/react-native
  * @format
- * @flow
  */
 
 import React, { Component } from 'react';
@@ -11,11 +10,18 @@ import {
   View,
   Alert,
 } from 'react-native';
-import WeekView from 'react-native-week-view';
+import WeekView, { addLocale } from 'react-native-week-view';
 
-export default class App extends Component<{}> {
+addLocale('fr', {
+  months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'),
+  monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'),
+  weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
+  weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
+});
+
+export default class App extends Component {
   selectedDate = new Date();
-  
+
   generateDates = (hours, minutes) => {
     const date = new Date();
     date.setHours(date.getHours() + hours);
@@ -59,7 +65,7 @@ export default class App extends Component<{}> {
           onEventPress={(event) => Alert.alert('eventId:' + event.id)}
           headerStyle={styles.headerStyle}
           formatDateHeader="MMM D"
-          locale="en"
+          locale="fr"
         />
       </View>
     );
