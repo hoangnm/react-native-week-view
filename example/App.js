@@ -26,7 +26,7 @@ export default class App extends Component {
     const date = new Date();
     date.setHours(date.getHours() + hours);
     if (minutes != null) {
-      date.setMinutes(0);
+      date.setMinutes(minutes);
     }
     return date;
   };
