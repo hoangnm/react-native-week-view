@@ -21,7 +21,7 @@
 }
 ```
 ## Locales customization
-There's a `addLocale` function to add customized locale for component. This component depends on `momentjs`, we can refer to https://momentjs.com/docs/#/customization/ for more information.
+There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 
 Example:
 ```
