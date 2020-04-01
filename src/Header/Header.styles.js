@@ -25,9 +25,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
   },
-  text: {
-    color: '#fff',
-  },
 });
 
 export default styles;
