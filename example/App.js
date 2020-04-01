@@ -14,17 +14,14 @@ import {
   View,
   Text,
   StatusBar,
+  Alert
 } from 'react-native';
 
 import {
   Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import WeekView, { addLocale } from 'react-native-week-view';
+import WeekView from 'react-native-week-view';
 
 const App: () => React$Node = () => {
   const selectedDate = new Date();
