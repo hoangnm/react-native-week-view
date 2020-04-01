@@ -95,6 +95,7 @@ export default class WeekView extends Component {
     const {
       numberOfDays,
       headerStyle,
+      headerTextColor,
       formatDateHeader,
       onEventPress,
       events,
@@ -106,6 +107,7 @@ export default class WeekView extends Component {
         <View style={styles.header}>
           <Header
             style={headerStyle}
+            textColor={headerTextColor}
             formatDate={formatDateHeader}
             selectedDate={currentMoment}
             numberOfDays={numberOfDays}
@@ -158,6 +160,7 @@ WeekView.propTypes = {
   formatDateHeader: PropTypes.string,
   onEventPress: PropTypes.func,
   headerStyle: PropTypes.object,
+  headerTextColor: PropTypes.string,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
 };
