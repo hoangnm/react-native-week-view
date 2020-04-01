@@ -1,15 +1,29 @@
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
+ *
  * @format
+ * @flow strict-local
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
+  SafeAreaView,
   StyleSheet,
+  ScrollView,
   View,
-  Alert,
+  Text,
+  StatusBar,
 } from 'react-native';
+
+import {
+  Header,
+  LearnMoreLinks,
+  Colors,
+  DebugInstructions,
+  ReloadInstructions,
+} from 'react-native/Libraries/NewAppScreen';
+
 import WeekView, { addLocale } from 'react-native-week-view';
 
 addLocale('fr', {
@@ -19,10 +33,9 @@ addLocale('fr', {
   weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
 });
 
-export default class App extends Component {
-  selectedDate = new Date();
-
-  generateDates = (hours, minutes) => {
+const App: () => React$Node = () => {
+  const selectedDate = new Date();
+  const generateDates = (hours, minutes) => {
     const date = new Date();
     date.setHours(date.getHours() + hours);
     if (minutes != null) {
@@ -30,34 +43,33 @@ export default class App extends Component {
     }
     return date;
   };
-
-  render() {
-    const events = [
-      {
-        id: 1,
-        description: 'Event 1',
-        startDate: this.generateDates(0),
-        endDate: this.generateDates(2),
-        color: 'blue',
-      },
-      {
-        id: 2,
-        description: 'Event 2',
-        startDate: this.generateDates(1),
-        endDate: this.generateDates(4),
-        color: 'red',
-      },
-      {
-        id: 3,
-        description: 'Event 3',
-        startDate: this.generateDates(-5),
-        endDate: this.generateDates(-3),
-        color: 'green',
-      },
-    ];
-
-    return (
-      <View style={styles.container}>
+  const events = [
+    {
+      id: 1,
+      description: 'Event 1',
+      startDate: generateDates(0),
+      endDate:generateDates(2),
+      color: 'blue',
+    },
+    {
+      id: 2,
+      description: 'Event 2',
+      startDate: generateDates(1),
+      endDate: generateDates(4),
+      color: 'red',
+    },
+    {
+      id: 3,
+      description: 'Event 3',
+      startDate: generateDates(-5),
+      endDate: generateDates(-3),
+      color: 'green',
+    },
+  ];
+  return (
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={styles.container}>
         <WeekView
           events={events}
           selectedDate={this.selectedDate}
@@ -67,10 +79,10 @@ export default class App extends Component {
           formatDateHeader="MMM D"
           locale="fr"
         />
-      </View>
-    );
-  }
-}
+      </SafeAreaView>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -82,3 +94,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#4286f4',
   },
 });
+
+export default App;
