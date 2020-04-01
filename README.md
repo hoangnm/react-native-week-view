@@ -11,7 +11,7 @@
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
 * **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
 * **`headerStyle`** _(Object)_ - custom styles for header container
-* **`headerTextColor`** _String)_ - text color for header
+* **`headerTextColor`** _(String)_ - text color for header
 ## Event Object
 ```
 {
