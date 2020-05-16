@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     flex: -1,
-    height: 40,
   },
   timeText: {
     fontSize: 12,

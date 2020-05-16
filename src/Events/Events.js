@@ -7,26 +7,16 @@ import {
 import moment from 'moment';
 
 import Event from '../Event/Event';
+import { TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../utils';
 
 import styles, { CONTENT_OFFSET } from './Events.styles';
 
-const { width: screenWidth } = Dimensions.get('window');
-const TIME_LABELS_COUNT = 48;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_HOUR = 60;
-const MINUTES_IN_DAY = MINUTES_IN_HOUR * 24;
-const ROW_HEIGHT = 40;
-const CONTENT_HEIGHT = ROW_HEIGHT * TIME_LABELS_COUNT;
 const TIME_LABEL_WIDTH = 40;
-const EVENTS_CONTAINER_WIDTH = screenWidth - TIME_LABEL_WIDTH - 35;
+const EVENTS_CONTAINER_WIDTH = SCREEN_WIDTH - TIME_LABEL_WIDTH - 35;
 
 class Events extends Component {
-  onEventPress = (event) => {
-    const { onEventPress } = this.props;
-    if (onEventPress) {
-      onEventPress(event);
-    }
-  };
-
   getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
     // total stores events in each day of numberOfDays
     // example: [[event1, event2], [event3, event4], [event5]], each child array
@@ -66,12 +56,13 @@ class Events extends Component {
     const startHours = moment(item.startDate).hours();
     const startMinutes = moment(item.startDate).minutes();
     const totalStartMinutes = (startHours * MINUTES_IN_HOUR) + startMinutes;
-    const topOffset = (totalStartMinutes * CONTENT_HEIGHT) / MINUTES_IN_DAY;
-    const height = (moment(item.endDate).diff(item.startDate, 'minutes') * CONTENT_HEIGHT) / MINUTES_IN_DAY;
+    const top = this.minutesToYDimension(totalStartMinutes);
+    const deltaMinutes = moment(item.endDate).diff(item.startDate, 'minutes');
+    const height = this.minutesToYDimension(deltaMinutes);
     const width = this.getEventItemWidth();
 
     return {
-      top: topOffset + CONTENT_OFFSET,
+      top: top + CONTENT_OFFSET,
       left: 0,
       height,
       width,
@@ -110,6 +101,12 @@ class Events extends Component {
     });
   };
 
+  minutesToYDimension = (minutes) => {
+    const { hoursInDisplay } = this.props;
+    const minutesInDisplay = MINUTES_IN_HOUR * hoursInDisplay;
+    return minutes * CONTAINER_HEIGHT / minutesInDisplay;
+  };
+
   getEventItemWidth = () => {
     const { numberOfDays } = this.props;
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
@@ -130,14 +127,15 @@ class Events extends Component {
       numberOfDays,
       selectedDate,
       times,
+      onEventPress,
     } = this.props;
     const sortedEvents = this.sortEventByDates(events);
     let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
-    totalEvents = this.getEventsWithPosition(totalEvents);
+    totalEvents = this.getEventsWithPosition(totalEvents);    
     return (
       <View style={styles.container}>
         {times.map(time => (
-          <View key={time} style={styles.timeRow}>
+          <View key={time} style={[styles.timeRow, { height: TIME_LABEL_HEIGHT }]}>
             <View style={styles.timeLabelLine} />
           </View>
         ))}
@@ -152,7 +150,7 @@ class Events extends Component {
                   key={item.data.id}
                   event={item.data}
                   style={item.style}
-                  onPress={this.onEventPress}
+                  onPress={onEventPress}
                 />
               ))}
             </View>
@@ -169,6 +167,7 @@ Events.propTypes = {
   onEventPress: PropTypes.func,
   selectedDate: PropTypes.instanceOf(Date),
   times: PropTypes.arrayOf(PropTypes.string),
+  hoursInDisplay: PropTypes.number.isRequired,
 };
 
 Events.defaultProps = {
