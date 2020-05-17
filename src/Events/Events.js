@@ -164,7 +164,7 @@ class Events extends Component {
 }
 
 Events.propTypes = {
-  numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
   events: PropTypes.arrayOf(Event.propTypes.event),
   onEventPress: PropTypes.func,
   selectedDate: PropTypes.instanceOf(Date),
