@@ -7,19 +7,7 @@
  */
 
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Alert
-} from 'react-native';
-
-import {
-  Header,
-} from 'react-native/Libraries/NewAppScreen';
+import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
 import WeekView from 'react-native-week-view';
 
@@ -56,10 +44,10 @@ const App: () => React$Node = () => {
       color: 'green',
     },
   ];
-  const onEventPress = ({ id, color, startDate, endDate }) => {
+  const onEventPress = ({id, color, startDate, endDate}) => {
     Alert.alert(
       `event ${color} - ${id}`,
-      `start: ${startDate}\nend: ${endDate}`
+      `start: ${startDate}\nend: ${endDate}`,
     );
   };
   return (
