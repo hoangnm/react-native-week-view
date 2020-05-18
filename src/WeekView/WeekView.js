@@ -35,16 +35,14 @@ export default class WeekView extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectedDate) {
-      this.setState({ currentMoment: nextProps.selectedDate });
+  componentDidUpdate(prevprops) {
+    if (this.props.selectedDate && this.props.selectedDate!=prevprops.selectedDate) {
+      this.setState({ currentMoment: this.props.selectedDate });
     }
-    if (nextProps.locale !== this.props.locale) {
-      setLocale(nextProps.locale);
+    if (this.props.locale !== prevprops.locale) {
+      setLocale(this.props.locale);
     }
-  }
 
-  componentDidUpdate() {
     this.eventsGrid.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
   }
 
@@ -180,7 +178,7 @@ export default class WeekView extends Component {
 
 WeekView.propTypes = {
   events: Events.propTypes.events,
-  numberOfDays: PropTypes.oneOf([1, 3, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   formatDateHeader: PropTypes.string,
