@@ -17,44 +17,10 @@ const TIME_LABEL_WIDTH = 40;
 const EVENTS_CONTAINER_WIDTH = SCREEN_WIDTH - TIME_LABEL_WIDTH - 35;
 
 class Events extends Component {
-  getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
-    // total stores events in each day of numberOfDays
-    // example: [[event1, event2], [event3, event4], [event5]], each child array
-    // is events for specific day in range
-    const total = [];
-    let initial = 0;
-    if (numberOfDays === 7) {
-      initial = 1;
-      initial -= moment().isoWeekday();
-    }
-    for (let i = initial; i < (numberOfDays + initial); i += 1) {
-      // current date in numberOfDays, calculated from selected date
-      const currenDate = moment(selectedDate).add(i, 'd');
-
-      // filter events that have startDate/endDate in current date
-      let filteredEvents = events.filter((item) => {
-        return currenDate.isSame(item.startDate, 'day') || currenDate.isSame(item.endDate, 'day');
-      });
-
-      filteredEvents = filteredEvents.map((item) => {
-        let { startDate } = item;
-        // if endDate is in next day, set starDate to begin time of current date (00:00)
-        if (!currenDate.isSame(startDate, 'day')) {
-          startDate = currenDate.startOf('day').toDate();
-        }
-        return {
-          ...item,
-          startDate,
-        };
-      });
-      total.push(filteredEvents);
-    }
-    return total;
-  };
-
   getStyleForEvent = (item) => {
-    const startHours = moment(item.startDate).hours();
-    const startMinutes = moment(item.startDate).minutes();
+    const startDate = moment(item.startDate);
+    const startHours = startDate.hours();
+    const startMinutes = startDate.minutes();
     const totalStartMinutes = (startHours * MINUTES_IN_HOUR) + startMinutes;
     const top = this.minutesToYDimension(totalStartMinutes);
     const deltaMinutes = moment(item.endDate).diff(item.startDate, 'minutes');
@@ -112,26 +78,13 @@ class Events extends Component {
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
   };
 
-  sortEventByDates = (events) => {
-    const sortedEvents = events.slice(0)
-      .sort((a, b) => {
-        return moment(a.startDate)
-          .diff(b.startDate, 'minutes');
-      });
-    return sortedEvents;
-  };
-
   render() {
     const {
-      events,
-      numberOfDays,
-      selectedDate,
+      totalEvents,
       times,
       onEventPress,
     } = this.props;
-    const sortedEvents = this.sortEventByDates(events);
-    let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
-    totalEvents = this.getEventsWithPosition(totalEvents);    
+    const totalEventsWithPosition = this.getEventsWithPosition(totalEvents);
     return (
       <View style={styles.container}>
         {times.map(time => (
@@ -140,7 +93,7 @@ class Events extends Component {
           </View>
         ))}
         <View style={styles.events}>
-          {totalEvents.map((eventsInSection, sectionIndex) => (
+          {totalEventsWithPosition.map((eventsInSection, sectionIndex) => (
             <View
               key={sectionIndex}
               style={styles.event}
@@ -163,7 +116,7 @@ class Events extends Component {
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
-  events: PropTypes.arrayOf(Event.propTypes.event),
+  totalEvents: PropTypes.arrayOf(PropTypes.arrayOf(Event.propTypes.event)),
   onEventPress: PropTypes.func,
   selectedDate: PropTypes.instanceOf(Date),
   times: PropTypes.arrayOf(PropTypes.string),
@@ -171,7 +124,7 @@ Events.propTypes = {
 };
 
 Events.defaultProps = {
-  events: [],
+  totalEvents: [],
   selectedDate: new Date(),
 };
 

@@ -7,7 +7,9 @@ import {
   Text,
 } from 'react-native';
 import moment from 'moment';
+import memoizeOne from 'memoize-one';
 import { setLocale } from '../utils';
+import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import styles from './WeekView.styles';
@@ -15,6 +17,7 @@ import { TIME_LABELS_IN_DISPLAY, TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_DAY = 60*24;
+const DATE_KEY_FORMAT = 'YYYY-MM-DD';
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -108,6 +111,65 @@ export default class WeekView extends Component {
     return dates;
   };
 
+  getEventsByNumberOfDays = (numberOfDays, eventsByDate, selectedDate) => {
+    // total stores events in each day of numberOfDays
+    // example: [[event1, event2], [event3, event4], [event5]], each child array
+    // is events for specific day in range
+    const total = [];
+    let initial = 0;
+    if (numberOfDays === 7) {
+      initial = 1;
+      initial -= moment().isoWeekday();
+    }
+    for (let i = initial; i < (numberOfDays + initial); i += 1) {
+      // current date in numberOfDays, calculated from selected date
+      const currentDate = moment(selectedDate).add(i, 'd');
+      const currentDateStr = currentDate.format(DATE_KEY_FORMAT);
+      total.push(eventsByDate[currentDateStr] || []);
+    }
+    
+    return total;
+  };
+
+  sortEventsByDate = memoizeOne((events) => {
+    // Stores the events hashed by their date
+    // For example: { "2020-02-03": [event1, event2, ...] }
+    // If an event spans through multiple days, adds the event multiple times
+    const sortedEvents = {};
+    events.forEach((event) => {
+      const startDate = moment(event.startDate);
+      const endDate = moment(event.endDate);
+
+      for (let date = moment(startDate); date.isSameOrBefore(endDate, 'days'); date.add(1, 'days')) {
+        // Calculate actual start and end dates
+        const startOfDay = moment(date).startOf('day');
+        const endOfDay = moment(date).endOf('day');
+        const actualStartDate = moment.max(startDate, startOfDay);
+        const actualEndDate = moment.min(endDate, endOfDay);
+
+        // Add to object
+        const dateStr = date.format(DATE_KEY_FORMAT);
+        if (!sortedEvents[dateStr]) {
+          sortedEvents[dateStr] = []
+        }
+        sortedEvents[dateStr].push({
+          ...event,
+          startDate: actualStartDate.toDate(),
+          endDate: actualEndDate.toDate(),
+        });
+      }
+    });    
+    
+    // For each day, sort the events by the minute (in-place)
+    Object.keys(sortedEvents).forEach((date) => {
+      sortedEvents[date].sort((a, b) => {
+        return moment(a.startDate)
+          .diff(b.startDate, 'minutes');
+      });
+    });
+    return sortedEvents;
+  });
+
   render() {
     const {
       numberOfDays,
@@ -120,6 +182,7 @@ export default class WeekView extends Component {
     } = this.props;
     const { currentMoment } = this.state;
     const dates = this.prepareDates(currentMoment, numberOfDays);
+    const eventsByDate = this.sortEventsByDate(events);
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -152,18 +215,18 @@ export default class WeekView extends Component {
               onMomentumScrollEnd={this.scrollEnded}
               ref={this.eventsGridRef}
             >
-              {dates.map(date => (
+              {dates.map((date, idx) => (
                 <View
-                  key={date}
+                  key={idx}
                   style={{ flex: 1, width: SCREEN_WIDTH - 60 }}
                 >
                   <Events
-                    key={dates}
+                    key={idx}
                     times={this.times}
                     selectedDate={date.toDate()}
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
-                    events={events}
+                    totalEvents={this.getEventsByNumberOfDays(numberOfDays, eventsByDate, date)}
                     hoursInDisplay={hoursInDisplay}
                   />
                 </View>
@@ -177,7 +240,7 @@ export default class WeekView extends Component {
 }
 
 WeekView.propTypes = {
-  events: Events.propTypes.events,
+  events: PropTypes.arrayOf(Event.propTypes.event),
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
