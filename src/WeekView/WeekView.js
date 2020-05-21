@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   Dimensions,
-  Text,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -12,12 +11,12 @@ import { setLocale } from '../utils';
 import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
+import Times from '../Times/Times';
 import styles from './WeekView.styles';
-import { TIME_LABELS_IN_DISPLAY, TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../utils';
+import { TIME_LABELS_IN_DISPLAY, CONTAINER_HEIGHT, DATE_STR_FORMAT } from '../utils';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_DAY = 60*24;
-const DATE_KEY_FORMAT = 'YYYY-MM-DD';
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -28,7 +27,11 @@ export default class WeekView extends Component {
     this.eventsGrid = null;
     this.verticalAgenda = null;
     setLocale(props.locale);
-    this.times = this.generateTimes();
+
+    this.pagesLeft = 2;
+    this.pagesRight = 2;
+    this.currentPageIndex = 2;
+    this.totalPages = this.pagesLeft + this.pagesRight + 1;
   }
 
   componentDidMount() {
@@ -57,8 +60,7 @@ export default class WeekView extends Component {
     }
   }
 
-  generateTimes = () => {
-    const { hoursInDisplay } = this.props;
+  calculateTimes = memoizeOne((hoursInDisplay) => {
     const times = [];
     const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
     const minutesStep = 60 / timeLabelsPerHour;
@@ -70,25 +72,29 @@ export default class WeekView extends Component {
       times.push(timeString);
     }
     return times;
-  };
+  });
 
   scrollEnded = (event) => {
     const { nativeEvent: { contentOffset, contentSize } } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
-    const newPage = (position / innerWidth) * 5;
+    const newPage = (position / innerWidth) * this.totalPages;
+    const movedPages = (newPage - this.currentPageIndex);
+    if (movedPages === 0) {
+      return;
+    }
     const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
     const { currentMoment } = this.state;
     requestAnimationFrame(() => {
       const newMoment = moment(currentMoment)
-        .add((newPage - 2) * numberOfDays, 'd')
+        .add(movedPages * numberOfDays, 'd')
         .toDate();
 
       this.setState({ currentMoment: newMoment });
 
-      if (newPage < 2) {
+      if (movedPages < 0) {
         onSwipePrev && onSwipePrev(newMoment);
-      } else if (newPage > 2) {
+      } else {
         onSwipeNext && onSwipeNext(newMoment);
       }
     });
@@ -102,34 +108,14 @@ export default class WeekView extends Component {
     this.verticalAgenda = ref;
   }
 
-  prepareDates = (currentMoment, numberOfDays) => {
-    const dates = [];
-    for (let i = -2; i < 3; i += 1) {
-      const date = moment(currentMoment).add(numberOfDays * i, 'd');
-      dates.push(date);
+  calculatePagesDates = memoizeOne((currentMoment, numberOfDays) => {
+    const initialDates = [];
+    for (let i = -this.pagesLeft; i <= this.pagesRight; i += 1) {
+      const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
+      initialDates.push(initialDate.format(DATE_STR_FORMAT));
     }
-    return dates;
-  };
-
-  getEventsByNumberOfDays = (numberOfDays, eventsByDate, selectedDate) => {
-    // total stores events in each day of numberOfDays
-    // example: [[event1, event2], [event3, event4], [event5]], each child array
-    // is events for specific day in range
-    const total = [];
-    let initial = 0;
-    if (numberOfDays === 7) {
-      initial = 1;
-      initial -= moment().isoWeekday();
-    }
-    for (let i = initial; i < (numberOfDays + initial); i += 1) {
-      // current date in numberOfDays, calculated from selected date
-      const currentDate = moment(selectedDate).add(i, 'd');
-      const currentDateStr = currentDate.format(DATE_KEY_FORMAT);
-      total.push(eventsByDate[currentDateStr] || []);
-    }
-    
-    return total;
-  };
+    return initialDates;
+  });
 
   sortEventsByDate = memoizeOne((events) => {
     // Stores the events hashed by their date
@@ -148,7 +134,7 @@ export default class WeekView extends Component {
         const actualEndDate = moment.min(endDate, endOfDay);
 
         // Add to object
-        const dateStr = date.format(DATE_KEY_FORMAT);
+        const dateStr = date.format(DATE_STR_FORMAT);
         if (!sortedEvents[dateStr]) {
           sortedEvents[dateStr] = []
         }
@@ -181,7 +167,8 @@ export default class WeekView extends Component {
       hoursInDisplay,
     } = this.props;
     const { currentMoment } = this.state;
-    const dates = this.prepareDates(currentMoment, numberOfDays);
+    const times = this.calculateTimes(hoursInDisplay);
+    const initialDates = this.calculatePagesDates(currentMoment, numberOfDays);
     const eventsByDate = this.sortEventsByDate(events);
     return (
       <View style={styles.container}>
@@ -198,16 +185,7 @@ export default class WeekView extends Component {
           ref={this.verticalAgendaRef}
         >
           <View style={styles.scrollViewContent}>
-            <View style={styles.timeColumn}>
-              {this.times.map(time => (
-                <View
-                  key={time}
-                  style={[styles.timeLabel, { height: TIME_LABEL_HEIGHT }]}
-                >
-                  <Text style={styles.timeText}>{time}</Text>
-                </View>
-              ))}
-            </View>
+            <Times times={times} />
             <ScrollView
               horizontal
               pagingEnabled
@@ -215,21 +193,16 @@ export default class WeekView extends Component {
               onMomentumScrollEnd={this.scrollEnded}
               ref={this.eventsGridRef}
             >
-              {dates.map((date, idx) => (
-                <View
-                  key={idx}
-                  style={{ flex: 1, width: SCREEN_WIDTH - 60 }}
-                >
-                  <Events
-                    key={idx}
-                    times={this.times}
-                    selectedDate={date.toDate()}
-                    numberOfDays={numberOfDays}
-                    onEventPress={onEventPress}
-                    totalEvents={this.getEventsByNumberOfDays(numberOfDays, eventsByDate, date)}
-                    hoursInDisplay={hoursInDisplay}
-                  />
-                </View>
+              {initialDates.map((date) => (
+                <Events
+                  key={date}
+                  times={times}
+                  eventsByDate={eventsByDate}
+                  initialDate={date}
+                  numberOfDays={numberOfDays}
+                  onEventPress={onEventPress}
+                  hoursInDisplay={hoursInDisplay}
+                />
               ))}
             </ScrollView>
           </View>

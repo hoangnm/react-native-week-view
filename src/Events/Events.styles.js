@@ -1,11 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GREY_COLOR = '#E9EDF0';
 export const CONTENT_OFFSET = 16;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingTop: 16,
+    width: SCREEN_WIDTH - 60,
   },
   timeRow: {
     flex: 0,
