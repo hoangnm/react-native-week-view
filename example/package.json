@@ -11,6 +11,7 @@
     "sync": "/usr/bin/rsync -v -a ../src ./node_modules/react-native-week-view/"
   },
   "dependencies": {
+    "memoize-one": "^5.1.1",
     "react": "16.11.0",
     "react-native": "0.62.0",
     "react-native-week-view": "file:../"

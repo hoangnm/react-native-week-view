@@ -1,13 +1,19 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
   Dimensions,
 } from 'react-native';
 import moment from 'moment';
+import memoizeOne from 'memoize-one';
 
 import Event from '../Event/Event';
-import { TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../utils';
+import {
+  TIME_LABEL_HEIGHT,
+  CONTAINER_HEIGHT,
+  calculateDaysArray,
+  DATE_STR_FORMAT,
+} from '../utils';
 
 import styles, { CONTENT_OFFSET } from './Events.styles';
 
@@ -16,45 +22,11 @@ const MINUTES_IN_HOUR = 60;
 const TIME_LABEL_WIDTH = 40;
 const EVENTS_CONTAINER_WIDTH = SCREEN_WIDTH - TIME_LABEL_WIDTH - 35;
 
-class Events extends Component {
-  getEventsByNumberOfDays = (numberOfDays, events, selectedDate) => {
-    // total stores events in each day of numberOfDays
-    // example: [[event1, event2], [event3, event4], [event5]], each child array
-    // is events for specific day in range
-    const total = [];
-    let initial = 0;
-    if (numberOfDays === 7) {
-      initial = 1;
-      initial -= moment().isoWeekday();
-    }
-    for (let i = initial; i < (numberOfDays + initial); i += 1) {
-      // current date in numberOfDays, calculated from selected date
-      const currenDate = moment(selectedDate).add(i, 'd');
-
-      // filter events that have startDate/endDate in current date
-      let filteredEvents = events.filter((item) => {
-        return currenDate.isSame(item.startDate, 'day') || currenDate.isSame(item.endDate, 'day');
-      });
-
-      filteredEvents = filteredEvents.map((item) => {
-        let { startDate } = item;
-        // if endDate is in next day, set starDate to begin time of current date (00:00)
-        if (!currenDate.isSame(startDate, 'day')) {
-          startDate = currenDate.startOf('day').toDate();
-        }
-        return {
-          ...item,
-          startDate,
-        };
-      });
-      total.push(filteredEvents);
-    }
-    return total;
-  };
-
+class Events extends PureComponent {
   getStyleForEvent = (item) => {
-    const startHours = moment(item.startDate).hours();
-    const startMinutes = moment(item.startDate).minutes();
+    const startDate = moment(item.startDate);
+    const startHours = startDate.hours();
+    const startMinutes = startDate.minutes();
     const totalStartMinutes = (startHours * MINUTES_IN_HOUR) + startMinutes;
     const top = this.minutesToYDimension(totalStartMinutes);
     const deltaMinutes = moment(item.endDate).diff(item.startDate, 'minutes');
@@ -112,26 +84,29 @@ class Events extends Component {
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
   };
 
-  sortEventByDates = (events) => {
-    const sortedEvents = events.slice(0)
-      .sort((a, b) => {
-        return moment(a.startDate)
-          .diff(b.startDate, 'minutes');
-      });
-    return sortedEvents;
-  };
+  processEvents = memoizeOne((eventsByDate, initialDate, numberOfDays) => {
+    // totalEvents stores events in each day of numberOfDays
+    // example: [[event1, event2], [event3, event4], [event5]], each child array
+    // is events for specific day in range
+    const dates = calculateDaysArray(initialDate, numberOfDays);
+    const totalEvents = dates.map((date) => {
+      const dateStr = date.format(DATE_STR_FORMAT);
+      return eventsByDate[dateStr] || [];
+    });
+    const totalEventsWithPosition = this.getEventsWithPosition(totalEvents);
+    return totalEventsWithPosition;
+  });
 
   render() {
     const {
-      events,
+      eventsByDate,
+      initialDate,
       numberOfDays,
-      selectedDate,
       times,
       onEventPress,
     } = this.props;
-    const sortedEvents = this.sortEventByDates(events);
-    let totalEvents = this.getEventsByNumberOfDays(numberOfDays, sortedEvents, selectedDate);
-    totalEvents = this.getEventsWithPosition(totalEvents);    
+    const totalEvents = this.processEvents(eventsByDate, initialDate, numberOfDays);
+
     return (
       <View style={styles.container}>
         {times.map(time => (
@@ -163,16 +138,11 @@ class Events extends Component {
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
-  events: PropTypes.arrayOf(Event.propTypes.event),
-  onEventPress: PropTypes.func,
-  selectedDate: PropTypes.instanceOf(Date),
-  times: PropTypes.arrayOf(PropTypes.string),
+  eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(Event.propTypes.event)).isRequired,
+  initialDate: PropTypes.string.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
-};
-
-Events.defaultProps = {
-  events: [],
-  selectedDate: new Date(),
+  times: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onEventPress: PropTypes.func,
 };
 
 export default Events;

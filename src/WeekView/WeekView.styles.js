@@ -12,17 +12,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  timeLabel: {
-    flex: -1,
-  },
-  timeText: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  timeColumn: {
-    paddingTop: 10,
-    width: 60,
-  },
 });
 
 export default styles;
