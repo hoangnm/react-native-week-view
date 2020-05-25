@@ -11,9 +11,10 @@ import { setLocale } from '../utils';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import styles from './WeekView.styles';
+import { TIME_LABELS_IN_DISPLAY, TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../utils';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TIME_LABELS_COUNT = 48;
+const MINUTES_IN_DAY = 60*24;
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -21,14 +22,16 @@ export default class WeekView extends Component {
     this.state = {
       currentMoment: props.selectedDate,
     };
-    this.calendar = null;
+    this.eventsGrid = null;
+    this.verticalAgenda = null;
     setLocale(props.locale);
     this.times = this.generateTimes();
   }
 
   componentDidMount() {
     requestAnimationFrame(() => {
-      this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
+      this.eventsGrid.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
+      this.scrollToAgendaStart();
     });
   }
 
@@ -40,16 +43,28 @@ export default class WeekView extends Component {
       setLocale(this.props.locale);
     }
 
-    this.calendar.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
+    this.eventsGrid.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
+  }
+
+  scrollToAgendaStart = () => {
+    if (this.verticalAgenda) {
+      const { startHour, hoursInDisplay } = this.props;
+      const startHeight = startHour * CONTAINER_HEIGHT / hoursInDisplay;
+      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+    }
   }
 
   generateTimes = () => {
+    const { hoursInDisplay } = this.props;
     const times = [];
-    for (let i = 0; i < TIME_LABELS_COUNT; i += 1) {
-      const minutes = i % 2 === 0 ? '00' : '30';
-      const hour = Math.floor(i / 2);
-      const time = `${hour}:${minutes}`;
-      times.push(time);
+    const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
+    const minutesStep = 60 / timeLabelsPerHour;
+    for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
+      let minutes = timer % 60;
+      if (minutes < 10) minutes = `0${minutes}`;
+      const hour = Math.floor(timer / 60);
+      const timeString = `${hour}:${minutes}`;
+      times.push(timeString);
     }
     return times;
   };
@@ -76,8 +91,12 @@ export default class WeekView extends Component {
     });
   };
 
-  scrollViewRef = (ref) => {
-    this.calendar = ref;
+  eventsGridRef = (ref) => {
+    this.eventsGrid = ref;
+  }
+
+  verticalAgendaRef = (ref) => {
+    this.verticalAgenda = ref;
   }
 
   prepareDates = (currentMoment, numberOfDays) => {
@@ -97,6 +116,7 @@ export default class WeekView extends Component {
       formatDateHeader,
       onEventPress,
       events,
+      hoursInDisplay,
     } = this.props;
     const { currentMoment } = this.state;
     const dates = this.prepareDates(currentMoment, numberOfDays);
@@ -111,11 +131,16 @@ export default class WeekView extends Component {
             numberOfDays={numberOfDays}
           />
         </View>
-        <ScrollView>
+        <ScrollView
+          ref={this.verticalAgendaRef}
+        >
           <View style={styles.scrollViewContent}>
             <View style={styles.timeColumn}>
               {this.times.map(time => (
-                <View key={time} style={styles.timeLabel}>
+                <View
+                  key={time}
+                  style={[styles.timeLabel, { height: TIME_LABEL_HEIGHT }]}
+                >
                   <Text style={styles.timeText}>{time}</Text>
                 </View>
               ))}
@@ -125,7 +150,7 @@ export default class WeekView extends Component {
               pagingEnabled
               automaticallyAdjustContentInsets={false}
               onMomentumScrollEnd={this.scrollEnded}
-              ref={this.scrollViewRef}
+              ref={this.eventsGridRef}
             >
               {dates.map(date => (
                 <View
@@ -139,6 +164,7 @@ export default class WeekView extends Component {
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
                     events={events}
+                    hoursInDisplay={hoursInDisplay}
                   />
                 </View>
               ))}
@@ -161,9 +187,13 @@ WeekView.propTypes = {
   headerTextColor: PropTypes.string,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
+  hoursInDisplay: PropTypes.number,
+  startHour: PropTypes.number,
 };
 
 WeekView.defaultProps = {
   events: [],
   locale: 'en',
+  hoursInDisplay: 6,
+  startHour: 0,
 };

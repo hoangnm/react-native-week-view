@@ -7,19 +7,7 @@
  */
 
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Alert
-} from 'react-native';
-
-import {
-  Header,
-} from 'react-native/Libraries/NewAppScreen';
+import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
 import WeekView from 'react-native-week-view';
 
@@ -38,7 +26,7 @@ const App: () => React$Node = () => {
       id: 1,
       description: 'Event 1',
       startDate: generateDates(0),
-      endDate:generateDates(2),
+      endDate: generateDates(2),
       color: 'blue',
     },
     {
@@ -56,18 +44,26 @@ const App: () => React$Node = () => {
       color: 'green',
     },
   ];
+  const onEventPress = ({id, color, startDate, endDate}) => {
+    Alert.alert(
+      `event ${color} - ${id}`,
+      `start: ${startDate}\nend: ${endDate}`,
+    );
+  };
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container}>
         <WeekView
           events={events}
-          selectedDate={this.selectedDate}
+          selectedDate={selectedDate}
           numberOfDays={3}
-          onEventPress={(event) => Alert.alert('eventId:' + event.id)}
+          onEventPress={onEventPress}
           headerStyle={styles.headerStyle}
           headerTextColor="#fff"
           formatDateHeader="MMM D"
+          hoursInDisplay={12}
+          startHour={8}
         />
       </SafeAreaView>
     </>
