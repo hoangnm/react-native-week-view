@@ -38,18 +38,26 @@ const getDayTextStyles = (numberOfDays) => {
 };
 
 const Column = ({
-  column, numberOfDays, format, textColor
+  column,
+  numberOfDays,
+  format,
+  textColor,
 }) => {
   return (
     <View style={styles.column}>
-      <Text style={[ { color: textColor }, getDayTextStyles(numberOfDays)]}>
+      <Text style={[{ color: textColor }, getDayTextStyles(numberOfDays)]}>
         {getFormattedDate(column, format)}
       </Text>
     </View>
   );
 };
 
-const Columns = ({ columns, numberOfDays, format, textColor }) => {
+const Columns = ({
+  columns,
+  numberOfDays,
+  format,
+  textColor,
+}) => {
   return (
     <View style={styles.columns}>
       {columns.map((column) => {
@@ -80,7 +88,11 @@ const Title = ({ numberOfDays, selectedDate, textColor }) => { // eslint-disable
 };
 
 const WeekViewHeader = ({
-  numberOfDays, selectedDate, formatDate, style, textColor
+  numberOfDays,
+  selectedDate,
+  formatDate,
+  style,
+  textColor,
 }) => {
   const columns = getColumns(numberOfDays, selectedDate);
   return (

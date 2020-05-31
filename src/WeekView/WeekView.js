@@ -7,14 +7,18 @@ import {
   Text,
 } from 'react-native';
 import moment from 'moment';
-import { setLocale } from '../utils';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import styles from './WeekView.styles';
-import { TIME_LABELS_IN_DISPLAY, TIME_LABEL_HEIGHT, CONTAINER_HEIGHT } from '../utils';
+import {
+  TIME_LABELS_IN_DISPLAY,
+  TIME_LABEL_HEIGHT,
+  CONTAINER_HEIGHT,
+  setLocale,
+} from '../utils';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MINUTES_IN_DAY = 60*24;
+const MINUTES_IN_DAY = 60 * 24;
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -36,7 +40,7 @@ export default class WeekView extends Component {
   }
 
   componentDidUpdate(prevprops) {
-    if (this.props.selectedDate && this.props.selectedDate!=prevprops.selectedDate) {
+    if (this.props.selectedDate && this.props.selectedDate !== prevprops.selectedDate) {
       this.setState({ currentMoment: this.props.selectedDate });
     }
     if (this.props.locale !== prevprops.locale) {
