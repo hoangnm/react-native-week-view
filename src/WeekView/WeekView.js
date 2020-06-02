@@ -11,7 +11,8 @@ import memoizeOne from 'memoize-one';
 
 import Event from '../Event/Event';
 import Events from '../Events/Events';
-import Header, { Title } from '../Header/Header';
+import Header from '../Header/Header';
+import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
@@ -190,7 +191,7 @@ export default class WeekView extends Component {
     const eventsByDate = this.sortEventsByDate(events);
     return (
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={styles.headerContainer}>
           <Title
             style={headerStyle}
             numberOfDays={numberOfDays}

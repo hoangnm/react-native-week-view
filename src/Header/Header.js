@@ -2,17 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
 
-import { getFormattedDate, getCurrentMonth, calculateDaysArray } from '../utils';
-
+import { getFormattedDate, calculateDaysArray } from '../utils';
 import styles from './Header.styles';
-
-const getFontSizeHeader = (numberOfDays) => {
-  if (numberOfDays > 1) {
-    return 12;
-  }
-
-  return 16;
-};
 
 const getDayTextStyles = (numberOfDays) => {
   const fontSize = numberOfDays === 7 ? 12 : 14;
@@ -59,22 +50,6 @@ const Columns = ({
   );
 };
 
-export const Title = ({
-  style,
-  numberOfDays,
-  selectedDate,
-  textColor,
-}) => { // eslint-disable-line react/prop-types
-  return (
-    <View style={[styles.title, style]}>
-      <Text
-        style={{ color: textColor, fontSize: getFontSizeHeader(numberOfDays) }}
-      >
-        {getCurrentMonth(selectedDate)}
-      </Text>
-    </View>
-  );
-};
 
 const WeekViewHeader = ({
   numberOfDays,

@@ -9,6 +9,9 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexDirection: 'row',
   },
+  headerContainer: {
+    flexDirection: 'row',
+  },
   header: {
     flex: 1,
     height: 50,
