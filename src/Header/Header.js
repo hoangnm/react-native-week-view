@@ -59,9 +59,14 @@ const Columns = ({
   );
 };
 
-const Title = ({ numberOfDays, selectedDate, textColor }) => { // eslint-disable-line react/prop-types
+export const Title = ({
+  style,
+  numberOfDays,
+  selectedDate,
+  textColor,
+}) => { // eslint-disable-line react/prop-types
   return (
-    <View style={styles.title}>
+    <View style={[styles.title, style]}>
       <Text
         style={{ color: textColor, fontSize: getFontSizeHeader(numberOfDays) }}
       >
@@ -81,7 +86,6 @@ const WeekViewHeader = ({
   const columns = calculateDaysArray(selectedDate, numberOfDays);
   return (
     <View style={[styles.container, style]}>
-      <Title numberOfDays={numberOfDays} selectedDate={selectedDate} textColor={textColor} />
       {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} textColor={textColor} />}
     </View>
   );

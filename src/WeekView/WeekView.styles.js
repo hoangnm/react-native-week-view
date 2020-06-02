@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -8,9 +10,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   header: {
+    flex: 1,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    width: SCREEN_WIDTH - 60,
   },
 });
 
