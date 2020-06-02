@@ -23,6 +23,7 @@
   ],
   "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
   "dependencies": {
+    "memoize-one": "^5.1.1",
     "moment": "^2.19.3",
     "prop-types": "^15.7.2"
   },
