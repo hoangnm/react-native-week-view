@@ -53,12 +53,12 @@ const Columns = ({
 
 const WeekViewHeader = ({
   numberOfDays,
-  selectedDate,
+  initialDate,
   formatDate,
   style,
   textColor,
 }) => {
-  const columns = calculateDaysArray(selectedDate, numberOfDays);
+  const columns = calculateDaysArray(initialDate, numberOfDays);
   return (
     <View style={[styles.container, style]}>
       {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} textColor={textColor} />}
@@ -68,7 +68,7 @@ const WeekViewHeader = ({
 
 WeekViewHeader.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
-  selectedDate: PropTypes.instanceOf(Date).isRequired,
+  initialDate: PropTypes.string.isRequired,
   formatDate: PropTypes.string,
   style: PropTypes.object,
   textColor: PropTypes.string,

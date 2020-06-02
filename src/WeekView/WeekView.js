@@ -211,7 +211,7 @@ export default class WeekView extends Component {
                   style={headerStyle}
                   textColor={headerTextColor}
                   formatDate={formatDateHeader}
-                  selectedDate={date}
+                  initialDate={date}
                   numberOfDays={numberOfDays}
                 />
               </View>
