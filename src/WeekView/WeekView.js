@@ -7,16 +7,21 @@ import {
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
-import { setLocale } from '../utils';
+
 import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
-import { TIME_LABELS_IN_DISPLAY, CONTAINER_HEIGHT, DATE_STR_FORMAT } from '../utils';
+import {
+  TIME_LABELS_IN_DISPLAY,
+  CONTAINER_HEIGHT,
+  DATE_STR_FORMAT,
+  setLocale,
+} from '../utils';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MINUTES_IN_DAY = 60*24;
+const MINUTES_IN_DAY = 60 * 24;
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -42,7 +47,7 @@ export default class WeekView extends Component {
   }
 
   componentDidUpdate(prevprops) {
-    if (this.props.selectedDate && this.props.selectedDate!=prevprops.selectedDate) {
+    if (this.props.selectedDate && this.props.selectedDate !== prevprops.selectedDate) {
       this.setState({ currentMoment: this.props.selectedDate });
     }
     if (this.props.locale !== prevprops.locale) {
@@ -136,7 +141,7 @@ export default class WeekView extends Component {
         // Add to object
         const dateStr = date.format(DATE_STR_FORMAT);
         if (!sortedEvents[dateStr]) {
-          sortedEvents[dateStr] = []
+          sortedEvents[dateStr] = [];
         }
         sortedEvents[dateStr].push({
           ...event,
@@ -144,8 +149,7 @@ export default class WeekView extends Component {
           endDate: actualEndDate.toDate(),
         });
       }
-    });    
-    
+    });
     // For each day, sort the events by the minute (in-place)
     Object.keys(sortedEvents).forEach((date) => {
       sortedEvents[date].sort((a, b) => {
@@ -193,7 +197,7 @@ export default class WeekView extends Component {
               onMomentumScrollEnd={this.scrollEnded}
               ref={this.eventsGridRef}
             >
-              {initialDates.map((date) => (
+              {initialDates.map(date => (
                 <Events
                   key={date}
                   times={times}

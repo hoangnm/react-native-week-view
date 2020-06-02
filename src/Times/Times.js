@@ -24,3 +24,4 @@ Times.propTypes = {
 };
 
 export default React.memo(Times);
+
