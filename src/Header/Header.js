@@ -1,26 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
-import moment from 'moment';
 
-import { getFormattedDate, getCurrentMonth } from '../utils';
+import { getFormattedDate, getCurrentMonth, calculateDaysArray } from '../utils';
 
 import styles from './Header.styles';
-
-const getColumns = (numberOfDays, selectedDate) => {
-  const columns = [];
-  let initial = 0;
-  if (numberOfDays === 7) {
-    initial = 1;
-    initial -= moment().isoWeekday();
-  }
-  for (let i = initial; i < (numberOfDays + initial); i += 1) {
-    let date = moment(selectedDate);
-    date = date.add(i, 'd');
-    columns.push(date.toDate());
-  }
-  return columns;
-};
 
 const getFontSizeHeader = (numberOfDays) => {
   if (numberOfDays > 1) {
@@ -94,7 +78,7 @@ const WeekViewHeader = ({
   style,
   textColor,
 }) => {
-  const columns = getColumns(numberOfDays, selectedDate);
+  const columns = calculateDaysArray(selectedDate, numberOfDays);
   return (
     <View style={[styles.container, style]}>
       <Title numberOfDays={numberOfDays} selectedDate={selectedDate} textColor={textColor} />
@@ -115,4 +99,4 @@ WeekViewHeader.defaultProps = {
   formatDate: 'MMM D',
 };
 
-export default WeekViewHeader;
+export default React.memo(WeekViewHeader);
