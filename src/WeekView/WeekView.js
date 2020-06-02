@@ -228,7 +228,7 @@ export default class WeekView extends Component {
               pagingEnabled
               automaticallyAdjustContentInsets={false}
               onMomentumScrollEnd={this.scrollEnded}
-              scrollEventThrottle={16}
+              scrollEventThrottle={32}
               onScroll={Animated.event([{
                 nativeEvent: {
                   contentOffset: {
@@ -236,7 +236,7 @@ export default class WeekView extends Component {
                   },
                 },
               },
-              ])}
+              ], { useNativeDriver: false })}
               ref={this.eventsGridRef}
             >
               {initialDates.map(date => (
