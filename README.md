@@ -41,7 +41,6 @@ addLocale('fr', {
 ```
 ## TODO
 - [x] allow to swipe between weeks or days.
-- [ ] header should be swipeable with columns.
+- [x] header should be swipeable with columns.
 - [ ] allow to drag drop events to specific time and date.
-- [ ] update example for more cases (1 day, 7 days).
-- [ ] update document.
+- [ ] allow to handle click on grid view.
