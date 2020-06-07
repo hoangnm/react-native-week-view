@@ -12,12 +12,7 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({
-  style,
-  numberOfDays,
-  selectedDate,
-  textColor,
-}) => {
+const Title = ({ style, numberOfDays, selectedDate, textColor }) => {
   return (
     <View style={[styles.title, style]}>
       <Text

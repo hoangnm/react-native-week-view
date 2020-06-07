@@ -7,11 +7,8 @@ import { TIME_LABEL_HEIGHT } from '../utils';
 const Times = ({ times }) => {
   return (
     <View style={styles.columnContainer}>
-      {times.map(time => (
-        <View
-          key={time}
-          style={[styles.label, { height: TIME_LABEL_HEIGHT }]}
-        >
+      {times.map((time) => (
+        <View key={time} style={[styles.label, { height: TIME_LABEL_HEIGHT }]}>
           <Text style={styles.text}>{time}</Text>
         </View>
       ))}
@@ -24,4 +21,3 @@ Times.propTypes = {
 };
 
 export default React.memo(Times);
-
