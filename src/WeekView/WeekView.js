@@ -4,6 +4,7 @@ import {
   View,
   ScrollView,
   Dimensions,
+  Animated,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -11,6 +12,7 @@ import memoizeOne from 'memoize-one';
 import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
+import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
@@ -31,18 +33,23 @@ export default class WeekView extends Component {
     };
     this.eventsGrid = null;
     this.verticalAgenda = null;
-    setLocale(props.locale);
-
+    this.header = null;
     this.pagesLeft = 2;
     this.pagesRight = 2;
     this.currentPageIndex = 2;
     this.totalPages = this.pagesLeft + this.pagesRight + 1;
+    this.eventsGridScrollX = new Animated.Value(0);
+
+    setLocale(props.locale);
   }
 
   componentDidMount() {
     requestAnimationFrame(() => {
       this.eventsGrid.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
       this.scrollToAgendaStart();
+    });
+    this.eventsGridScrollX.addListener((position) => {
+      this.header.scrollTo({ x: position.value, animated: false });
     });
   }
 
@@ -57,12 +64,8 @@ export default class WeekView extends Component {
     this.eventsGrid.scrollTo({ y: 0, x: 2 * (SCREEN_WIDTH - 60), animated: false });
   }
 
-  scrollToAgendaStart = () => {
-    if (this.verticalAgenda) {
-      const { startHour, hoursInDisplay } = this.props;
-      const startHeight = startHour * CONTAINER_HEIGHT / hoursInDisplay;
-      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
-    }
+  componentWillUnmount() {
+    this.eventsGridScrollX.removeAllListeners();
   }
 
   calculateTimes = memoizeOne((hoursInDisplay) => {
@@ -78,6 +81,14 @@ export default class WeekView extends Component {
     }
     return times;
   });
+
+  scrollToAgendaStart = () => {
+    if (this.verticalAgenda) {
+      const { startHour, hoursInDisplay } = this.props;
+      const startHeight = startHour * CONTAINER_HEIGHT / hoursInDisplay;
+      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+    }
+  }
 
   scrollEnded = (event) => {
     const { nativeEvent: { contentOffset, contentSize } } = event;
@@ -112,6 +123,10 @@ export default class WeekView extends Component {
   verticalAgendaRef = (ref) => {
     this.verticalAgenda = ref;
   }
+
+  headerRef = (ref) => {
+    this.header = ref;
+  };
 
   calculatePagesDates = memoizeOne((currentMoment, numberOfDays) => {
     const initialDates = [];
@@ -176,14 +191,32 @@ export default class WeekView extends Component {
     const eventsByDate = this.sortEventsByDate(events);
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Header
+        <View style={styles.headerContainer}>
+          <Title
             style={headerStyle}
-            textColor={headerTextColor}
-            formatDate={formatDateHeader}
-            selectedDate={currentMoment}
             numberOfDays={numberOfDays}
+            selectedDate={currentMoment}
+            textColor={headerTextColor}
           />
+          <ScrollView
+            horizontal
+            pagingEnabled
+            scrollEnabled={false}
+            automaticallyAdjustContentInsets={false}
+            ref={this.headerRef}
+          >
+            {initialDates.map(date => (
+              <View key={date} style={styles.header}>
+                <Header
+                  style={headerStyle}
+                  textColor={headerTextColor}
+                  formatDate={formatDateHeader}
+                  initialDate={date}
+                  numberOfDays={numberOfDays}
+                />
+              </View>
+            ))}
+          </ScrollView>
         </View>
         <ScrollView
           ref={this.verticalAgendaRef}
@@ -195,6 +228,15 @@ export default class WeekView extends Component {
               pagingEnabled
               automaticallyAdjustContentInsets={false}
               onMomentumScrollEnd={this.scrollEnded}
+              scrollEventThrottle={32}
+              onScroll={Animated.event([{
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.eventsGridScrollX,
+                  },
+                },
+              },
+              ], { useNativeDriver: false })}
               ref={this.eventsGridRef}
             >
               {initialDates.map(date => (

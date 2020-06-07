@@ -34,6 +34,5 @@ export const calculateDaysArray = (date, numberOfDays) => {
     const currentDate = moment(date).add(i, 'd');
     dates.push(currentDate);
   }
-  
   return dates;
-}
+};

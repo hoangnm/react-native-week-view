@@ -6,13 +6,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  title: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 60,
-    borderColor: '#fff',
-    borderTopWidth: 1,
-  },
   columns: {
     flex: 1,
     flexDirection: 'row',
