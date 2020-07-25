@@ -69,7 +69,6 @@ class App extends React.Component {
             numberOfDays={3}
             onEventPress={this.onEventPress}
             headerStyle={styles.headerStyle}
-            headerTextColor="#fff"
             formatDateHeader="MMM D"
             hoursInDisplay={12}
             startHour={8}
@@ -88,6 +87,8 @@ const styles = StyleSheet.create({
   },
   headerStyle: {
     backgroundColor: '#4286f4',
+    color: '#fff',
+    borderColor: '#fff',
   },
 });
 

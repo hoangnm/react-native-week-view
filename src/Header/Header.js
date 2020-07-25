@@ -12,23 +12,23 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
-const Column = ({ column, numberOfDays, format, textColor }) => {
+const Column = ({ column, numberOfDays, format, style }) => {
   return (
-    <View style={styles.column}>
-      <Text style={[{ color: textColor }, getDayTextStyles(numberOfDays)]}>
+    <View style={[styles.column, style]}>
+      <Text style={[{ color: style.color }, getDayTextStyles(numberOfDays)]}>
         {getFormattedDate(column, format)}
       </Text>
     </View>
   );
 };
 
-const Columns = ({ columns, numberOfDays, format, textColor }) => {
+const Columns = ({ columns, numberOfDays, format, style }) => {
   return (
     <View style={styles.columns}>
       {columns.map((column) => {
         return (
           <Column
-            textColor={textColor}
+            style={style}
             key={column}
             column={column}
             numberOfDays={numberOfDays}
@@ -40,22 +40,16 @@ const Columns = ({ columns, numberOfDays, format, textColor }) => {
   );
 };
 
-const WeekViewHeader = ({
-  numberOfDays,
-  initialDate,
-  formatDate,
-  style,
-  textColor,
-}) => {
+const WeekViewHeader = ({ numberOfDays, initialDate, formatDate, style }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays);
   return (
-    <View style={[styles.container, style]}>
+    <View style={styles.container}>
       {columns && (
         <Columns
           format={formatDate}
           columns={columns}
           numberOfDays={numberOfDays}
-          textColor={textColor}
+          style={style}
         />
       )}
     </View>
@@ -67,7 +61,6 @@ WeekViewHeader.propTypes = {
   initialDate: PropTypes.string.isRequired,
   formatDate: PropTypes.string,
   style: PropTypes.object,
-  textColor: PropTypes.string,
 };
 
 WeekViewHeader.defaultProps = {

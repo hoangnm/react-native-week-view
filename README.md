@@ -10,8 +10,7 @@
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
 * **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
-* **`headerStyle`** _(Object)_ - custom styles for header container
-* **`headerTextColor`** _(String)_ - text color for header
+* **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
 * **`startHour`** _(Number)_ Hour to scroll to on start. Default is 8 (8 am).
 
