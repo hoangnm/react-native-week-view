@@ -1,18 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
 
 const Event = ({ event, onPress, style }) => {
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(event)}
-      style={[styles.item, style, {
-        backgroundColor: event.color,
-      }]}
+      style={[
+        styles.item,
+        style,
+        {
+          backgroundColor: event.color,
+        },
+      ]}
       disabled={!onPress}
     >
       <Text style={styles.description}>{event.description}</Text>

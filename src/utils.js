@@ -30,7 +30,7 @@ export const calculateDaysArray = (date, numberOfDays) => {
     initial = 1;
     initial -= moment().isoWeekday();
   }
-  for (let i = initial; i < (numberOfDays + initial); i += 1) {
+  for (let i = initial; i < numberOfDays + initial; i += 1) {
     const currentDate = moment(date).add(i, 'd');
     dates.push(currentDate);
   }
