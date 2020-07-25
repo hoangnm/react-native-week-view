@@ -18,6 +18,11 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_HOUR = 60;
 const TIME_LABEL_WIDTH = 40;
 const EVENTS_CONTAINER_WIDTH = SCREEN_WIDTH - TIME_LABEL_WIDTH - 35;
+const MIN_ITEM_WIDTH = 4;
+
+const areEventsOverlapped = (event1, event2) => {
+  return moment(event1.endDate).isSameOrAfter(event2.startDate);
+};
 
 class Events extends PureComponent {
   getStyleForEvent = (item) => {
@@ -38,35 +43,64 @@ class Events extends PureComponent {
     };
   };
 
+  addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
+    // Given an array of overlapped events (with style), modifies their style to overlap them
+    // and adds them to a (base) array of events.
+    const nOverlapped = overlappedArr.length;
+    if (nOverlapped === 1) {
+      baseArr.push(overlappedArr[0]);
+    } else {
+      const dividedWidth = itemWidth / nOverlapped;
+      const horizontalPadding = 3;
+      overlappedArr.forEach((overlappedEventWithStyle, index) => {
+        const { data, style } = overlappedEventWithStyle;
+        baseArr.push({
+          data,
+          style: {
+            ...style,
+            width: Math.max(dividedWidth - horizontalPadding, MIN_ITEM_WIDTH),
+            left: dividedWidth * index,
+          },
+        });
+      });
+    }
+  };
+
   getEventsWithPosition = (totalEvents) => {
-    const itemWidth = this.getEventItemWidth();
+    const regularItemWidth = this.getEventItemWidth();
+
     return totalEvents.map((events) => {
-      // get position and width for each event
-      const eventsWithStyle = events.reduce((eventsAcc, event, i) => {
-        let numberOfDuplicate = 1;
+      let overlappedSoFar = []; // Store events overlapped until now
+      const eventsWithStyle = events.reduce((eventsAcc, event) => {
         const style = this.getStyleForEvent(event);
-        // check if previous events have the same position or not,
-        // start from 0 to current index of event item
-        for (let j = 0; j < i; j += 1) {
-          const previousEvent = eventsAcc[j];
-          // if left and top of previous event collides with current item,
-          // move current item to the right and update new width for both
-          const foundDuplicate =
-            previousEvent.style.left === style.left &&
-            previousEvent.style.top + previousEvent.style.height >= style.top;
-          if (foundDuplicate) {
-            numberOfDuplicate += 1;
-            style.left = 5 + itemWidth / numberOfDuplicate;
-            style.width = itemWidth / numberOfDuplicate;
-            previousEvent.style.width = itemWidth / numberOfDuplicate;
-          }
-        }
-        eventsAcc.push({
+        const eventWithStyle = {
           data: event,
           style,
-        });
+        };
+
+        const nSoFar = overlappedSoFar.length;
+        const lastEventOverlapped =
+          nSoFar > 0 ? overlappedSoFar[nSoFar - 1] : null;
+        if (
+          !lastEventOverlapped ||
+          areEventsOverlapped(lastEventOverlapped.data, event)
+        ) {
+          overlappedSoFar.push(eventWithStyle);
+        } else {
+          this.addOverlappedToArray(
+            eventsAcc,
+            overlappedSoFar,
+            regularItemWidth,
+          );
+          overlappedSoFar = [eventWithStyle];
+        }
         return eventsAcc;
       }, []);
+      this.addOverlappedToArray(
+        eventsWithStyle,
+        overlappedSoFar,
+        regularItemWidth,
+      );
       return eventsWithStyle;
     });
   };
