@@ -12,12 +12,7 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
-const Column = ({
-  column,
-  numberOfDays,
-  format,
-  style,
-}) => {
+const Column = ({ column, numberOfDays, format, style }) => {
   return (
     <View style={[styles.column, style]}>
       <Text style={[{ color: style.color }, getDayTextStyles(numberOfDays)]}>
@@ -27,12 +22,7 @@ const Column = ({
   );
 };
 
-const Columns = ({
-  columns,
-  numberOfDays,
-  format,
-  style,
-}) => {
+const Columns = ({ columns, numberOfDays, format, style }) => {
   return (
     <View style={styles.columns}>
       {columns.map((column) => {
@@ -50,16 +40,18 @@ const Columns = ({
   );
 };
 
-const WeekViewHeader = ({
-  numberOfDays,
-  initialDate,
-  formatDate,
-  style,
-}) => {
+const WeekViewHeader = ({ numberOfDays, initialDate, formatDate, style }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays);
   return (
     <View style={styles.container}>
-      {columns && <Columns format={formatDate} columns={columns} numberOfDays={numberOfDays} style={style} />}
+      {columns && (
+        <Columns
+          format={formatDate}
+          columns={columns}
+          numberOfDays={numberOfDays}
+          style={style}
+        />
+      )}
     </View>
   );
 };

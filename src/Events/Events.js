@@ -106,7 +106,7 @@ class Events extends PureComponent {
     const totalEvents = this.processEvents(
       eventsByDate,
       initialDate,
-      numberOfDays
+      numberOfDays,
     );
 
     return (

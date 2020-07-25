@@ -245,7 +245,7 @@ export default class WeekView extends Component {
                     },
                   },
                 ],
-                { useNativeDriver: false }
+                { useNativeDriver: false },
               )}
               ref={this.eventsGridRef}
             >

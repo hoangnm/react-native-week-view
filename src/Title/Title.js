@@ -12,15 +12,14 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({
-  style,
-  numberOfDays,
-  selectedDate,
-}) => {
+const Title = ({ style, numberOfDays, selectedDate }) => {
   return (
     <View style={[styles.title, style]}>
       <Text
-        style={{ color: style.color, fontSize: getFontSizeHeader(numberOfDays) }}
+        style={{
+          color: style.color,
+          fontSize: getFontSizeHeader(numberOfDays),
+        }}
       >
         {getCurrentMonth(selectedDate)}
       </Text>
