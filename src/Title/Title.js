@@ -12,11 +12,15 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({ style, numberOfDays, selectedDate, textColor }) => {
+const Title = ({
+  style,
+  numberOfDays,
+  selectedDate,
+}) => {
   return (
     <View style={[styles.title, style]}>
       <Text
-        style={{ color: textColor, fontSize: getFontSizeHeader(numberOfDays) }}
+        style={{ color: style.color, fontSize: getFontSizeHeader(numberOfDays) }}
       >
         {getCurrentMonth(selectedDate)}
       </Text>
@@ -28,7 +32,6 @@ Title.propTypes = {
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
-  textColor: PropTypes.string,
 };
 
 export default React.memo(Title);
