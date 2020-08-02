@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, Dimensions } from 'react-native';
+import { View, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -111,6 +111,12 @@ class Events extends PureComponent {
     return (minutes * CONTAINER_HEIGHT) / minutesInDisplay;
   };
 
+  yToHour = (y) => {
+    const { hoursInDisplay } = this.props;
+    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT;
+    return hour;
+  };
+
   getEventItemWidth = () => {
     const { numberOfDays } = this.props;
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
@@ -128,6 +134,15 @@ class Events extends PureComponent {
     const totalEventsWithPosition = this.getEventsWithPosition(totalEvents);
     return totalEventsWithPosition;
   });
+
+  onGridClick = (event) => {
+    const { onGridClick } = this.props;
+    if (!onGridClick) {
+      return;
+    }
+    const hour = Math.floor(this.yToHour(event.nativeEvent.locationY - 16));
+    onGridClick(event, hour);
+  };
 
   render() {
     const {
@@ -155,16 +170,21 @@ class Events extends PureComponent {
         ))}
         <View style={styles.events}>
           {totalEvents.map((eventsInSection, sectionIndex) => (
-            <View key={sectionIndex} style={styles.event}>
-              {eventsInSection.map((item) => (
-                <Event
-                  key={item.data.id}
-                  event={item.data}
-                  style={item.style}
-                  onPress={onEventPress}
-                />
-              ))}
-            </View>
+            <TouchableWithoutFeedback
+              onPress={this.onGridClick}
+              key={sectionIndex}
+            >
+              <View style={styles.event}>
+                {eventsInSection.map((item) => (
+                  <Event
+                    key={item.data.id}
+                    event={item.data}
+                    style={item.style}
+                    onPress={onEventPress}
+                  />
+                ))}
+              </View>
+            </TouchableWithoutFeedback>
           ))}
         </View>
       </View>
@@ -180,6 +200,7 @@ Events.propTypes = {
   hoursInDisplay: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
+  onGridClick: PropTypes.func,
 };
 
 export default Events;

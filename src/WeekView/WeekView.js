@@ -194,6 +194,7 @@ export default class WeekView extends Component {
       onEventPress,
       events,
       hoursInDisplay,
+      onGridClick
     } = this.props;
     const { currentMoment } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -257,6 +258,7 @@ export default class WeekView extends Component {
                   initialDate={date}
                   numberOfDays={numberOfDays}
                   onEventPress={onEventPress}
+                  onGridClick={onGridClick}
                   hoursInDisplay={hoursInDisplay}
                 />
               ))}
@@ -270,11 +272,12 @@ export default class WeekView extends Component {
 
 WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
+  formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
-  formatDateHeader: PropTypes.string,
   onEventPress: PropTypes.func,
+  onGridClick: PropTypes.func,
   headerStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
