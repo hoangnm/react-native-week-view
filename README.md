@@ -13,6 +13,7 @@
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
 * **`startHour`** _(Number)_ Hour to scroll to on start. Default is 8 (8 am).
+* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked. `(event, startHour) => {}`
 
 ## Event Object
 ```
@@ -41,5 +42,5 @@ addLocale('fr', {
 ## TODO
 - [x] allow to swipe between weeks or days.
 - [x] header should be swipeable with columns.
+- [x] allow to click on grid view.
 - [ ] allow to drag drop events to specific time and date.
-- [ ] allow to handle click on grid view.

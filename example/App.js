@@ -57,6 +57,10 @@ class App extends React.Component {
     );
   };
 
+  onGridClick = (event, startHour) => {
+    Alert.alert(`start hour: ${startHour}`);
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -68,6 +72,7 @@ class App extends React.Component {
             selectedDate={selectedDate}
             numberOfDays={3}
             onEventPress={this.onEventPress}
+            onGridClick={this.onGridClick}
             headerStyle={styles.headerStyle}
             formatDateHeader="MMM D"
             hoursInDisplay={12}
