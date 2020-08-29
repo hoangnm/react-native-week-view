@@ -152,6 +152,7 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      EventComponent,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -182,6 +183,7 @@ class Events extends PureComponent {
                     event={item.data}
                     style={item.style}
                     onPress={onEventPress}
+                    EventComponent={EventComponent}
                   />
                 ))}
               </View>
@@ -202,6 +204,7 @@ Events.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,
+  EventComponent: PropTypes.elementType,
 };
 
 export default Events;

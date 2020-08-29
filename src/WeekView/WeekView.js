@@ -195,6 +195,7 @@ export default class WeekView extends Component {
       events,
       hoursInDisplay,
       onGridClick,
+      EventComponent,
     } = this.props;
     const { currentMoment } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -261,6 +262,7 @@ export default class WeekView extends Component {
                   onEventPress={onEventPress}
                   onGridClick={onGridClick}
                   hoursInDisplay={hoursInDisplay}
+                  EventComponent={EventComponent}
                 />
               ))}
             </ScrollView>
@@ -284,6 +286,7 @@ WeekView.propTypes = {
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   startHour: PropTypes.number,
+  EventComponent: PropTypes.elementType,
 };
 
 WeekView.defaultProps = {
