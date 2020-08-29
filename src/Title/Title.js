@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { getCurrentMonth } from '../utils';
+import { getCurrentMonth, availableNumberOfDays } from '../utils';
 import styles from './Title.styles';
 
 const getFontSizeHeader = (numberOfDays) => {
@@ -19,6 +19,7 @@ const Title = ({ style, numberOfDays, selectedDate }) => {
         style={{
           color: style.color,
           fontSize: getFontSizeHeader(numberOfDays),
+          textAlign: 'center',
         }}
       >
         {getCurrentMonth(selectedDate)}
@@ -28,7 +29,7 @@ const Title = ({ style, numberOfDays, selectedDate }) => {
 };
 
 Title.propTypes = {
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
 };

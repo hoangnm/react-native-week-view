@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, ScrollView, Dimensions, Animated } from 'react-native';
+import { View, ScrollView, Animated } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -13,11 +13,12 @@ import styles from './WeekView.styles';
 import {
   TIME_LABELS_IN_DISPLAY,
   CONTAINER_HEIGHT,
+  CONTAINER_WIDTH,
   DATE_STR_FORMAT,
+  availableNumberOfDays,
   setLocale,
 } from '../utils';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_DAY = 60 * 24;
 
 export default class WeekView extends Component {
@@ -31,7 +32,7 @@ export default class WeekView extends Component {
     this.header = null;
     this.pagesLeft = 2;
     this.pagesRight = 2;
-    this.currentPageIndex = 2;
+    this.currentPageIndex = this.pagesLeft;
     this.totalPages = this.pagesLeft + this.pagesRight + 1;
     this.eventsGridScrollX = new Animated.Value(0);
 
@@ -40,12 +41,8 @@ export default class WeekView extends Component {
 
   componentDidMount() {
     requestAnimationFrame(() => {
-      this.eventsGrid.scrollTo({
-        y: 0,
-        x: 2 * (SCREEN_WIDTH - 60),
-        animated: false,
-      });
-      this.scrollToAgendaStart();
+      this.scrollToHorizontalStart();
+      this.scrollToVerticalStart();
     });
     this.eventsGridScrollX.addListener((position) => {
       this.header.scrollTo({ x: position.value, animated: false });
@@ -63,11 +60,7 @@ export default class WeekView extends Component {
       setLocale(this.props.locale);
     }
 
-    this.eventsGrid.scrollTo({
-      y: 0,
-      x: 2 * (SCREEN_WIDTH - 60),
-      animated: false,
-    });
+    this.scrollToHorizontalStart();
   }
 
   componentWillUnmount() {
@@ -88,11 +81,18 @@ export default class WeekView extends Component {
     return times;
   });
 
-  scrollToAgendaStart = () => {
+  scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
       const { startHour, hoursInDisplay } = this.props;
       const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
       this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+    }
+  };
+
+  scrollToHorizontalStart = () => {
+    if (this.eventsGrid) {
+      const startX = this.currentPageIndex * CONTAINER_WIDTH;
+      this.eventsGrid.scrollTo({ y: 0, x: startX, animated: false });
     }
   };
 
@@ -274,7 +274,7 @@ export default class WeekView extends Component {
 WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   formatDateHeader: PropTypes.string,
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,

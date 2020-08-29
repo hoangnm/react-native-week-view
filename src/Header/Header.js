@@ -2,7 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
 
-import { getFormattedDate, calculateDaysArray } from '../utils';
+import {
+  getFormattedDate,
+  calculateDaysArray,
+  availableNumberOfDays,
+} from '../utils';
 import styles from './Header.styles';
 
 const getDayTextStyles = (numberOfDays) => {
@@ -57,7 +61,7 @@ const WeekViewHeader = ({ numberOfDays, initialDate, formatDate, style }) => {
 };
 
 WeekViewHeader.propTypes = {
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   initialDate: PropTypes.string.isRequired,
   formatDate: PropTypes.string,
   style: PropTypes.object,
