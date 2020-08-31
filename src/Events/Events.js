@@ -20,9 +20,18 @@ const MINUTES_IN_HOUR = 60;
 const EVENT_HORIZONTAL_PADDING = 15;
 const EVENTS_CONTAINER_WIDTH = CONTAINER_WIDTH - EVENT_HORIZONTAL_PADDING;
 const MIN_ITEM_WIDTH = 4;
+const ALLOW_OVERLAP_SECONDS = 2;
 
-const areEventsOverlapped = (event1, event2) => {
-  return moment(event1.endDate).isSameOrAfter(event2.startDate);
+const areEventsOverlapped = (
+  event1,
+  event2,
+  allowSeconds = ALLOW_OVERLAP_SECONDS,
+) => {
+  const endDate = moment(event1.endDate);
+  if (allowSeconds && allowSeconds > 0) {
+    endDate.subtract(allowSeconds, 'seconds');
+  }
+  return endDate.isSameOrAfter(event2.startDate);
 };
 
 class Events extends PureComponent {
