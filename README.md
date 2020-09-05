@@ -12,19 +12,44 @@
 * **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
-* **`startHour`** _(Number)_ Hour to scroll to on start. Default is 8 (8 am).
+* **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
 * **`onGridClick`** _(Function)_ - Callback when the grid view is clicked. `(event, startHour) => {}`
+* **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See below for details on the component.
 
 ## Event Object
-```
+```js
 {
   id: 1,
   description: 'Event',
   startDate: new Date(),
   endDate: new Date(),
   color: 'blue',
+  // ... more properties if needed,
 }
 ```
+
+## Custom `EventComponent`
+The component will be rendered inside a `TouchableOpacity`, which has the backgroud color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
+* **`event`** _(Event)_ - Event object as described before.
+* **`position`**: _(Object)_ - object containint `top`, `left`, `height` and `width` values in pixels.
+
+For example, to display an icon inside each event, such as a [react-native-elements Icon](https://react-native-elements.github.io/react-native-elements/docs/icon/):
+```js
+class MyEventComponent = ({ event, position }) => (
+  <Icon
+    name={event.iconName}
+    type={event.iconType}
+    color={event.color}
+    size={position.height}
+  />
+);
+
+<WeekView
+  // ... other props
+  EventComponent={MyEventComponent}
+/>
+```
+
 ## Locales customization
 There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 

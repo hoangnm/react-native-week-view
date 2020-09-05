@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -8,16 +8,17 @@ import Event from '../Event/Event';
 import {
   TIME_LABEL_HEIGHT,
   CONTAINER_HEIGHT,
+  CONTAINER_WIDTH,
   calculateDaysArray,
   DATE_STR_FORMAT,
+  availableNumberOfDays,
 } from '../utils';
 
 import styles, { CONTENT_OFFSET } from './Events.styles';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_HOUR = 60;
-const TIME_LABEL_WIDTH = 40;
-const EVENTS_CONTAINER_WIDTH = SCREEN_WIDTH - TIME_LABEL_WIDTH - 35;
+const EVENT_HORIZONTAL_PADDING = 15;
+const EVENTS_CONTAINER_WIDTH = CONTAINER_WIDTH - EVENT_HORIZONTAL_PADDING;
 const MIN_ITEM_WIDTH = 4;
 
 const areEventsOverlapped = (event1, event2) => {
@@ -151,6 +152,7 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      EventComponent,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -181,6 +183,7 @@ class Events extends PureComponent {
                     event={item.data}
                     style={item.style}
                     onPress={onEventPress}
+                    EventComponent={EventComponent}
                   />
                 ))}
               </View>
@@ -193,7 +196,7 @@ class Events extends PureComponent {
 }
 
 Events.propTypes = {
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(Event.propTypes.event))
     .isRequired,
   initialDate: PropTypes.string.isRequired,
@@ -201,6 +204,7 @@ Events.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,
+  EventComponent: PropTypes.elementType,
 };
 
 export default Events;

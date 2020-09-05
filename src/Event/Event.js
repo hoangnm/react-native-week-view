@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
 
-const Event = ({ event, onPress, style }) => {
+const Event = ({ event, onPress, style, EventComponent }) => {
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(event)}
@@ -16,7 +16,11 @@ const Event = ({ event, onPress, style }) => {
       ]}
       disabled={!onPress}
     >
-      <Text style={styles.description}>{event.description}</Text>
+      {EventComponent ? (
+        <EventComponent event={event} position={style} />
+      ) : (
+        <Text style={styles.description}>{event.description}</Text>
+      )}
     </TouchableOpacity>
   );
 };
