@@ -2,5 +2,5 @@
 #
 node_modules/
 npm-debug.log
-
+android/app/build
 .vscode
