@@ -289,6 +289,7 @@ WeekView.propTypes = {
   hoursInDisplay: PropTypes.number,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
+  showTitle: PropTypes.bool,
 };
 
 WeekView.defaultProps = {
@@ -296,4 +297,5 @@ WeekView.defaultProps = {
   locale: 'en',
   hoursInDisplay: 6,
   startHour: 0,
+  showTitle: true,
 };

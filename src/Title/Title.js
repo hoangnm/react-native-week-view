@@ -29,6 +29,7 @@ const Title = ({ style, showTitle, numberOfDays, selectedDate }) => {
 };
 
 Title.propTypes = {
+  showTitle: PropTypes.bool,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,

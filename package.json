@@ -22,6 +22,9 @@
     "calendar"
   ],
   "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
+  "scripts": {
+    "lint": "eslint ./src *.js"
+  },
   "dependencies": {
     "memoize-one": "^5.1.1",
     "moment": "^2.19.3",
