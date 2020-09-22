@@ -12,7 +12,7 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({ style, numberOfDays, selectedDate }) => {
+const Title = ({ style, showTitle, numberOfDays, selectedDate }) => {
   return (
     <View style={[styles.title, style]}>
       <Text
@@ -22,7 +22,7 @@ const Title = ({ style, numberOfDays, selectedDate }) => {
           textAlign: 'center',
         }}
       >
-        {getCurrentMonth(selectedDate)}
+        {showTitle ? getCurrentMonth(selectedDate) : null}
       </Text>
     </View>
   );

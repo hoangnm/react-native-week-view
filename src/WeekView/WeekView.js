@@ -188,6 +188,7 @@ export default class WeekView extends Component {
 
   render() {
     const {
+      showTitle,
       numberOfDays,
       headerStyle,
       formatDateHeader,
@@ -205,6 +206,7 @@ export default class WeekView extends Component {
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Title
+            showTitle={showTitle}
             style={headerStyle}
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
