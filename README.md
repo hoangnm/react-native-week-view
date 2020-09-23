@@ -14,7 +14,10 @@
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
 * **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
-* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked. `(event, startHour) => {}`
+* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
+  * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
+  * `startHour` _(Number)_ - hour clicked (as integer)
+  * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
 * **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See below for details on the component.
 
 ## Event Object

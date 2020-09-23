@@ -136,13 +136,17 @@ class Events extends PureComponent {
     return totalEventsWithPosition;
   });
 
-  onGridClick = (event) => {
-    const { onGridClick } = this.props;
+  onGridClick = (event, dayIndex) => {
+    const { initialDate, onGridClick } = this.props;
     if (!onGridClick) {
       return;
     }
-    const hour = Math.floor(this.yToHour(event.nativeEvent.locationY - 16));
-    onGridClick(event, hour);
+    const { locationY } = event.nativeEvent;
+    const hour = Math.floor(this.yToHour(locationY - CONTENT_OFFSET));
+
+    const date = moment(initialDate).add(dayIndex, 'day').toDate();
+
+    onGridClick(event, hour, date);
   };
 
   render() {
@@ -171,10 +175,10 @@ class Events extends PureComponent {
           </View>
         ))}
         <View style={styles.events}>
-          {totalEvents.map((eventsInSection, sectionIndex) => (
+          {totalEvents.map((eventsInSection, dayIndex) => (
             <TouchableWithoutFeedback
-              onPress={this.onGridClick}
-              key={sectionIndex}
+              onPress={(e) => this.onGridClick(e, dayIndex)}
+              key={dayIndex}
             >
               <View style={styles.event}>
                 {eventsInSection.map((item) => (

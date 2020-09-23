@@ -57,8 +57,9 @@ class App extends React.Component {
     );
   };
 
-  onGridClick = (event, startHour) => {
-    Alert.alert(`start hour: ${startHour}`);
+  onGridClick = (event, startHour, date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    Alert.alert(`Date: ${dateStr}\nStart hour: ${startHour}`);
   };
 
   render() {
