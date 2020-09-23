@@ -191,6 +191,7 @@ export default class WeekView extends Component {
       showTitle,
       numberOfDays,
       headerStyle,
+      headerTextStyle,
       hourTextStyle,
       formatDateHeader,
       onEventPress,
@@ -209,6 +210,7 @@ export default class WeekView extends Component {
           <Title
             showTitle={showTitle}
             style={headerStyle}
+            textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
           />
@@ -224,6 +226,7 @@ export default class WeekView extends Component {
               <View key={date} style={styles.header}>
                 <Header
                   style={headerStyle}
+                  textStyle={headerTextStyle}
                   formatDate={formatDateHeader}
                   initialDate={date}
                   numberOfDays={numberOfDays}
@@ -285,6 +288,7 @@ WeekView.propTypes = {
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,
   headerStyle: PropTypes.object,
+  headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
