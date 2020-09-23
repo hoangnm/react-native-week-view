@@ -15,15 +15,17 @@ const getFontSizeHeader = (numberOfDays) => {
 const Title = ({ style, showTitle, numberOfDays, selectedDate }) => {
   return (
     <View style={[styles.title, style]}>
-      <Text
-        style={{
-          color: style.color,
-          fontSize: getFontSizeHeader(numberOfDays),
-          textAlign: 'center',
-        }}
-      >
-        {showTitle ? getCurrentMonth(selectedDate) : null}
-      </Text>
+      {showTitle ? (
+        <Text
+          style={{
+            color: style.color,
+            fontSize: getFontSizeHeader(numberOfDays),
+            textAlign: 'center',
+          }}
+        >
+          {getCurrentMonth(selectedDate)}
+        </Text>
+      ) : null}
     </View>
   );
 };
