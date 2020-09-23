@@ -75,6 +75,7 @@ class App extends React.Component {
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
             headerStyle={styles.headerStyle}
+            hourTextStyle={styles.hourTextStyle}
             formatDateHeader="MMM D"
             hoursInDisplay={12}
             startHour={8}
@@ -95,6 +96,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#4286f4',
     color: '#fff',
     borderColor: '#fff',
+  },
+  hourTextStyle: {
+    color: 'black',
   },
 });
 
