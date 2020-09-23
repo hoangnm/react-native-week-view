@@ -14,6 +14,7 @@
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`headerTextStyle`** _(Object)_ - custom styles for text inside header. Includes day names and title (month)
 * **`hourTextStyle`** _(Object)_ - custom styles for text displaying hours in the left.
+* **`eventContainerStyle`** _(Object)_ - custom styles for the event container. Notice the background color and positioning (absolute) are already set.
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
 * **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
 * **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
@@ -41,7 +42,7 @@ The component will be rendered inside a `TouchableOpacity`, which has the backgr
 
 For example, to display an icon inside each event, such as a [react-native-elements Icon](https://react-native-elements.github.io/react-native-elements/docs/icon/):
 ```js
-class MyEventComponent = ({ event, position }) => (
+const MyEventComponent = ({ event, position }) => (
   <Icon
     name={event.iconName}
     type={event.iconType}

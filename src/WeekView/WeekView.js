@@ -193,6 +193,7 @@ export default class WeekView extends Component {
       headerStyle,
       headerTextStyle,
       hourTextStyle,
+      eventContainerStyle,
       formatDateHeader,
       onEventPress,
       events,
@@ -269,6 +270,7 @@ export default class WeekView extends Component {
                   onGridClick={onGridClick}
                   hoursInDisplay={hoursInDisplay}
                   EventComponent={EventComponent}
+                  eventContainerStyle={eventContainerStyle}
                 />
               ))}
             </ScrollView>
@@ -290,6 +292,7 @@ WeekView.propTypes = {
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
+  eventContainerStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,

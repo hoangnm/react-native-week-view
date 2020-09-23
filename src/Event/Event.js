@@ -3,21 +3,28 @@ import PropTypes from 'prop-types';
 import { Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
 
-const Event = ({ event, onPress, style, EventComponent }) => {
+const Event = ({
+  event,
+  onPress,
+  position,
+  EventComponent,
+  containerStyle,
+}) => {
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(event)}
       style={[
         styles.item,
-        style,
+        position,
         {
           backgroundColor: event.color,
         },
+        containerStyle,
       ]}
       disabled={!onPress}
     >
       {EventComponent ? (
-        <EventComponent event={event} position={style} />
+        <EventComponent event={event} position={position} />
       ) : (
         <Text style={styles.description}>{event.description}</Text>
       )}
@@ -25,7 +32,7 @@ const Event = ({ event, onPress, style, EventComponent }) => {
   );
 };
 
-const eventPropTypes = PropTypes.shape({
+const eventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   description: PropTypes.string,
@@ -33,10 +40,19 @@ const eventPropTypes = PropTypes.shape({
   endDate: PropTypes.instanceOf(Date).isRequired,
 });
 
+const positionPropType = PropTypes.shape({
+  height: PropTypes.number,
+  width: PropTypes.number,
+  top: PropTypes.number,
+  left: PropTypes.number,
+});
+
 Event.propTypes = {
-  event: eventPropTypes.isRequired,
+  event: eventPropType.isRequired,
   onPress: PropTypes.func,
-  style: PropTypes.object,
+  position: positionPropType,
+  containerStyle: PropTypes.object,
+  EventComponent: PropTypes.elementType,
 };
 
 export default Event;
