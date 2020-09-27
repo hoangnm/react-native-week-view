@@ -7,7 +7,7 @@ export const CONTENT_OFFSET = 16;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: CONTENT_OFFSET,
     width: CONTAINER_WIDTH,
   },
   timeRow: {

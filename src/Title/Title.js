@@ -12,18 +12,23 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({ style, showTitle, numberOfDays, selectedDate }) => {
+const Title = ({ style, showTitle, numberOfDays, selectedDate, textStyle }) => {
   return (
     <View style={[styles.title, style]}>
-      <Text
-        style={{
-          color: style.color,
-          fontSize: getFontSizeHeader(numberOfDays),
-          textAlign: 'center',
-        }}
-      >
-        {showTitle ? getCurrentMonth(selectedDate) : null}
-      </Text>
+      {showTitle ? (
+        <Text
+          style={[
+            {
+              color: style.color,
+              fontSize: getFontSizeHeader(numberOfDays),
+              textAlign: 'center',
+            },
+            textStyle,
+          ]}
+        >
+          {getCurrentMonth(selectedDate)}
+        </Text>
+      ) : null}
     </View>
   );
 };
@@ -33,6 +38,7 @@ Title.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
+  textStyle: PropTypes.object,
 };
 
 export default React.memo(Title);
