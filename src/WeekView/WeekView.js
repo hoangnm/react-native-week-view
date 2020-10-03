@@ -23,7 +23,6 @@ const MINUTES_IN_DAY = 60 * 24;
 export default class WeekView extends Component {
   constructor(props) {
     super(props);
-    this.eventsGrid = null;
     this.verticalAgenda = null;
     this.header = null;
     this.pagesLeft = 2;
@@ -137,10 +136,6 @@ export default class WeekView extends Component {
         onSwipeNext && onSwipeNext(newMoment);
       }
     });
-  };
-
-  eventsGridRef = (ref) => {
-    this.eventsGrid = ref;
   };
 
   verticalAgendaRef = (ref) => {
@@ -290,7 +285,6 @@ export default class WeekView extends Component {
                 ],
                 { useNativeDriver: false },
               )}
-              ref={this.eventsGridRef}
             />
           </View>
         </ScrollView>
