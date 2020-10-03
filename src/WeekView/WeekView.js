@@ -302,7 +302,7 @@ export default class WeekView extends Component {
 WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   formatDateHeader: PropTypes.string,
-  numberOfDays: PropTypes.oneOf([availableNumberOfDays]).isRequired,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
