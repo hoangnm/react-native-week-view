@@ -1,6 +1,6 @@
 {
   "name": "react-native-week-view",
-  "version": "0.0.16",
+  "version": "0.0.19",
   "description": "Week View Calendar for React Native",
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
@@ -22,6 +22,9 @@
     "calendar"
   ],
   "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
+  "scripts": {
+    "lint": "eslint ./src *.js"
+  },
   "dependencies": {
     "memoize-one": "^5.1.1",
     "moment": "^2.19.3",

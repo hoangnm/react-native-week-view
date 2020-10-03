@@ -57,8 +57,9 @@ class App extends React.Component {
     );
   };
 
-  onGridClick = (event, startHour) => {
-    Alert.alert(`start hour: ${startHour}`);
+  onGridClick = (event, startHour, date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    Alert.alert(`Date: ${dateStr}\nStart hour: ${startHour}`);
   };
 
   render() {
@@ -73,7 +74,10 @@ class App extends React.Component {
             numberOfDays={3}
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
-            headerStyle={styles.headerStyle}
+            headerStyle={styles.header}
+            headerTextStyle={styles.headerText}
+            hourTextStyle={styles.hourText}
+            eventContainerStyle={styles.eventContainer}
             formatDateHeader="MMM D"
             hoursInDisplay={12}
             startHour={8}
@@ -90,10 +94,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingTop: 22,
   },
-  headerStyle: {
+  header: {
     backgroundColor: '#4286f4',
-    color: '#fff',
     borderColor: '#fff',
+  },
+  headerText: {
+    color: 'white',
+  },
+  hourText: {
+    color: 'black',
+  },
+  eventContainer: {
+    borderWidth: 1,
+    borderColor: 'black',
   },
 });
 

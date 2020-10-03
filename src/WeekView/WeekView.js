@@ -1,13 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  ScrollView,
-  Dimensions,
-  Animated,
-  FlatList,
-  VirtualizedList,
-} from 'react-native';
+import { View, ScrollView, Animated, VirtualizedList } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -21,10 +14,10 @@ import {
   TIME_LABELS_IN_DISPLAY,
   CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
+  availableNumberOfDays,
   setLocale,
 } from '../utils';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MINUTES_IN_DAY = 60 * 24;
 
 export default class WeekView extends Component {
@@ -35,7 +28,7 @@ export default class WeekView extends Component {
     this.header = null;
     this.pagesLeft = 2;
     this.pagesRight = 2;
-    this.currentPageIndex = 2;
+    this.currentPageIndex = this.pagesLeft;
     this.totalPages = this.pagesLeft + this.pagesRight + 1;
     this.eventsGridScrollX = new Animated.Value(0);
     this.state = {
@@ -51,12 +44,7 @@ export default class WeekView extends Component {
 
   componentDidMount() {
     requestAnimationFrame(() => {
-     /* this.eventsGrid.scrollToOffset({
-        offset: 2 * (SCREEN_WIDTH - 60),
-        animated: false,
-      });
-      */
-      this.scrollToAgendaStart();
+      this.scrollToVerticalStart();
     });
     this.eventsGridScrollX.addListener((position) => {
       this.header.scrollTo({ x: position.value, animated: false });
@@ -93,7 +81,7 @@ export default class WeekView extends Component {
     return times;
   });
 
-  scrollToAgendaStart = () => {
+  scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
       const { startHour, hoursInDisplay } = this.props;
       const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
@@ -216,13 +204,18 @@ export default class WeekView extends Component {
 
   render() {
     const {
+      showTitle,
       numberOfDays,
       headerStyle,
+      headerTextStyle,
+      hourTextStyle,
+      eventContainerStyle,
       formatDateHeader,
       onEventPress,
       events,
       hoursInDisplay,
       onGridClick,
+      EventComponent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -231,7 +224,9 @@ export default class WeekView extends Component {
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Title
+            showTitle={showTitle}
             style={headerStyle}
+            textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
           />
@@ -247,6 +242,7 @@ export default class WeekView extends Component {
               <View key={date} style={styles.header}>
                 <Header
                   style={headerStyle}
+                  textStyle={headerTextStyle}
                   formatDate={formatDateHeader}
                   initialDate={date}
                   numberOfDays={numberOfDays}
@@ -257,7 +253,7 @@ export default class WeekView extends Component {
         </View>
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
-            <Times times={times} />
+            <Times times={times} textStyle={hourTextStyle} />
             <VirtualizedList
               data={initialDates}
               getItem={(data, index) => data[index]}
@@ -274,6 +270,8 @@ export default class WeekView extends Component {
                     onEventPress={onEventPress}
                     onGridClick={onGridClick}
                     hoursInDisplay={hoursInDisplay}
+                    EventComponent={EventComponent}
+                    eventContainerStyle={eventContainerStyle}
                   />
                 );
               }}
@@ -305,16 +303,21 @@ export default class WeekView extends Component {
 WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   formatDateHeader: PropTypes.string,
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  numberOfDays: PropTypes.oneOf([availableNumberOfDays]).isRequired,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,
   headerStyle: PropTypes.object,
+  headerTextStyle: PropTypes.object,
+  hourTextStyle: PropTypes.object,
+  eventContainerStyle: PropTypes.object,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   startHour: PropTypes.number,
+  EventComponent: PropTypes.elementType,
+  showTitle: PropTypes.bool,
 };
 
 WeekView.defaultProps = {
@@ -322,4 +325,5 @@ WeekView.defaultProps = {
   locale: 'en',
   hoursInDisplay: 6,
   startHour: 0,
+  showTitle: true,
 };

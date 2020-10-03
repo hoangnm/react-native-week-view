@@ -10,21 +10,53 @@
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
 * **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
+* **`showTitle`** _(Boolean)_ - show/hide the title (the selected month and year). Default is `true`. 
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
+* **`headerTextStyle`** _(Object)_ - custom styles for text inside header. Includes day names and title (month)
+* **`hourTextStyle`** _(Object)_ - custom styles for text displaying hours in the left.
+* **`eventContainerStyle`** _(Object)_ - custom styles for the event container. Notice the background color and positioning (absolute) are already set.
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
-* **`startHour`** _(Number)_ Hour to scroll to on start. Default is 8 (8 am).
-* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked. `(event, startHour) => {}`
+* **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
+* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
+  * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
+  * `startHour` _(Number)_ - hour clicked (as integer)
+  * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
+* **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See below for details on the component.
 
 ## Event Object
-```
+```js
 {
   id: 1,
   description: 'Event',
   startDate: new Date(),
   endDate: new Date(),
   color: 'blue',
+  // ... more properties if needed,
 }
 ```
+
+## Custom `EventComponent`
+The component will be rendered inside a `TouchableOpacity`, which has the backgroud color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
+* **`event`** _(Event)_ - Event object as described before.
+* **`position`**: _(Object)_ - object containint `top`, `left`, `height` and `width` values in pixels.
+
+For example, to display an icon inside each event, such as a [react-native-elements Icon](https://react-native-elements.github.io/react-native-elements/docs/icon/):
+```js
+const MyEventComponent = ({ event, position }) => (
+  <Icon
+    name={event.iconName}
+    type={event.iconType}
+    color={event.color}
+    size={position.height}
+  />
+);
+
+<WeekView
+  // ... other props
+  EventComponent={MyEventComponent}
+/>
+```
+
 ## Locales customization
 There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 

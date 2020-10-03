@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { getCurrentMonth } from '../utils';
+import { getCurrentMonth, availableNumberOfDays } from '../utils';
 import styles from './Title.styles';
 
 const getFontSizeHeader = (numberOfDays) => {
@@ -12,25 +12,33 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({ style, numberOfDays, selectedDate }) => {
+const Title = ({ style, showTitle, numberOfDays, selectedDate, textStyle }) => {
   return (
     <View style={[styles.title, style]}>
-      <Text
-        style={{
-          color: style.color,
-          fontSize: getFontSizeHeader(numberOfDays),
-        }}
-      >
-        {getCurrentMonth(selectedDate)}
-      </Text>
+      {showTitle ? (
+        <Text
+          style={[
+            {
+              color: style.color,
+              fontSize: getFontSizeHeader(numberOfDays),
+              textAlign: 'center',
+            },
+            textStyle,
+          ]}
+        >
+          {getCurrentMonth(selectedDate)}
+        </Text>
+      ) : null}
     </View>
   );
 };
 
 Title.propTypes = {
-  numberOfDays: PropTypes.oneOf([1, 3, 5, 7]).isRequired,
+  showTitle: PropTypes.bool,
+  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
+  textStyle: PropTypes.object,
 };
 
 export default React.memo(Title);

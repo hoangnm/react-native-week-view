@@ -4,12 +4,12 @@ import { View, Text } from 'react-native';
 import styles from './Times.styles';
 import { TIME_LABEL_HEIGHT } from '../utils';
 
-const Times = ({ times }) => {
+const Times = ({ times, textStyle }) => {
   return (
     <View style={styles.columnContainer}>
       {times.map((time) => (
         <View key={time} style={[styles.label, { height: TIME_LABEL_HEIGHT }]}>
-          <Text style={styles.text}>{time}</Text>
+          <Text style={[styles.text, textStyle]}>{time}</Text>
         </View>
       ))}
     </View>

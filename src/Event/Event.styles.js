@@ -4,15 +4,16 @@ const styles = StyleSheet.create({
   item: {
     alignItems: 'center',
     position: 'absolute',
-    paddingVertical: 8,
-    paddingHorizontal: 2,
     borderRadius: 0,
     flex: 1,
+    overflow: 'hidden',
   },
   description: {
+    marginVertical: 8,
+    marginHorizontal: 2,
     color: '#fff',
     textAlign: 'center',
-    fontSize: 17,
+    fontSize: 15,
   },
 });
 
