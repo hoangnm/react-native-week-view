@@ -117,7 +117,6 @@ export default class WeekView extends Component {
         const first = initialDates[0];
         const initialDate = moment(first).add(-numberOfDays, 'd');
         initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
-        // this.eventsGrid.scrollToIndex({ index: newPage + 1, animated: false });
       } else if (
         movedPages > 0 &&
         newPage > this.state.initialDates.length - 2
