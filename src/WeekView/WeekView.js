@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, ScrollView, Animated, VirtualizedList } from 'react-native';
+import {
+  View,
+  ScrollView,
+  Animated,
+  VirtualizedList,
+  InteractionManager,
+} from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -23,6 +29,7 @@ const MINUTES_IN_DAY = 60 * 24;
 export default class WeekView extends Component {
   constructor(props) {
     super(props);
+    this.eventsGrid = null;
     this.verticalAgenda = null;
     this.header = null;
     this.pagesLeft = 2;
@@ -46,7 +53,7 @@ export default class WeekView extends Component {
       this.scrollToVerticalStart();
     });
     this.eventsGridScrollX.addListener((position) => {
-      this.header.scrollTo({ x: position.value, animated: false });
+      this.header.scrollToOffset({ offset: position.value, animated: false });
     });
   }
 
@@ -107,7 +114,7 @@ export default class WeekView extends Component {
     const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
     const { currentMoment, initialDates } = this.state;
 
-    requestAnimationFrame(() => {
+    InteractionManager.runAfterInteractions(() => {
       const newMoment = moment(currentMoment)
         .add(movedPages * numberOfDays, 'd')
         .toDate();
@@ -116,6 +123,11 @@ export default class WeekView extends Component {
         const first = initialDates[0];
         const initialDate = moment(first).add(-numberOfDays, 'd');
         initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
+        this.currentPageIndex += 1;
+        this.eventsGrid.scrollToIndex({
+          index: this.currentPageIndex,
+          animated: false,
+        });
       } else if (
         movedPages > 0 &&
         newPage > this.state.initialDates.length - 2
@@ -136,6 +148,10 @@ export default class WeekView extends Component {
         onSwipeNext && onSwipeNext(newMoment);
       }
     });
+  };
+
+  eventsGridRef = (ref) => {
+    this.eventsGrid = ref;
   };
 
   verticalAgendaRef = (ref) => {
@@ -224,26 +240,31 @@ export default class WeekView extends Component {
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
           />
-          <ScrollView
+          <VirtualizedList
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
-            automaticallyAdjustContentInsets={false}
             ref={this.headerRef}
-          >
-            {initialDates.map((date) => (
-              <View key={date} style={styles.header}>
-                <Header
-                  style={headerStyle}
-                  textStyle={headerTextStyle}
-                  formatDate={formatDateHeader}
-                  initialDate={date}
-                  numberOfDays={numberOfDays}
-                />
-              </View>
-            ))}
-          </ScrollView>
+            data={initialDates}
+            getItem={(data, index) => data[index]}
+            getItemCount={(data) => data.length}
+            keyExtractor={(item) => item}
+            initialScrollIndex={2}
+            renderItem={({ item }) => {
+              return (
+                <View key={item} style={styles.header}>
+                  <Header
+                    style={headerStyle}
+                    textStyle={headerTextStyle}
+                    formatDate={formatDateHeader}
+                    initialDate={item}
+                    numberOfDays={numberOfDays}
+                  />
+                </View>
+              );
+            }}
+          />
         </View>
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
@@ -285,6 +306,7 @@ export default class WeekView extends Component {
                 ],
                 { useNativeDriver: false },
               )}
+              ref={this.eventsGridRef}
             />
           </View>
         </ScrollView>
