@@ -32,10 +32,8 @@ export default class WeekView extends Component {
     this.eventsGrid = null;
     this.verticalAgenda = null;
     this.header = null;
-    this.pagesLeft = 2;
-    this.pagesRight = 2;
-    this.currentPageIndex = this.pagesLeft;
-    this.totalPages = this.pagesLeft + this.pagesRight + 1;
+    this.pageOffset = 2;
+    this.currentPageIndex = this.pageOffset;
     this.eventsGridScrollX = new Animated.Value(0);
     this.state = {
       currentMoment: props.selectedDate,
@@ -101,18 +99,16 @@ export default class WeekView extends Component {
     } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
-    const newPage = Math.round(
-      (position / innerWidth) * this.state.initialDates.length,
-    );
+    const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
+    const { currentMoment, initialDates } = this.state;
+
+    const newPage = Math.round((position / innerWidth) * initialDates.length);
     const movedPages = newPage - this.currentPageIndex;
     this.currentPageIndex = newPage;
 
     if (movedPages === 0) {
       return;
     }
-
-    const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
-    const { currentMoment, initialDates } = this.state;
 
     InteractionManager.runAfterInteractions(() => {
       const newMoment = moment(currentMoment)
@@ -164,7 +160,7 @@ export default class WeekView extends Component {
 
   calculatePagesDates = memoizeOne((currentMoment, numberOfDays) => {
     const initialDates = [];
-    for (let i = -this.pagesLeft; i <= this.pagesRight; i += 1) {
+    for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
       const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
       initialDates.push(initialDate.format(DATE_STR_FORMAT));
     }
@@ -250,7 +246,7 @@ export default class WeekView extends Component {
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
             keyExtractor={(item) => item}
-            initialScrollIndex={2}
+            initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
               return (
                 <View key={item} style={styles.header}>
@@ -274,7 +270,7 @@ export default class WeekView extends Component {
               getItem={(data, index) => data[index]}
               getItemCount={(data) => data.length}
               keyExtractor={(item) => item}
-              initialScrollIndex={2}
+              initialScrollIndex={this.pageOffset}
               renderItem={({ item }) => {
                 return (
                   <Events
