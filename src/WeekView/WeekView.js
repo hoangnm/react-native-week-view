@@ -56,12 +56,6 @@ export default class WeekView extends Component {
   }
 
   componentDidUpdate(prevprops) {
-    if (
-      this.props.selectedDate &&
-      this.props.selectedDate !== prevprops.selectedDate
-    ) {
-      this.setState({ currentMoment: this.props.selectedDate });
-    }
     if (this.props.locale !== prevprops.locale) {
       setLocale(this.props.locale);
     }
