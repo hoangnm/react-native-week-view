@@ -57,8 +57,9 @@ const WeekViewHeader = ({
   formatDate,
   style,
   textStyle,
+  rightToLeft,
 }) => {
-  const columns = calculateDaysArray(initialDate, numberOfDays);
+  const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
   return (
     <View style={styles.container}>
       {columns && (
@@ -80,6 +81,7 @@ WeekViewHeader.propTypes = {
   formatDate: PropTypes.string,
   style: PropTypes.object,
   textStyle: PropTypes.object,
+  rightToLeft: PropTypes.bool,
 };
 
 WeekViewHeader.defaultProps = {

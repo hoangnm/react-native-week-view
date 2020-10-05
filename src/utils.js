@@ -27,7 +27,7 @@ export const getCurrentMonth = (date) => {
   return moment(date).format('MMMM Y');
 };
 
-export const calculateDaysArray = (date, numberOfDays) => {
+export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   const dates = [];
   let initial = 0;
   if (numberOfDays === 7) {
@@ -38,5 +38,5 @@ export const calculateDaysArray = (date, numberOfDays) => {
     const currentDate = moment(date).add(i, 'd');
     dates.push(currentDate);
   }
-  return dates;
+  return rightToLeft ? dates.reverse() : dates;
 };

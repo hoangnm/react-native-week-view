@@ -241,10 +241,15 @@ export default class WeekView extends Component {
       onGridClick,
       EventComponent,
       prependMostRecent,
+      rightToLeft,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
     const eventsByDate = this.sortEventsByDate(events);
+    const horizontalInverted =
+      (prependMostRecent && !rightToLeft) ||
+      (!prependMostRecent && rightToLeft);
+
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -258,7 +263,7 @@ export default class WeekView extends Component {
           <VirtualizedList
             horizontal
             pagingEnabled
-            inverted={prependMostRecent}
+            inverted={horizontalInverted}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
             ref={this.headerRef}
@@ -277,6 +282,7 @@ export default class WeekView extends Component {
                     formatDate={formatDateHeader}
                     initialDate={item}
                     numberOfDays={numberOfDays}
+                    rightToLeft={rightToLeft}
                   />
                 </View>
               );
@@ -305,12 +311,13 @@ export default class WeekView extends Component {
                     hoursInDisplay={hoursInDisplay}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
+                    rightToLeft={rightToLeft}
                   />
                 );
               }}
               horizontal
               pagingEnabled
-              inverted={prependMostRecent}
+              inverted={horizontalInverted}
               onMomentumScrollEnd={this.scrollEnded}
               scrollEventThrottle={32}
               onScroll={Animated.event(
@@ -352,6 +359,7 @@ WeekView.propTypes = {
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
+  rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
 };
 
@@ -361,5 +369,6 @@ WeekView.defaultProps = {
   hoursInDisplay: 6,
   startHour: 0,
   showTitle: true,
+  rightToLeft: false,
   prependMostRecent: false,
 };
