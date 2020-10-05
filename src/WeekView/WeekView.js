@@ -110,7 +110,11 @@ export default class WeekView extends Component {
         .add(movedPages * numberOfDays, 'd')
         .toDate();
 
-      if (movedPages < 0 && newPage < 2) {
+      const newState = {
+        currentMoment: newMoment,
+      };
+
+      if (movedPages < 0 && newPage < this.pageOffset) {
         const first = initialDates[0];
         const initialDate = moment(first).add(-numberOfDays, 'd');
         initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
@@ -119,19 +123,20 @@ export default class WeekView extends Component {
           index: this.currentPageIndex,
           animated: false,
         });
+
+        newState.initialDates = [...initialDates];
       } else if (
         movedPages > 0 &&
-        newPage > this.state.initialDates.length - 2
+        newPage > this.state.initialDates.length - this.pageOffset
       ) {
         const latest = initialDates[initialDates.length - 1];
         const initialDate = moment(latest).add(numberOfDays, 'd');
         initialDates.push(initialDate.format(DATE_STR_FORMAT));
+
+        newState.initialDates = [...initialDates];
       }
 
-      this.setState({
-        initialDates: [...initialDates],
-        currentMoment: newMoment,
-      });
+      this.setState(newState);
 
       if (movedPages < 0) {
         onSwipePrev && onSwipePrev(newMoment);
@@ -203,6 +208,12 @@ export default class WeekView extends Component {
     return sortedEvents;
   });
 
+  getListItemLayout = (index) => ({
+    length: CONTAINER_WIDTH,
+    offset: CONTAINER_WIDTH * index,
+    index,
+  });
+
   render() {
     const {
       showTitle,
@@ -240,11 +251,7 @@ export default class WeekView extends Component {
             data={initialDates}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            getItemLayout={(_, index) => ({
-              length: CONTAINER_WIDTH,
-              offset: CONTAINER_WIDTH * index,
-              index,
-            })}
+            getItemLayout={(_, index) => this.getListItemLayout(index)}
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
@@ -269,11 +276,7 @@ export default class WeekView extends Component {
               data={initialDates}
               getItem={(data, index) => data[index]}
               getItemCount={(data) => data.length}
-              getItemLayout={(_, index) => ({
-                length: CONTAINER_WIDTH,
-                offset: CONTAINER_WIDTH * index,
-                index,
-              })}
+              getItemLayout={(_, index) => this.getListItemLayout(index)}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
               renderItem={({ item }) => {
