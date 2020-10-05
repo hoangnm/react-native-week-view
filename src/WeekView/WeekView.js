@@ -22,6 +22,7 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
+  CONTAINER_WIDTH,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -239,6 +240,11 @@ export default class WeekView extends Component {
             data={initialDates}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
+            getItemLayout={(_, index) => ({
+              length: CONTAINER_WIDTH,
+              offset: CONTAINER_WIDTH * index,
+              index,
+            })}
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
@@ -263,6 +269,11 @@ export default class WeekView extends Component {
               data={initialDates}
               getItem={(data, index) => data[index]}
               getItemCount={(data) => data.length}
+              getItemLayout={(_, index) => ({
+                length: CONTAINER_WIDTH,
+                offset: CONTAINER_WIDTH * index,
+                index,
+              })}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
               renderItem={({ item }) => {
