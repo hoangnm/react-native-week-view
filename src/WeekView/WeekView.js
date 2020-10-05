@@ -41,6 +41,7 @@ export default class WeekView extends Component {
       initialDates: this.calculatePagesDates(
         props.selectedDate,
         props.numberOfDays,
+        props.prependMostRecent,
       ),
     };
 
@@ -94,7 +95,12 @@ export default class WeekView extends Component {
     } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
-    const { onSwipePrev, onSwipeNext, numberOfDays } = this.props;
+    const {
+      onSwipePrev,
+      onSwipeNext,
+      numberOfDays,
+      prependMostRecent,
+    } = this.props;
     const { currentMoment, initialDates } = this.state;
 
     const newPage = Math.round((position / innerWidth) * initialDates.length);
@@ -106,8 +112,9 @@ export default class WeekView extends Component {
     }
 
     InteractionManager.runAfterInteractions(() => {
+      const daySignToTheFuture = prependMostRecent ? -1 : 1;
       const newMoment = moment(currentMoment)
-        .add(movedPages * numberOfDays, 'd')
+        .add(movedPages * numberOfDays * daySignToTheFuture, 'd')
         .toDate();
 
       const newState = {
@@ -116,7 +123,9 @@ export default class WeekView extends Component {
 
       if (movedPages < 0 && newPage < this.pageOffset) {
         const first = initialDates[0];
-        const initialDate = moment(first).add(-numberOfDays, 'd');
+        const daySignToThePast = daySignToTheFuture * -1;
+        const addDays = numberOfDays * daySignToThePast;
+        const initialDate = moment(first).add(addDays, 'd');
         initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
         this.currentPageIndex += 1;
         this.eventsGrid.scrollToIndex({
@@ -130,7 +139,8 @@ export default class WeekView extends Component {
         newPage > this.state.initialDates.length - this.pageOffset
       ) {
         const latest = initialDates[initialDates.length - 1];
-        const initialDate = moment(latest).add(numberOfDays, 'd');
+        const addDays = numberOfDays * daySignToTheFuture;
+        const initialDate = moment(latest).add(addDays, 'd');
         initialDates.push(initialDate.format(DATE_STR_FORMAT));
 
         newState.initialDates = [...initialDates];
@@ -158,14 +168,16 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = memoizeOne((currentMoment, numberOfDays) => {
-    const initialDates = [];
-    for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
-      const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
-      initialDates.push(initialDate.format(DATE_STR_FORMAT));
-    }
-    return initialDates;
-  });
+  calculatePagesDates = memoizeOne(
+    (currentMoment, numberOfDays, prependMostRecent) => {
+      const initialDates = [];
+      for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
+        const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
+        initialDates.push(initialDate.format(DATE_STR_FORMAT));
+      }
+      return prependMostRecent ? initialDates.reverse() : initialDates;
+    },
+  );
 
   sortEventsByDate = memoizeOne((events) => {
     // Stores the events hashed by their date
@@ -228,6 +240,7 @@ export default class WeekView extends Component {
       hoursInDisplay,
       onGridClick,
       EventComponent,
+      prependMostRecent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -245,6 +258,7 @@ export default class WeekView extends Component {
           <VirtualizedList
             horizontal
             pagingEnabled
+            inverted={prependMostRecent}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
             ref={this.headerRef}
@@ -296,6 +310,7 @@ export default class WeekView extends Component {
               }}
               horizontal
               pagingEnabled
+              inverted={prependMostRecent}
               onMomentumScrollEnd={this.scrollEnded}
               scrollEventThrottle={32}
               onScroll={Animated.event(
@@ -337,6 +352,7 @@ WeekView.propTypes = {
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
+  prependMostRecent: PropTypes.bool,
 };
 
 WeekView.defaultProps = {
@@ -345,4 +361,5 @@ WeekView.defaultProps = {
   hoursInDisplay: 6,
   startHour: 0,
   showTitle: true,
+  prependMostRecent: false,
 };

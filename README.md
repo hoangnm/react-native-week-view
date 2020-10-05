@@ -22,6 +22,7 @@
   * `startHour` _(Number)_ - hour clicked (as integer)
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
 * **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See below for details on the component.
+* **`prependMostRecent`** _(Boolean)_ - If true, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is false.
 
 ## Event Object
 ```js
@@ -36,9 +37,9 @@
 ```
 
 ## Custom `EventComponent`
-The component will be rendered inside a `TouchableOpacity`, which has the backgroud color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
+The component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
 * **`event`** _(Event)_ - Event object as described before.
-* **`position`**: _(Object)_ - object containint `top`, `left`, `height` and `width` values in pixels.
+* **`position`**: _(Object)_ - object containing `top`, `left`, `height` and `width` values in pixels.
 
 For example, to display an icon inside each event, such as a [react-native-elements Icon](https://react-native-elements.github.io/react-native-elements/docs/icon/):
 ```js
