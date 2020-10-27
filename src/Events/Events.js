@@ -22,10 +22,10 @@ const EVENTS_CONTAINER_WIDTH = CONTAINER_WIDTH - EVENT_HORIZONTAL_PADDING;
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
 
-const areEventsOverlapped = (event1, event2) => {
-  const endDate = moment(event1.endDate);
+const areEventsOverlapped = (event1EndDate, event2StartDate) => {
+  const endDate = moment(event1EndDate);
   endDate.subtract(ALLOW_OVERLAP_SECONDS, 'seconds');
-  return endDate.isSameOrAfter(event2.startDate);
+  return endDate.isSameOrAfter(event2StartDate);
 };
 
 class Events extends PureComponent {
@@ -50,24 +50,68 @@ class Events extends PureComponent {
   addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
     // Given an array of overlapped events (with style), modifies their style to overlap them
     // and adds them to a (base) array of events.
+    if (!overlappedArr) return;
+
     const nOverlapped = overlappedArr.length;
+    if (nOverlapped === 0) {
+      return;
+    }
     if (nOverlapped === 1) {
       baseArr.push(overlappedArr[0]);
-    } else {
-      const dividedWidth = itemWidth / nOverlapped;
-      const horizontalPadding = 3;
-      overlappedArr.forEach((overlappedEventWithStyle, index) => {
-        const { data, style } = overlappedEventWithStyle;
-        baseArr.push({
-          data,
-          style: {
-            ...style,
-            width: Math.max(dividedWidth - horizontalPadding, MIN_ITEM_WIDTH),
-            left: dividedWidth * index,
-          },
-        });
-      });
+      return;
     }
+
+    let nLanes;
+    let horizontalPadding;
+    let indexToLane;
+    if (nOverlapped === 2) {
+      nLanes = nOverlapped;
+      horizontalPadding = 3;
+      indexToLane = (index) => index;
+    } else {
+      // Distribute events in multiple lanes
+      const maxLanes = nOverlapped;
+      const latestByLane = {};
+      const laneByEvent = {};
+      overlappedArr.forEach((event, index) => {
+        for (let lane = 0; lane < maxLanes; lane += 1) {
+          const lastEvtInLaneIndex = latestByLane[lane];
+          const lastEvtInLane =
+            (lastEvtInLaneIndex || lastEvtInLaneIndex === 0) &&
+            overlappedArr[lastEvtInLaneIndex];
+          if (
+            !lastEvtInLane ||
+            !areEventsOverlapped(
+              lastEvtInLane.data.endDate,
+              event.data.startDate,
+            )
+          ) {
+            // Place in this lane
+            latestByLane[lane] = index;
+            laneByEvent[index] = lane;
+            break;
+          }
+        }
+      });
+
+      nLanes = Object.keys(latestByLane).length;
+      horizontalPadding = 2;
+      indexToLane = (index) => laneByEvent[index];
+    }
+    const dividedWidth = itemWidth / nLanes;
+    const width = Math.max(dividedWidth - horizontalPadding, MIN_ITEM_WIDTH);
+
+    overlappedArr.forEach((eventWithStyle, index) => {
+      const { data, style } = eventWithStyle;
+      baseArr.push({
+        data,
+        style: {
+          ...style,
+          width,
+          left: dividedWidth * indexToLane(index),
+        },
+      });
+    });
   };
 
   getEventsWithPosition = (totalEvents) => {
@@ -75,6 +119,7 @@ class Events extends PureComponent {
 
     return totalEvents.map((events) => {
       let overlappedSoFar = []; // Store events overlapped until now
+      let lastDate = null;
       const eventsWithStyle = events.reduce((eventsAcc, event) => {
         const style = this.getStyleForEvent(event);
         const eventWithStyle = {
@@ -82,14 +127,10 @@ class Events extends PureComponent {
           style,
         };
 
-        const nSoFar = overlappedSoFar.length;
-        const lastEventOverlapped =
-          nSoFar > 0 ? overlappedSoFar[nSoFar - 1] : null;
-        if (
-          !lastEventOverlapped ||
-          areEventsOverlapped(lastEventOverlapped.data, event)
-        ) {
+        if (!lastDate || areEventsOverlapped(lastDate, event.startDate)) {
           overlappedSoFar.push(eventWithStyle);
+          const endDate = moment(event.endDate);
+          lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
         } else {
           this.addOverlappedToArray(
             eventsAcc,
@@ -97,6 +138,7 @@ class Events extends PureComponent {
             regularItemWidth,
           );
           overlappedSoFar = [eventWithStyle];
+          lastDate = moment(event.endDate);
         }
         return eventsAcc;
       }, []);
