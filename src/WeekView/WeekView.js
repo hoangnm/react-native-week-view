@@ -168,16 +168,14 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = memoizeOne(
-    (currentMoment, numberOfDays, prependMostRecent) => {
-      const initialDates = [];
-      for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
-        const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
-        initialDates.push(initialDate.format(DATE_STR_FORMAT));
-      }
-      return prependMostRecent ? initialDates.reverse() : initialDates;
-    },
-  );
+  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent) => {
+    const initialDates = [];
+    for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
+      const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
+      initialDates.push(initialDate.format(DATE_STR_FORMAT));
+    }
+    return prependMostRecent ? initialDates.reverse() : initialDates;
+  };
 
   sortEventsByDate = memoizeOne((events) => {
     // Stores the events hashed by their date
