@@ -123,18 +123,20 @@ class Events extends PureComponent {
     return EVENTS_CONTAINER_WIDTH / numberOfDays;
   };
 
-  processEvents = memoizeOne((eventsByDate, initialDate, numberOfDays) => {
-    // totalEvents stores events in each day of numberOfDays
-    // example: [[event1, event2], [event3, event4], [event5]], each child array
-    // is events for specific day in range
-    const dates = calculateDaysArray(initialDate, numberOfDays);
-    const totalEvents = dates.map((date) => {
-      const dateStr = date.format(DATE_STR_FORMAT);
-      return eventsByDate[dateStr] || [];
-    });
-    const totalEventsWithPosition = this.getEventsWithPosition(totalEvents);
-    return totalEventsWithPosition;
-  });
+  processEvents = memoizeOne(
+    (eventsByDate, initialDate, numberOfDays, rightToLeft) => {
+      // totalEvents stores events in each day of numberOfDays
+      // example: [[event1, event2], [event3, event4], [event5]], each child array
+      // is events for specific day in range
+      const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
+      const totalEvents = dates.map((date) => {
+        const dateStr = date.format(DATE_STR_FORMAT);
+        return eventsByDate[dateStr] || [];
+      });
+      const totalEventsWithPosition = this.getEventsWithPosition(totalEvents);
+      return totalEventsWithPosition;
+    },
+  );
 
   onGridClick = (event, dayIndex) => {
     const { initialDate, onGridClick } = this.props;
@@ -158,11 +160,13 @@ class Events extends PureComponent {
       onEventPress,
       eventContainerStyle,
       EventComponent,
+      rightToLeft,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
       initialDate,
       numberOfDays,
+      rightToLeft,
     );
 
     return (
@@ -212,6 +216,7 @@ Events.propTypes = {
   onGridClick: PropTypes.func,
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
+  rightToLeft: PropTypes.bool,
 };
 
 export default Events;
