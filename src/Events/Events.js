@@ -22,15 +22,9 @@ const EVENTS_CONTAINER_WIDTH = CONTAINER_WIDTH - EVENT_HORIZONTAL_PADDING;
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
 
-const areEventsOverlapped = (
-  event1,
-  event2,
-  allowSeconds = ALLOW_OVERLAP_SECONDS,
-) => {
+const areEventsOverlapped = (event1, event2) => {
   const endDate = moment(event1.endDate);
-  if (allowSeconds && allowSeconds > 0) {
-    endDate.subtract(allowSeconds, 'seconds');
-  }
+  endDate.subtract(ALLOW_OVERLAP_SECONDS, 'seconds');
   return endDate.isSameOrAfter(event2.startDate);
 };
 
