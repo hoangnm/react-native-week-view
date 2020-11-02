@@ -1,8 +1,28 @@
 # react-native-week-view
 
 ![weekView](images/gif.gif)
+
+
+## Basic Usage
+```js
+import WeekView from 'react-native-week-view';
+
+const myEvents = [
+  // ...
+];
+
+const MyComponent = () => (
+  <WeekView
+    events={myEvents}
+    selectedDate={new Date()}
+    numberOfDays={7}
+  />
+);
+
+```
+
 ## Props
-* **`events`** _(Array)_ - Events to display
+* **`events`** _(Array)_ - Events to display, in `Event Object` format (see below)
 * **`onEventPress`** _(Function)_ - Callback when event item is clicked
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
 * **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
@@ -10,7 +30,7 @@
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
 * **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
 * **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
-* **`showTitle`** _(Boolean)_ - show/hide the title (the selected month and year). Default is `true`. 
+* **`showTitle`** _(Boolean)_ - show/hide the title (the selected month and year). Default is `true`.
 * **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
 * **`headerTextStyle`** _(Object)_ - custom styles for text inside header. Includes day names and title (month)
 * **`hourTextStyle`** _(Object)_ - custom styles for text displaying hours in the left.
@@ -36,6 +56,19 @@
   // ... more properties if needed,
 }
 ```
+
+## Methods
+
+To use the component methods save a reference to it:
+```js
+<WeekView
+  // ... other props
+  ref={(ref) => { this.weekViewRef = ref; }}
+/>
+```
+
+* **`goToDate(date, animated = true)`**: when called, the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+
 
 ## Custom `EventComponent`
 The component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
@@ -63,7 +96,7 @@ const MyEventComponent = ({ event, position }) => (
 There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 
 Example:
-```
+```js
 export WeekView, { addLocale } from 'react-native-week-view';
 // add customized localed before using locale prop.
 addLocale('fr', {
@@ -73,6 +106,7 @@ addLocale('fr', {
   weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
 });
 ```
+
 ## TODO
 - [x] allow to swipe between weeks or days.
 - [x] header should be swipeable with columns.
