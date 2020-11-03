@@ -32,7 +32,7 @@ export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   let initial = 0;
   if (numberOfDays === 7) {
     initial = 1;
-    initial -= moment().isoWeekday();
+    initial -= moment(date).isoWeekday();
   }
   for (let i = initial; i < numberOfDays + initial; i += 1) {
     const currentDate = moment(date).add(i, 'd');
