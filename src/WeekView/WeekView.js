@@ -211,7 +211,7 @@ export default class WeekView extends Component {
         newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
       } else if (
         movedPages > 0 &&
-        newPage > this.state.initialDates.length - this.pageOffset
+        newPage >= this.state.initialDates.length - this.pageOffset
       ) {
         this.appendPagesInPlace(initialDates, 1);
 
