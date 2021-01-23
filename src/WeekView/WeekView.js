@@ -36,13 +36,16 @@ export default class WeekView extends Component {
     this.pageOffset = 2;
     this.currentPageIndex = this.pageOffset;
     this.eventsGridScrollX = new Animated.Value(0);
+
+    const initialDates = this.calculatePagesDates(
+      props.selectedDate,
+      props.numberOfDays,
+      props.prependMostRecent,
+    );
     this.state = {
-      currentMoment: props.selectedDate,
-      initialDates: this.calculatePagesDates(
-        props.selectedDate,
-        props.numberOfDays,
-        props.prependMostRecent,
-      ),
+      // currentMoment should always be the first date of the current page
+      currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+      initialDates,
     };
 
     setLocale(props.locale);
@@ -89,19 +92,96 @@ export default class WeekView extends Component {
     }
   };
 
+  getSignToTheFuture = () => {
+    const { prependMostRecent } = this.props;
+
+    const daySignToTheFuture = prependMostRecent ? -1 : 1;
+    return daySignToTheFuture;
+  };
+
+  prependPagesInPlace = (initialDates, nPages) => {
+    const { numberOfDays } = this.props;
+    const daySignToTheFuture = this.getSignToTheFuture();
+
+    const first = initialDates[0];
+    const daySignToThePast = daySignToTheFuture * -1;
+    const addDays = numberOfDays * daySignToThePast;
+    for (let i = 1; i <= nPages; i += 1) {
+      const initialDate = moment(first).add(addDays * i, 'd');
+      initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
+    }
+  };
+
+  appendPagesInPlace = (initialDates, nPages) => {
+    const { numberOfDays } = this.props;
+    const daySignToTheFuture = this.getSignToTheFuture();
+
+    const latest = initialDates[initialDates.length - 1];
+    const addDays = numberOfDays * daySignToTheFuture;
+    for (let i = 1; i <= nPages; i += 1) {
+      const initialDate = moment(latest).add(addDays * i, 'd');
+      initialDates.push(initialDate.format(DATE_STR_FORMAT));
+    }
+  };
+
+  goToDate = (targetDate, animated = true) => {
+    const { initialDates } = this.state;
+    const { numberOfDays } = this.props;
+
+    const currentDate = initialDates[this.currentPageIndex];
+    const deltaDay = moment(targetDate).diff(currentDate, 'day');
+    const deltaIndex = Math.floor(deltaDay / numberOfDays);
+    const signToTheFuture = this.getSignToTheFuture();
+    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+
+    if (targetIndex === this.currentPageIndex) {
+      return;
+    }
+
+    const scrollTo = (moveToIndex) => {
+      this.eventsGrid.scrollToIndex({
+        index: moveToIndex,
+        animated,
+      });
+      this.currentPageIndex = moveToIndex;
+    };
+
+    const newState = {};
+    let newStateCallback = () => {};
+
+    const lastViewablePage = initialDates.length - this.pageOffset;
+    if (targetIndex < this.pageOffset) {
+      const nPages = this.pageOffset - targetIndex;
+      this.prependPagesInPlace(initialDates, nPages);
+
+      targetIndex = this.pageOffset;
+
+      newState.initialDates = [...initialDates];
+      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
+    } else if (targetIndex > lastViewablePage) {
+      const nPages = targetIndex - lastViewablePage;
+      this.appendPagesInPlace(initialDates, nPages);
+
+      targetIndex = initialDates.length - this.pageOffset;
+
+      newState.initialDates = [...initialDates];
+      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
+    } else {
+      scrollTo(targetIndex);
+    }
+
+    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
+    this.setState(newState, newStateCallback);
+  };
+
   scrollEnded = (event) => {
     const {
       nativeEvent: { contentOffset, contentSize },
     } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
-    const {
-      onSwipePrev,
-      onSwipeNext,
-      numberOfDays,
-      prependMostRecent,
-    } = this.props;
-    const { currentMoment, initialDates } = this.state;
+    const { onSwipePrev, onSwipeNext } = this.props;
+    const { initialDates } = this.state;
 
     const newPage = Math.round((position / innerWidth) * initialDates.length);
     const movedPages = newPage - this.currentPageIndex;
@@ -112,41 +192,33 @@ export default class WeekView extends Component {
     }
 
     InteractionManager.runAfterInteractions(() => {
-      const daySignToTheFuture = prependMostRecent ? -1 : 1;
-      const newMoment = moment(currentMoment)
-        .add(movedPages * numberOfDays * daySignToTheFuture, 'd')
-        .toDate();
-
+      const newMoment = moment(initialDates[this.currentPageIndex]).toDate();
       const newState = {
         currentMoment: newMoment,
       };
+      let newStateCallback = () => {};
 
       if (movedPages < 0 && newPage < this.pageOffset) {
-        const first = initialDates[0];
-        const daySignToThePast = daySignToTheFuture * -1;
-        const addDays = numberOfDays * daySignToThePast;
-        const initialDate = moment(first).add(addDays, 'd');
-        initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
+        this.prependPagesInPlace(initialDates, 1);
         this.currentPageIndex += 1;
-        this.eventsGrid.scrollToIndex({
-          index: this.currentPageIndex,
-          animated: false,
-        });
 
         newState.initialDates = [...initialDates];
+        const scrollToCurrentIndex = () =>
+          this.eventsGrid.scrollToIndex({
+            index: this.currentPageIndex,
+            animated: false,
+          });
+        newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
       } else if (
         movedPages > 0 &&
-        newPage > this.state.initialDates.length - this.pageOffset
+        newPage >= this.state.initialDates.length - this.pageOffset
       ) {
-        const latest = initialDates[initialDates.length - 1];
-        const addDays = numberOfDays * daySignToTheFuture;
-        const initialDate = moment(latest).add(addDays, 'd');
-        initialDates.push(initialDate.format(DATE_STR_FORMAT));
+        this.appendPagesInPlace(initialDates, 1);
 
         newState.initialDates = [...initialDates];
       }
 
-      this.setState(newState);
+      this.setState(newState, newStateCallback);
 
       if (movedPages < 0) {
         onSwipePrev && onSwipePrev(newMoment);

@@ -69,6 +69,9 @@ class App extends React.Component {
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
           <WeekView
+            ref={r => {
+              this.componentRef = r;
+            }}
             events={events}
             selectedDate={selectedDate}
             numberOfDays={3}
