@@ -35,23 +35,20 @@ export default class WeekView extends Component {
     this.pageOffset = 2;
     this.currentPageIndex = this.pageOffset;
     this.eventsGridScrollX = new Animated.Value(0);
-
-    const initialDates = this.calculatePagesDates(
-      props.selectedDate,
-      props.numberOfDays,
-      props.prependMostRecent,
-    );
     this.state = {
-      // currentMoment should always be the first date of the current page
-      // unknown if this line works (whiteboard)
-      // currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
-      initialDates,
+      currentMoment: props.selectedDate,
+      initialDates: this.calculatePagesDates(
+        props.selectedDate,
+        props.numberOfDays,
+        props.prependMostRecent,
+      ),
     };
 
     setLocale(props.locale);
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-undef
     requestAnimationFrame(() => {
       this.scrollToVerticalStart();
     });
@@ -78,7 +75,7 @@ export default class WeekView extends Component {
       let minutes = timer % 60;
       if (minutes < 10) minutes = `0${minutes}`;
       const hour = Math.floor(timer / 60);
-      const timeString =
+      const timeString = // this.formatTime() added by Whiteboard.
         minutes === '00' ? this.formatTime(hour) : `${hour}:${minutes}`;
       times.push(timeString);
     }
@@ -93,97 +90,17 @@ export default class WeekView extends Component {
   formatTime = (hour) => `${((hour + 11) % 12) + 1} ${hour < 12 ? 'am' : 'pm'}`;
 
   scrollToVerticalStart = () => {
-    if (this.verticalAgenda) {
-      const { startHour, hoursInDisplay } = this.props;
-      const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
-      this.verticalAgenda.current.scrollTo({
-        y: startHeight,
-        x: 0,
-        animated: false,
-      });
-    }
-  };
+    // Changed by Whiteboard. Modified if block to not require indentation.
+    if (!this.verticalAgenda) return;
 
-  getSignToTheFuture = () => {
-    const { prependMostRecent } = this.props;
-
-    const daySignToTheFuture = prependMostRecent ? -1 : 1;
-    return daySignToTheFuture;
-  };
-
-  prependPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
-
-    const first = initialDates[0];
-    const daySignToThePast = daySignToTheFuture * -1;
-    const addDays = numberOfDays * daySignToThePast;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(first).add(addDays * i, 'd');
-      initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
-    }
-  };
-
-  appendPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
-
-    const latest = initialDates[initialDates.length - 1];
-    const addDays = numberOfDays * daySignToTheFuture;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(latest).add(addDays * i, 'd');
-      initialDates.push(initialDate.format(DATE_STR_FORMAT));
-    }
-  };
-
-  goToDate = (targetDate, animated = true) => {
-    const { initialDates } = this.state;
-    const { numberOfDays } = this.props;
-
-    const currentDate = initialDates[this.currentPageIndex];
-    const deltaDay = moment(targetDate).diff(currentDate, 'day');
-    const deltaIndex = Math.floor(deltaDay / numberOfDays);
-    const signToTheFuture = this.getSignToTheFuture();
-    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
-
-    if (targetIndex === this.currentPageIndex) {
-      return;
-    }
-
-    const scrollTo = (moveToIndex) => {
-      this.eventsGrid.scrollToIndex({
-        index: moveToIndex,
-        animated,
-      });
-      this.currentPageIndex = moveToIndex;
-    };
-
-    const newState = {};
-    let newStateCallback = () => {};
-
-    const lastViewablePage = initialDates.length - this.pageOffset;
-    if (targetIndex < this.pageOffset) {
-      const nPages = this.pageOffset - targetIndex;
-      this.prependPagesInPlace(initialDates, nPages);
-
-      targetIndex = this.pageOffset;
-
-      newState.initialDates = [...initialDates];
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else if (targetIndex > lastViewablePage) {
-      const nPages = targetIndex - lastViewablePage;
-      this.appendPagesInPlace(initialDates, nPages);
-
-      targetIndex = initialDates.length - this.pageOffset;
-
-      newState.initialDates = [...initialDates];
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else {
-      scrollTo(targetIndex);
-    }
-
-    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
-    this.setState(newState, newStateCallback);
+    const { startHour, hoursInDisplay } = this.props;
+    const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
+    // Added 'current' because it would not work otherwise
+    this.verticalAgenda.current.scrollTo({
+      y: startHeight,
+      x: 0,
+      animated: false,
+    });
   };
 
   scrollEnded = (event) => {
@@ -192,8 +109,13 @@ export default class WeekView extends Component {
     } = event;
     const { x: position } = contentOffset;
     const { width: innerWidth } = contentSize;
-    const { onSwipePrev, onSwipeNext } = this.props;
-    const { initialDates } = this.state;
+    const {
+      onSwipePrev,
+      onSwipeNext,
+      numberOfDays,
+      prependMostRecent,
+    } = this.props;
+    const { currentMoment, initialDates } = this.state;
 
     const newPage = Math.round((position / innerWidth) * initialDates.length);
     const movedPages = newPage - this.currentPageIndex;
@@ -204,33 +126,41 @@ export default class WeekView extends Component {
     }
 
     InteractionManager.runAfterInteractions(() => {
-      const newMoment = moment(initialDates[this.currentPageIndex]).toDate();
+      const daySignToTheFuture = prependMostRecent ? -1 : 1;
+      const newMoment = moment(currentMoment)
+        .add(movedPages * numberOfDays * daySignToTheFuture, 'd')
+        .toDate();
+
       const newState = {
         currentMoment: newMoment,
       };
-      let newStateCallback = () => {};
 
       if (movedPages < 0 && newPage < this.pageOffset) {
-        this.prependPagesInPlace(initialDates, 1);
+        const first = initialDates[0];
+        const daySignToThePast = daySignToTheFuture * -1;
+        const addDays = numberOfDays * daySignToThePast;
+        const initialDate = moment(first).add(addDays, 'd');
+        initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
         this.currentPageIndex += 1;
+        this.eventsGrid.scrollToIndex({
+          index: this.currentPageIndex,
+          animated: false,
+        });
 
         newState.initialDates = [...initialDates];
-        const scrollToCurrentIndex = () =>
-          this.eventsGrid.scrollToIndex({
-            index: this.currentPageIndex,
-            animated: false,
-          });
-        newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
       } else if (
         movedPages > 0 &&
-        newPage >= this.state.initialDates.length - this.pageOffset
+        newPage > this.state.initialDates.length - this.pageOffset
       ) {
-        this.appendPagesInPlace(initialDates, 1);
+        const latest = initialDates[initialDates.length - 1];
+        const addDays = numberOfDays * daySignToTheFuture;
+        const initialDate = moment(latest).add(addDays, 'd');
+        initialDates.push(initialDate.format(DATE_STR_FORMAT));
 
         newState.initialDates = [...initialDates];
       }
 
-      this.setState(newState, newStateCallback);
+      this.setState(newState);
 
       if (movedPages < 0) {
         onSwipePrev && onSwipePrev(newMoment);
@@ -340,7 +270,11 @@ export default class WeekView extends Component {
               : { opacity: 0, height: 0 }
           }
         >
-          <View style={{ width: 60 }} />
+          <View
+            style={{
+              width: 60,
+            }}
+          />
           <VirtualizedList
             horizontal
             pagingEnabled
@@ -370,6 +304,7 @@ export default class WeekView extends Component {
             }}
           />
         </View>
+        {/* Fixed below reference */}
         <ScrollView ref={this.verticalAgenda}>
           <View style={styles.scrollViewContent}>
             <Times times={times} textStyle={hourTextStyle} />
@@ -385,7 +320,7 @@ export default class WeekView extends Component {
                   <Events
                     times={times}
                     eventsByDate={eventsByDate}
-                    initialDate={item}
+                    initialDate={item.toString()}
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
                     onGridClick={onGridClick}
