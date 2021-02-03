@@ -142,14 +142,17 @@ class Events extends PureComponent {
   );
 
   onGridClick = (event, dayIndex) => {
-    const { initialDate, onGridClick } = this.props;
+    const { initialDate, onGridClick, numberOfDays } = this.props;
     if (!onGridClick) {
       return;
     }
     const { locationY } = event.nativeEvent;
     const hour = Math.floor(this.yToHour(locationY - CONTENT_OFFSET));
 
-    const date = moment(initialDate).add(dayIndex, 'day').toDate();
+    const adjustment =
+      numberOfDays === 7 ? dayIndex - moment(initialDate).weekday() : dayIndex;
+
+    const date = moment(initialDate).add(adjustment, 'day').toDate();
 
     onGridClick(event, hour, date);
   };

@@ -13,7 +13,6 @@ import memoizeOne from 'memoize-one';
 import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
-import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
@@ -31,7 +30,7 @@ export default class WeekView extends Component {
   constructor(props) {
     super(props);
     this.eventsGrid = null;
-    this.verticalAgenda = null;
+    this.verticalAgenda = React.createRef();
     this.header = null;
     this.pageOffset = 2;
     this.currentPageIndex = this.pageOffset;
@@ -44,7 +43,8 @@ export default class WeekView extends Component {
     );
     this.state = {
       // currentMoment should always be the first date of the current page
-      currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+      // unknown if this line works (whiteboard)
+      // currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
     };
 
@@ -78,17 +78,29 @@ export default class WeekView extends Component {
       let minutes = timer % 60;
       if (minutes < 10) minutes = `0${minutes}`;
       const hour = Math.floor(timer / 60);
-      const timeString = `${hour}:${minutes}`;
+      const timeString =
+        minutes === '00' ? this.formatTime(hour) : `${hour}:${minutes}`;
       times.push(timeString);
     }
     return times;
   });
 
+  /**
+   * Convert XX:00 to XX am/pm. Added by Whiteboard.
+   * @param {number} hour in 24h format
+   * @returns {string} formatted time string
+   */
+  formatTime = (hour) => `${((hour + 11) % 12) + 1} ${hour < 12 ? 'am' : 'pm'}`;
+
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
       const { startHour, hoursInDisplay } = this.props;
       const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
-      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+      this.verticalAgenda.current.scrollTo({
+        y: startHeight,
+        x: 0,
+        animated: false,
+      });
     }
   };
 
@@ -298,7 +310,6 @@ export default class WeekView extends Component {
 
   render() {
     const {
-      showTitle,
       numberOfDays,
       headerStyle,
       headerTextStyle,
@@ -313,7 +324,7 @@ export default class WeekView extends Component {
       prependMostRecent,
       rightToLeft,
     } = this.props;
-    const { currentMoment, initialDates } = this.state;
+    const { initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
@@ -322,14 +333,14 @@ export default class WeekView extends Component {
 
     return (
       <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Title
-            showTitle={showTitle}
-            style={headerStyle}
-            textStyle={headerTextStyle}
-            numberOfDays={numberOfDays}
-            selectedDate={currentMoment}
-          />
+        <View
+          style={
+            numberOfDays !== 1
+              ? styles.headerContainer
+              : { opacity: 0, height: 0 }
+          }
+        >
+          <View style={{ width: 60 }} />
           <VirtualizedList
             horizontal
             pagingEnabled
@@ -359,7 +370,7 @@ export default class WeekView extends Component {
             }}
           />
         </View>
-        <ScrollView ref={this.verticalAgendaRef}>
+        <ScrollView ref={this.verticalAgenda}>
           <View style={styles.scrollViewContent}>
             <Times times={times} textStyle={hourTextStyle} />
             <VirtualizedList
@@ -423,12 +434,11 @@ WeekView.propTypes = {
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
-  selectedDate: PropTypes.instanceOf(Date).isRequired,
+  selectedDate: PropTypes.instanceOf(moment).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
-  showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
 };
@@ -438,7 +448,6 @@ WeekView.defaultProps = {
   locale: 'en',
   hoursInDisplay: 6,
   startHour: 0,
-  showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
 };
