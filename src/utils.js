@@ -10,7 +10,9 @@ export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
 
 export const getFormattedDate = (date, format) => {
-  return moment(date).format(format);
+  return format === 'ddd-'
+    ? moment(date).format(format.slice(0, 3)).slice(0, 1)
+    : moment(date).format(format);
 };
 
 export const setLocale = (locale) => {
@@ -29,11 +31,9 @@ export const getCurrentMonth = (date) => {
 
 export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   const dates = [];
-  let initial = 0;
-  if (numberOfDays === 7) {
-    initial = 1;
-    initial -= moment(date).isoWeekday();
-  }
+
+  const initial = numberOfDays === 7 ? -moment(date).weekday() : 0;
+
   for (let i = initial; i < numberOfDays + initial; i += 1) {
     const currentDate = moment(date).add(i, 'd');
     dates.push(currentDate);

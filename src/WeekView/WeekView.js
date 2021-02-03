@@ -13,7 +13,6 @@ import memoizeOne from 'memoize-one';
 import Event from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
-import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
@@ -31,7 +30,7 @@ export default class WeekView extends Component {
   constructor(props) {
     super(props);
     this.eventsGrid = null;
-    this.verticalAgenda = null;
+    this.verticalAgenda = React.createRef();
     this.header = null;
     this.pageOffset = 2;
     this.currentPageIndex = this.pageOffset;
@@ -44,7 +43,9 @@ export default class WeekView extends Component {
     );
     this.state = {
       // currentMoment should always be the first date of the current page
-      currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+      // unknown if this line works (whiteboard)
+      // currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+      currentMoment: props.selectedDate,
       initialDates,
     };
 
@@ -78,101 +79,109 @@ export default class WeekView extends Component {
       let minutes = timer % 60;
       if (minutes < 10) minutes = `0${minutes}`;
       const hour = Math.floor(timer / 60);
-      const timeString = `${hour}:${minutes}`;
+      const timeString =
+        minutes === '00' ? this.formatTime(hour) : `${hour}:${minutes}`;
       times.push(timeString);
     }
     return times;
   });
 
+   /**
+   * Convert XX:00 to XX am/pm. Added by Whiteboard.
+   * @param {number} hour in 24h format
+   * @returns {string} formatted time string
+   */
+  formatTime = (hour) => `${((hour + 11) % 12) + 1} ${hour < 12 ? 'am' : 'pm'}`; 
+
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
       const { startHour, hoursInDisplay } = this.props;
       const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
-      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+      this.verticalAgenda.current.scrollTo({ y: startHeight, x: 0, animated: false });
     }
   };
 
-  getSignToTheFuture = () => {
-    const { prependMostRecent } = this.props;
+  // getSignToTheFuture = () => {
+  //   const { prependMostRecent } = this.props;
 
-    const daySignToTheFuture = prependMostRecent ? -1 : 1;
-    return daySignToTheFuture;
-  };
+  //   const daySignToTheFuture = prependMostRecent ? -1 : 1;
+  //   return daySignToTheFuture;
+  // };
 
-  prependPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
+  // prependPagesInPlace = (initialDates, nPages) => {
+  //   const { numberOfDays } = this.props;
+  //   const daySignToTheFuture = this.getSignToTheFuture();
 
-    const first = initialDates[0];
-    const daySignToThePast = daySignToTheFuture * -1;
-    const addDays = numberOfDays * daySignToThePast;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(first).add(addDays * i, 'd');
-      initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
-    }
-  };
+  //   const first = initialDates[0];
+  //   const daySignToThePast = daySignToTheFuture * -1;
+  //   const addDays = numberOfDays * daySignToThePast;
+  //   for (let i = 1; i <= nPages; i += 1) {
+  //     const initialDate = moment(first).add(addDays * i, 'd');
+  //     initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
+  //   }
+  // };
 
-  appendPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
+  // appendPagesInPlace = (initialDates, nPages) => {
+  //   const { numberOfDays } = this.props;
+  //   const daySignToTheFuture = this.getSignToTheFuture();
 
-    const latest = initialDates[initialDates.length - 1];
-    const addDays = numberOfDays * daySignToTheFuture;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(latest).add(addDays * i, 'd');
-      initialDates.push(initialDate.format(DATE_STR_FORMAT));
-    }
-  };
+  //   const latest = initialDates[initialDates.length - 1];
+  //   const addDays = numberOfDays * daySignToTheFuture;
+  //   for (let i = 1; i <= nPages; i += 1) {
+  //     const initialDate = moment(latest).add(addDays * i, 'd');
+  //     initialDates.push(initialDate.format(DATE_STR_FORMAT));
+  //   }
+  // };
 
-  goToDate = (targetDate, animated = true) => {
-    const { initialDates } = this.state;
-    const { numberOfDays } = this.props;
+  // goToDate = (targetDate, animated = true) => {
+  //   const { initialDates } = this.state;
+  //   const { numberOfDays } = this.props;
 
-    const currentDate = initialDates[this.currentPageIndex];
-    const deltaDay = moment(targetDate).diff(currentDate, 'day');
-    const deltaIndex = Math.floor(deltaDay / numberOfDays);
-    const signToTheFuture = this.getSignToTheFuture();
-    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+  //   const currentDate = initialDates[this.currentPageIndex];
+  //   const deltaDay = moment(targetDate).diff(currentDate, 'day');
+  //   const deltaIndex = Math.floor(deltaDay / numberOfDays);
+  //   const signToTheFuture = this.getSignToTheFuture();
+  //   let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
-    if (targetIndex === this.currentPageIndex) {
-      return;
-    }
+  //   if (targetIndex === this.currentPageIndex) {
+  //     return;
+  //   }
 
-    const scrollTo = (moveToIndex) => {
-      this.eventsGrid.scrollToIndex({
-        index: moveToIndex,
-        animated,
-      });
-      this.currentPageIndex = moveToIndex;
-    };
+  //   const scrollTo = (moveToIndex) => {
+  //     this.eventsGrid.scrollToIndex({
+  //       index: moveToIndex,
+  //       animated,
+  //     });
+  //     this.currentPageIndex = moveToIndex;
+  //   };
 
-    const newState = {};
-    let newStateCallback = () => {};
+  //   const newState = {};
+  //   let newStateCallback = () => {};
 
-    const lastViewablePage = initialDates.length - this.pageOffset;
-    if (targetIndex < this.pageOffset) {
-      const nPages = this.pageOffset - targetIndex;
-      this.prependPagesInPlace(initialDates, nPages);
+  //   const lastViewablePage = initialDates.length - this.pageOffset;
+  //   if (targetIndex < this.pageOffset) {
+  //     const nPages = this.pageOffset - targetIndex;
+  //     this.prependPagesInPlace(initialDates, nPages);
 
-      targetIndex = this.pageOffset;
+  //     targetIndex = this.pageOffset;
 
-      newState.initialDates = [...initialDates];
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else if (targetIndex > lastViewablePage) {
-      const nPages = targetIndex - lastViewablePage;
-      this.appendPagesInPlace(initialDates, nPages);
+  //     newState.initialDates = [...initialDates];
+  //     newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
+  //   } else if (targetIndex > lastViewablePage) {
+  //     const nPages = targetIndex - lastViewablePage;
+  //     this.appendPagesInPlace(initialDates, nPages);
 
-      targetIndex = initialDates.length - this.pageOffset;
+  //     targetIndex = initialDates.length - this.pageOffset;
 
-      newState.initialDates = [...initialDates];
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else {
-      scrollTo(targetIndex);
-    }
+  //     newState.initialDates = [...initialDates];
+  //     newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
+  //   } else {
+  //     scrollTo(targetIndex);
+  //   }
 
-    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
-    this.setState(newState, newStateCallback);
-  };
+  //   newState.currentMoment = moment(initialDates[targetIndex]).toDate();
+  //   this.setState(newState, newStateCallback);
+  // };
 
   scrollEnded = (event) => {
     const {
@@ -322,14 +331,12 @@ export default class WeekView extends Component {
 
     return (
       <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Title
-            showTitle={showTitle}
-            style={headerStyle}
-            textStyle={headerTextStyle}
-            numberOfDays={numberOfDays}
-            selectedDate={currentMoment}
-          />
+        <View style={
+          numberOfDays !== 1 
+            ? styles.headerContainer
+            : { opacity: 0, height: 0 }}
+        >
+          <View style={{ width: 60 }} />
           <VirtualizedList
             horizontal
             pagingEnabled
@@ -359,7 +366,7 @@ export default class WeekView extends Component {
             }}
           />
         </View>
-        <ScrollView ref={this.verticalAgendaRef}>
+        <ScrollView ref={this.verticalAgenda}>
           <View style={styles.scrollViewContent}>
             <Times times={times} textStyle={hourTextStyle} />
             <VirtualizedList
@@ -423,7 +430,7 @@ WeekView.propTypes = {
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
-  selectedDate: PropTypes.instanceOf(Date).isRequired,
+  selectedDate: PropTypes.instanceOf(moment).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   startHour: PropTypes.number,

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
 
@@ -26,7 +27,7 @@ const Event = ({
       {EventComponent ? (
         <EventComponent event={event} position={position} />
       ) : (
-        <Text style={styles.description}>{event.description}</Text>
+        <Text style={styles.description}>{event.name}</Text>
       )}
     </TouchableOpacity>
   );
@@ -36,8 +37,8 @@ const eventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   description: PropTypes.string,
-  startDate: PropTypes.instanceOf(Date).isRequired,
-  endDate: PropTypes.instanceOf(Date).isRequired,
+  startDate: PropTypes.instanceOf(moment).isRequired,
+  endDate: PropTypes.instanceOf(moment).isRequired,
 });
 
 const positionPropType = PropTypes.shape({
