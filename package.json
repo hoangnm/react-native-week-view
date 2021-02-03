@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
   "license": "MIT",
-  "repository": "git://github.com/my-org/test.git",
+  "repository": "git://github.com/dali-lab/react-native-week-view.git",
   "bugs": {
     "url": "https://github.com/dali-lab/react-native-week-view/issues"
   },
