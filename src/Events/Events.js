@@ -148,8 +148,9 @@ class Events extends PureComponent {
     }
     const { locationY } = event.nativeEvent;
     const hour = Math.floor(this.yToHour(locationY - CONTENT_OFFSET));
-    
-    const adjustment = numberOfDays === 7 ? dayIndex - moment(initialDate).weekday() : dayIndex;
+
+    const adjustment =
+      numberOfDays === 7 ? dayIndex - moment(initialDate).weekday() : dayIndex;
 
     const date = moment(initialDate).add(adjustment, 'day').toDate();
 

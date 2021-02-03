@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
+    marginTop: -25,
   },
   header: {
     flex: 1,
