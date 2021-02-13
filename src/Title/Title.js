@@ -19,7 +19,6 @@ const Title = ({ style, showTitle, numberOfDays, selectedDate, textStyle }) => {
         <Text
           style={[
             {
-              color: style.color,
               fontSize: getFontSizeHeader(numberOfDays),
               textAlign: 'center',
             },

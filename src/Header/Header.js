@@ -19,13 +19,7 @@ const getDayTextStyles = (numberOfDays) => {
 const Column = ({ column, numberOfDays, format, style, textStyle }) => {
   return (
     <View style={[styles.column, style]}>
-      <Text
-        style={[
-          { color: style.color },
-          getDayTextStyles(numberOfDays),
-          textStyle,
-        ]}
-      >
+      <Text style={[getDayTextStyles(numberOfDays), textStyle]}>
         {getFormattedDate(column, format)}
       </Text>
     </View>
