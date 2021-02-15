@@ -305,7 +305,11 @@ export default class WeekView extends Component {
           />
         </View>
         {/* Fixed below reference */}
-        <ScrollView ref={this.verticalAgenda}>
+        <ScrollView
+          ref={this.verticalAgenda}
+          onScroll={this.props.handleScroll}
+          scrollEventThrottle={64}
+        >
           <View style={styles.scrollViewContent}>
             <Times times={times} textStyle={hourTextStyle} />
             <VirtualizedList
@@ -376,6 +380,7 @@ WeekView.propTypes = {
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
+  handleScroll: PropTypes.func,
 };
 
 WeekView.defaultProps = {
