@@ -164,6 +164,8 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      onEventLongPress,
+      sendCallback,
       eventContainerStyle,
       EventComponent,
       rightToLeft,
@@ -191,15 +193,17 @@ class Events extends PureComponent {
               onPress={(e) => this.onGridClick(e, dayIndex)}
               key={dayIndex}
             >
-              <View style={styles.event}>
+              <View style={[styles.event, { overflow: 'visible' }]}>
                 {eventsInSection.map((item) => (
                   <Event
                     key={item.data.id}
                     event={item.data}
                     position={item.style}
                     onPress={onEventPress}
+                    onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
+                    sendCallback={sendCallback}
                   />
                 ))}
               </View>
@@ -219,6 +223,8 @@ Events.propTypes = {
   hoursInDisplay: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
+  sendCallback: PropTypes.func,
   onGridClick: PropTypes.func,
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
