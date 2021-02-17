@@ -1,35 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, Pressable, View } from 'react-native';
 import styles from './Event.styles';
 
 const Event = ({
   event,
   onPress,
+  onLongPress,
+  sendCallback,
   position,
   EventComponent,
   containerStyle,
 }) => {
+  const [activeLongPress, setActiveLongPress] = useState(false);
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => onPress && onPress(event)}
-      style={[
-        styles.item,
-        position,
-        {
-          backgroundColor: event.color,
-        },
-        containerStyle,
-      ]}
+      onLongPress={() => {
+        setActiveLongPress(true);
+        onLongPress(event, position);
+      }}
+      onPressOut={() => setActiveLongPress(false)}
+      style={[styles.item, position, containerStyle, { overflow: 'visible' }]}
       disabled={!onPress}
     >
       {EventComponent ? (
-        <EventComponent event={event} position={position} />
+        <EventComponent
+          event={event}
+          position={position}
+          activeLongPress={activeLongPress}
+          sendCallback={sendCallback}
+        />
       ) : (
-        <Text style={styles.description}>{event.name}</Text>
+        <View style={{ backgroundColor: styles.color }}>
+          <Text style={styles.description}>{event.name}</Text>
+        </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -51,6 +59,8 @@ const positionPropType = PropTypes.shape({
 Event.propTypes = {
   event: eventPropType.isRequired,
   onPress: PropTypes.func,
+  onLongPress: PropTypes.func,
+  sendCallback: PropTypes.func,
   position: positionPropType,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,

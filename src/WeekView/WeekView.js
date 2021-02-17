@@ -247,6 +247,8 @@ export default class WeekView extends Component {
       eventContainerStyle,
       formatDateHeader,
       onEventPress,
+      onEventLongPress,
+      sendCallback,
       events,
       hoursInDisplay,
       onGridClick,
@@ -327,6 +329,8 @@ export default class WeekView extends Component {
                     initialDate={item.toString()}
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
+                    onEventLongPress={onEventLongPress}
+                    sendCallback={sendCallback}
                     onGridClick={onGridClick}
                     hoursInDisplay={hoursInDisplay}
                     EventComponent={EventComponent}
@@ -368,6 +372,8 @@ WeekView.propTypes = {
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
+  sendCallback: PropTypes.func,
   onGridClick: PropTypes.func,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
