@@ -19,7 +19,7 @@ const Event = ({
       onPress={() => onPress && onPress(event)}
       onLongPress={() => {
         setActiveLongPress(true);
-        onLongPress(event, position);
+        if (onLongPress) onLongPress(event, position);
       }}
       onPressOut={() => setActiveLongPress(false)}
       style={[styles.item, position, containerStyle, { overflow: 'visible' }]}
@@ -30,7 +30,13 @@ const Event = ({
           event={event}
           position={position}
           activeLongPress={activeLongPress}
-          sendCallback={sendCallback}
+          sendCallback={
+            sendCallback ||
+            ((data) => {
+              // eslint-disable-next-line no-console
+              console.log(data);
+            })
+          }
         />
       ) : (
         <View style={{ backgroundColor: styles.color }}>
