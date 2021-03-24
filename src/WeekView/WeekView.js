@@ -64,6 +64,12 @@ export default class WeekView extends Component {
     if (this.props.locale !== prevprops.locale) {
       setLocale(this.props.locale);
     }
+    
+    if (this.props.startHour !== prevprops.startHour) {
+      requestAnimationFrame(() => {
+        this.scrollToVerticalStart();
+      });
+    }
   }
 
   componentWillUnmount() {
