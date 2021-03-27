@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, TouchableOpacity } from 'react-native';
+import Draggable, { positionPropType } from '../Draggable/Draggable.js';
 import styles from './Event.styles';
 
 const Event = ({
@@ -9,26 +10,52 @@ const Event = ({
   position,
   EventComponent,
   containerStyle,
+  isDraggable,
+  onDragEvent,
 }) => {
+  const child = EventComponent ? (
+    <EventComponent event={event} position={position} />
+  ) : (
+    <Text style={styles.description}>{event.description}</Text>
+  );
+  if (!isDraggable || !onDragEvent) {
+    return (
+      <TouchableOpacity
+        onPress={() => onPress && onPress(event)}
+        style={[
+          styles.item,
+          position,
+          {
+            backgroundColor: event.color,
+          },
+          containerStyle,
+        ]}
+        disabled={!onPress}
+      >
+        {child}
+      </TouchableOpacity>
+    );
+  }
+  const onDragRelease = React.useCallback((newX, newY) => {
+    onDragEvent(event, newX, newY);
+  }, [event]);
+
   return (
-    <TouchableOpacity
-      onPress={() => onPress && onPress(event)}
+    <Draggable
+      position={position}
       style={[
         styles.item,
-        position,
         {
           backgroundColor: event.color,
         },
         containerStyle,
       ]}
+      onPress={() => onPress && onPress(event)}
+      onDragRelease={onDragRelease}
       disabled={!onPress}
     >
-      {EventComponent ? (
-        <EventComponent event={event} position={position} />
-      ) : (
-        <Text style={styles.description}>{event.description}</Text>
-      )}
-    </TouchableOpacity>
+      {child}
+    </Draggable>
   );
 };
 
@@ -40,19 +67,14 @@ const eventPropType = PropTypes.shape({
   endDate: PropTypes.instanceOf(Date).isRequired,
 });
 
-const positionPropType = PropTypes.shape({
-  height: PropTypes.number,
-  width: PropTypes.number,
-  top: PropTypes.number,
-  left: PropTypes.number,
-});
-
 Event.propTypes = {
   event: eventPropType.isRequired,
   onPress: PropTypes.func,
   position: positionPropType,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
+  isDraggable: PropTypes.bool,
+  onDragEvent: PropTypes.func,
 };
 
 export default Event;

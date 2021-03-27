@@ -20,13 +20,13 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
   },
-  event: {
+  eventsColumn: {
     flex: 1,
-    overflow: 'hidden',
+    overflow: 'visible',
     borderColor: GREY_COLOR,
     borderLeftWidth: 1,
   },
-  events: {
+  eventsContainer: {
     position: 'absolute',
     flexDirection: 'row',
     left: 0,

@@ -312,6 +312,8 @@ export default class WeekView extends Component {
       EventComponent,
       prependMostRecent,
       rightToLeft,
+      isDraggable,
+      onDragEvent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -382,6 +384,8 @@ export default class WeekView extends Component {
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     rightToLeft={rightToLeft}
+                    isDraggable={isDraggable}
+                    onDragEvent={onDragEvent}
                   />
                 );
               }}
@@ -431,6 +435,8 @@ WeekView.propTypes = {
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
+  isDraggable: PropTypes.bool,
+  onDragEvent: PropTypes.func,
 };
 
 WeekView.defaultProps = {

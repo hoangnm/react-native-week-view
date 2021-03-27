@@ -62,6 +62,27 @@ class App extends React.Component {
     Alert.alert(`Date: ${dateStr}\nStart hour: ${startHour}`);
   };
 
+  onDragEvent = (eventId, newStartDate) => {
+    // Here you should update the event in your DB with the new date and hour
+    const event = this.state.events.find(e => e.id === eventId);
+    if (!event) {
+      console.log('Event not found: ', eventId);
+      return;
+    }
+    const eventDuration = event.endDate.getTime() - event.startDate.getTime();
+    const newEndDate = new Date(newStartDate.getTime() + eventDuration);
+    this.setState({
+      events: [
+        ...this.state.events.filter(e => e.id !== eventId),
+        {
+          ...event,
+          startDate: newStartDate,
+          endDate: newEndDate,
+        },
+      ],
+    });
+  }
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -84,6 +105,8 @@ class App extends React.Component {
             formatDateHeader="MMM D"
             hoursInDisplay={12}
             startHour={8}
+            isDraggable={true}
+            onDragEvent={this.onDragEvent}
           />
         </SafeAreaView>
       </>

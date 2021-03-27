@@ -196,6 +196,22 @@ class Events extends PureComponent {
     onGridClick(event, hour, date);
   };
 
+  onDragEvent = (event, newX, newY) => {
+    const { onDragEvent } = this.props;
+
+    const movedDays = Math.floor(newX / this.getEventItemWidth());
+
+    const newStartDate = new Date(event.startDate.getTime());
+    newStartDate.setDate(newStartDate.getDate() + movedDays);
+
+    let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
+    const newHour = Math.floor(newMinutes / 60);
+    newMinutes = newMinutes % 60;
+    newStartDate.setHours(newHour, newMinutes);
+
+    onDragEvent(event.id, newStartDate);
+  }
+
   render() {
     const {
       eventsByDate,
@@ -206,6 +222,7 @@ class Events extends PureComponent {
       eventContainerStyle,
       EventComponent,
       rightToLeft,
+      isDraggable,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -224,13 +241,13 @@ class Events extends PureComponent {
             <View style={styles.timeLabelLine} />
           </View>
         ))}
-        <View style={styles.events}>
+        <View style={styles.eventsContainer}>
           {totalEvents.map((eventsInSection, dayIndex) => (
             <TouchableWithoutFeedback
               onPress={(e) => this.onGridClick(e, dayIndex)}
               key={dayIndex}
             >
-              <View style={styles.event}>
+              <View style={styles.eventsColumn}>
                 {eventsInSection.map((item) => (
                   <Event
                     key={item.data.id}
@@ -239,6 +256,8 @@ class Events extends PureComponent {
                     onPress={onEventPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
+                    isDraggable={isDraggable}
+                    onDragEvent={this.onDragEvent}
                   />
                 ))}
               </View>
@@ -262,6 +281,8 @@ Events.propTypes = {
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
+  isDraggable: PropTypes.bool,
+  onDragEvent: PropTypes.func,
 };
 
 export default Events;
