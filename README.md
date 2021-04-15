@@ -155,9 +155,9 @@ Most props have the same behavior as the [`WeekView`](#weekview) component. Avai
 
 ### Usage example
 
-To set `startDate` and `endDate` correctly, you should use the function provided: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`, where:
+To set `startDate` and `endDate` in each event correctly, you should use the function provided: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`, where:
 
-* `day`: _(Number|String)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc).
+* `day`: _(Number|String)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc. for english).
 * `hour`: _(Number)_ - specify hour of the day as number (from 0 to 23)
 * `minutes`: _(Number)_ - specify minutes of the day as number (from 0 to 59), defaults to 0
 * `seconds`: _(Number)_ - specify seconds of the day as number (from 0 to 59), defaults to 0

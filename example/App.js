@@ -56,7 +56,7 @@ const sampleFixedEvents = [
     id: 2,
     description: 'Event 2',
     startDate: createFixedWeekDate('wed', 16),
-    endDate: createFixedWeekDate('thur', 16, 30),
+    endDate: createFixedWeekDate(3, 17, 30),
     color: 'red',
   },
 ];
