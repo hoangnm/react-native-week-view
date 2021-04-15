@@ -1,2 +1,6 @@
+import FixedWeekView from './src/FixedWeekView/FixedWeekView';
+
 export { default } from './src/WeekView/WeekView';
-export { addLocale } from './src/utils';
+export { addLocale, createFixedWeekDate } from './src/utils';
+
+export { FixedWeekView };

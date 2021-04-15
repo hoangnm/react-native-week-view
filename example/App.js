@@ -9,7 +9,7 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
-import WeekView from 'react-native-week-view';
+import WeekView, { FixedWeekView, createFixedWeekDate } from 'react-native-week-view';
 
 const generateDates = (hours, minutes) => {
   const date = new Date();
@@ -44,9 +44,29 @@ const sampleEvents = [
   },
 ];
 
+const sampleFixedEvents = [
+  {
+    id: 1,
+    description: 'Event 1',
+    startDate: createFixedWeekDate('Monday', 12),
+    endDate: createFixedWeekDate(1, 14),
+    color: 'blue',
+  },
+  {
+    id: 2,
+    description: 'Event 2',
+    startDate: createFixedWeekDate('wed', 16),
+    endDate: createFixedWeekDate('thur', 16, 30),
+    color: 'red',
+  },
+];
+
+// For debugging purposes
+const showFixedComponent = true;
+
 class App extends React.Component {
   state = {
-    events: sampleEvents,
+    events: showFixedComponent ? sampleFixedEvents : sampleEvents,
     selectedDate: new Date(),
   };
 
@@ -68,23 +88,37 @@ class App extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
-          <WeekView
-            ref={r => {
-              this.componentRef = r;
-            }}
-            events={events}
-            selectedDate={selectedDate}
-            numberOfDays={3}
-            onEventPress={this.onEventPress}
-            onGridClick={this.onGridClick}
-            headerStyle={styles.header}
-            headerTextStyle={styles.headerText}
-            hourTextStyle={styles.hourText}
-            eventContainerStyle={styles.eventContainer}
-            formatDateHeader="MMM D"
-            hoursInDisplay={12}
-            startHour={8}
-          />
+          {showFixedComponent ? (
+            <FixedWeekView
+              events={events}
+              onEventPress={this.onEventPress}
+              onGridClick={this.onGridClick}
+              headerStyle={styles.header}
+              headerTextStyle={styles.headerText}
+              hourTextStyle={styles.hourText}
+              eventContainerStyle={styles.eventContainer}
+              hoursInDisplay={12}
+              startHour={8}
+            />
+          ) : (
+            <WeekView
+              ref={r => {
+                this.componentRef = r;
+              }}
+              events={events}
+              selectedDate={selectedDate}
+              numberOfDays={3}
+              onEventPress={this.onEventPress}
+              onGridClick={this.onGridClick}
+              headerStyle={styles.header}
+              headerTextStyle={styles.headerText}
+              hourTextStyle={styles.hourText}
+              eventContainerStyle={styles.eventContainer}
+              formatDateHeader="ddd DD"
+              hoursInDisplay={12}
+              startHour={8}
+            />
+          )}
         </SafeAreaView>
       </>
     );
