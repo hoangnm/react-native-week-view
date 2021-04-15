@@ -222,7 +222,7 @@ class Events extends PureComponent {
       eventContainerStyle,
       EventComponent,
       rightToLeft,
-      isDraggable,
+      areEventsDraggable,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -256,7 +256,7 @@ class Events extends PureComponent {
                     onPress={onEventPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
-                    isDraggable={isDraggable}
+                    isDraggable={areEventsDraggable}
                     onDragEvent={this.onDragEvent}
                   />
                 ))}
@@ -281,7 +281,7 @@ Events.propTypes = {
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
-  isDraggable: PropTypes.bool,
+  areEventsDraggable: PropTypes.bool,
   onDragEvent: PropTypes.func,
 };
 

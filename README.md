@@ -44,7 +44,7 @@ const MyComponent = () => (
 * **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See below for details on the component.
 * **`rightToLeft`** _(Boolean)_ - If true, render older days to the right and more recent days to the left.
 * **`prependMostRecent`** _(Boolean)_ - If true, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is false.
-* **`isDraggable`** _(Boolean)_ - Allow dragging events through the canvas. If `true`, the prop `onDragEvent` should be provided as well.
+* **`areEventsDraggable`** _(Boolean)_ - Allow dragging events through the canvas. If `true`, the prop `onDragEvent` should be provided as well.
 * **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(eventId, newStartDate) => {}`. The `eventId` indicates the event moved, and the `newStartDate` is a `Date` object with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.
 
 ## Event Object
