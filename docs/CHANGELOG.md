@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+### Added
+* `FixedWeekView` component
+
+
 
 ## 0.3.0 - 2021-02-13
 ### Changed

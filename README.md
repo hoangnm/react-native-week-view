@@ -2,13 +2,29 @@
 
 ![weekView](images/gif.gif)
 
+This Pure JS library provides two components: [`WeekView`](#weekview) and [`FixedWeekView`](#fixedweekview).
 
-## Basic Usage
+
+## WeekView
+
+Scrollable and customizable week-view component.
+
+
+### Quick usage
+
 ```js
 import WeekView from 'react-native-week-view';
 
 const myEvents = [
-  // ...
+  {
+    id: 1,
+    description: 'Event',
+    startDate: new Date(2021, 3, 15, 12, 0),
+    endDate: new Date(2021, 3, 15, 12, 30),
+    color: 'blue',
+    // ... more properties if needed,
+  },
+  // More events...
 ];
 
 const MyComponent = () => (
@@ -21,7 +37,7 @@ const MyComponent = () => (
 
 ```
 
-## Props
+### Props
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see below)
 * **`onEventPress`** _(Function)_ - Callback when event item is clicked
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
@@ -45,19 +61,20 @@ const MyComponent = () => (
 * **`rightToLeft`** _(Boolean)_ - If true, render older days to the right and more recent days to the left.
 * **`prependMostRecent`** _(Boolean)_ - If true, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is false.
 
-## Event Object
+
+### Event Object
 ```js
 {
   id: 1,
   description: 'Event',
-  startDate: new Date(),
-  endDate: new Date(),
+  startDate: new Date(2021, 3, 15, 12, 0),
+  endDate: new Date(2021, 3, 15, 12, 30),
   color: 'blue',
   // ... more properties if needed,
 }
 ```
 
-## Methods
+### Methods
 
 To use the component methods save a reference to it:
 ```js
@@ -70,8 +87,9 @@ To use the component methods save a reference to it:
 * **`goToDate(date, animated = true)`**: when called, the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
 
 
-## Custom `EventComponent`
-The component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
+### Custom `EventComponent`
+
+The custom component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
 * **`event`** _(Event)_ - Event object as described before.
 * **`position`**: _(Object)_ - object containing `top`, `left`, `height` and `width` values in pixels.
 
@@ -92,7 +110,8 @@ const MyEventComponent = ({ event, position }) => (
 />
 ```
 
-## Locales customization
+### Locales customization
+
 There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 
 Example:
@@ -106,6 +125,77 @@ addLocale('fr', {
   weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
 });
 ```
+
+## `FixedWeekView`
+
+Dsiplays a fixed week-view as a timetable, without horizontal scrolling.
+
+
+### Props
+
+Most props have the same behavior as the [`WeekView`](#weekview) component. Available props and their differences with the `WeekView` component are described here:
+
+* **`events`** - events should have `startDate` and `endDate` set with the helper function `createFixedWeekDate(day, hour, minutes, seconds)`. See below for an example.
+* **`onEventPress`**
+* **`numberOfDays`** - If less than 7, will display the first days of the week starting from monday. For example, if set to 5, will display from monday to friday. Defaults to 7
+* **`formatDateHeader`** - defaults to `ddd` (short day names, such as `"Mon"`, `"Tue"`, etc. in english).
+* **`locale`**
+* **`showTitle`** - defaults to `false`.
+* **`headerStyle`**
+* **`headerTextStyle`**
+* **`hourTextStyle`**
+* **`eventContainerStyle`**
+* **`hoursInDisplay`**
+* **`startHour`**
+* **`onGridClick`**
+* **`EventComponent`**
+* **`rightToLeft`**
+* **`title`** - _(String)_ - custom title to appear at the top left of the component. Defaults to empty title.
+
+
+### Usage example
+
+To set `startDate` and `endDate` correctly, you should use the function provided: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`, where:
+
+* `day`: _(Number|String)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc).
+* `hour`: _(Number)_ - specify hour of the day as number (from 0 to 23)
+* `minutes`: _(Number)_ - specify minutes of the day as number (from 0 to 59), defaults to 0
+* `seconds`: _(Number)_ - specify seconds of the day as number (from 0 to 59), defaults to 0
+
+
+```js
+import { FixedWeekView, createFixedWeekDate } from 'react-native-week-view';
+
+const myEvents = [
+  {
+    id: 1,
+    description: 'Event 1',
+    startDate: createFixedWeekDate('Monday', 12), // Day may be passed as string
+    endDate: createFixedWeekDate(1, 14), // Or as number, 1 = monday
+    color: 'blue',
+  },
+  {
+    id: 2,
+    description: 'Event 2',
+    startDate: createFixedWeekDate('wed', 16),
+    endDate: createFixedWeekDate(3, 16, 30),
+    color: 'red',
+  },
+];
+
+const MyComponent = () => (
+  <FixedWeekView
+    events={myEvents}
+    // ... other props
+  />
+);
+
+```
+
+If you choose to not use `createFixedWeekDate`, make sure that `startDate` and `endDate` are `Date` objects within this week, otherwise the events may not be displayed correctly in the timetable.
+
+
+
 
 ## TODO
 - [x] allow to swipe between weeks or days.
