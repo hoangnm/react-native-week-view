@@ -84,7 +84,7 @@ class App extends React.Component {
             formatDateHeader="MMM D"
             hoursInDisplay={12}
             startHour={8}
-            showLineNow
+            showNowLine
           />
         </SafeAreaView>
       </>

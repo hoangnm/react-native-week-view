@@ -213,8 +213,8 @@ class Events extends PureComponent {
       EventComponent,
       rightToLeft,
       hoursInDisplay,
-      showLineNow,
-      lineNowColor,
+      showNowLine,
+      nowLineColor,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -240,9 +240,9 @@ class Events extends PureComponent {
               key={dayIndex}
             >
               <View style={styles.event}>
-                {showLineNow && this.isToday(dayIndex) && (
+                {showNowLine && this.isToday(dayIndex) && (
                   <NowLine
-                    color={lineNowColor}
+                    color={nowLineColor}
                     hoursInDisplay={hoursInDisplay}
                     dayWidth={this.getEventItemWidth(false)}
                   />
@@ -278,8 +278,8 @@ Events.propTypes = {
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
-  showLineNow: PropTypes.bool,
-  lineNowColor: PropTypes.string,
+  showNowLine: PropTypes.bool,
+  nowLineColor: PropTypes.string,
 };
 
 export default Events;
