@@ -29,12 +29,7 @@ export const getCurrentMonth = (date) => {
 
 export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   const dates = [];
-  let initial = 0;
-  if (numberOfDays === 7) {
-    initial = 1;
-    initial -= moment(date).isoWeekday();
-  }
-  for (let i = initial; i < numberOfDays + initial; i += 1) {
+  for (let i = 0; i < numberOfDays; i += 1) {
     const currentDate = moment(date).add(i, 'd');
     dates.push(currentDate);
   }

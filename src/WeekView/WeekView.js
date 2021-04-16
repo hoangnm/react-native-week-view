@@ -242,8 +242,13 @@ export default class WeekView extends Component {
 
   calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent) => {
     const initialDates = [];
+    const centralDate = moment(currentMoment);
+    if (numberOfDays === 7) {
+      // Start week on monday
+      centralDate.startOf('isoWeek');
+    }
     for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
-      const initialDate = moment(currentMoment).add(numberOfDays * i, 'd');
+      const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
       initialDates.push(initialDate.format(DATE_STR_FORMAT));
     }
     return prependMostRecent ? initialDates.reverse() : initialDates;
