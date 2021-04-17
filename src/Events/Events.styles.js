@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
   },
   event: {
     flex: 1,
-    overflow: 'visible',
     borderColor: GREY_COLOR,
     borderLeftWidth: 1,
   },

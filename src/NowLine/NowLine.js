@@ -44,7 +44,7 @@ class NowLine extends React.Component {
   }
 
   render() {
-    const { color, dayWidth } = this.props;
+    const { color, width } = this.props;
 
     return (
       <Animated.View
@@ -53,7 +53,7 @@ class NowLine extends React.Component {
           {
             top: this.state.currentTop,
             borderColor: color,
-            width: dayWidth,
+            width,
           },
         ]}
       >
@@ -70,7 +70,7 @@ class NowLine extends React.Component {
 }
 
 NowLine.propTypes = {
-  dayWidth: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
   color: PropTypes.string,
 };
