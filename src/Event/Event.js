@@ -130,8 +130,8 @@ const positionPropType = PropTypes.shape({
 
 Event.propTypes = {
   event: eventPropType.isRequired,
+  position: positionPropType.isRequired,
   onPress: PropTypes.func,
-  position: positionPropType,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   isDraggable: PropTypes.bool,

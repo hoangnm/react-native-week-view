@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
   },
   eventsColumn: {
     flex: 1,
-    overflow: 'visible',
     borderColor: GREY_COLOR,
     borderLeftWidth: 1,
   },
