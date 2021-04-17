@@ -8,6 +8,12 @@ import {
 } from 'react-native';
 import styles from './Event.styles';
 
+const hasMovedEnough = (gestureState) => {
+  const { dx, dy } = gestureState;
+  const hasMovedEnough = Math.abs(dx) > 2 || Math.abs(dy) > 2;
+  return hasMovedEnough;
+};
+
 class Event extends React.Component {
   translatedByDrag = new Animated.ValueXY();
 
@@ -18,10 +24,10 @@ class Event extends React.Component {
     onStartShouldSetPanResponderCapture: () => this.isPressDisabled()
       && this.isDragEnabled(),
     onMoveShouldSetPanResponder: (_, gestureState) => this.isDragEnabled()
-      && this.hasMovedEnough(gestureState),
+      && hasMovedEnough(gestureState),
     onMoveShouldSetPanResponderCapture: (_, gestureState) => this.isPressDisabled()
       && this.isDragEnabled()
-      && this.hasMovedEnough(gestureState),
+      && hasMovedEnough(gestureState),
     onPanResponderMove: Animated.event(
       [
         null,
@@ -57,12 +63,6 @@ class Event extends React.Component {
     const { isDraggable, onDrag } = this.props;
     return isDraggable && onDrag;
   }
-
-  hasMovedEnough = (gestureState) => {
-    const { dx, dy } = gestureState;
-    const hasMovedEnough = Math.abs(dx) > 2 || Math.abs(dy) > 2;
-    return hasMovedEnough;
-  };
 
   onDragRelease = (dx, dy) => {
     const { position, onDrag } = this.props;
