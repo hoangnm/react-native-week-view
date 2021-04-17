@@ -24,7 +24,6 @@ import {
   CONTAINER_WIDTH,
   bucketEventsByDate,
   getTimesArray,
-  getCurrentMonth,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -43,6 +42,7 @@ export default class WeekView extends Component {
       props.selectedDate,
       props.numberOfDays,
       props.prependMostRecent,
+      props.fixedHorizontally,
     );
     this.state = {
       // currentMoment should always be the first date of the current page
@@ -230,10 +230,10 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent) => {
+  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent, fixedHorizontally) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
-    if (numberOfDays === 7) {
+    if (numberOfDays === 7 || fixedHorizontally) {
       // Start week on monday
       centralDate.startOf('isoWeek');
     }
@@ -266,8 +266,9 @@ export default class WeekView extends Component {
       hoursInDisplay,
       onGridClick,
       EventComponent,
-      prependMostRecent,
       rightToLeft,
+      fixedHorizontally,
+      prependMostRecent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -284,7 +285,7 @@ export default class WeekView extends Component {
             style={headerStyle}
             textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
-            text={getCurrentMonth(currentMoment)}
+            selectedDate={currentMoment}
           />
           <VirtualizedList
             horizontal
@@ -325,6 +326,7 @@ export default class WeekView extends Component {
               getItemLayout={(_, index) => this.getListItemLayout(index)}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
+              scrollEnabled={!fixedHorizontally}
               renderItem={({ item }) => {
                 return (
                   <Events
@@ -386,6 +388,7 @@ WeekView.propTypes = {
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
+  fixedHorizontally: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
 };
 

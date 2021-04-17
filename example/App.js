@@ -88,37 +88,25 @@ class App extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
-          {showFixedComponent ? (
-            <FixedWeekView
-              events={events}
-              onEventPress={this.onEventPress}
-              onGridClick={this.onGridClick}
-              headerStyle={styles.header}
-              headerTextStyle={styles.headerText}
-              hourTextStyle={styles.hourText}
-              eventContainerStyle={styles.eventContainer}
-              hoursInDisplay={12}
-              startHour={8}
-            />
-          ) : (
-            <WeekView
-              ref={r => {
-                this.componentRef = r;
-              }}
-              events={events}
-              selectedDate={selectedDate}
-              numberOfDays={3}
-              onEventPress={this.onEventPress}
-              onGridClick={this.onGridClick}
-              headerStyle={styles.header}
-              headerTextStyle={styles.headerText}
-              hourTextStyle={styles.hourText}
-              eventContainerStyle={styles.eventContainer}
-              formatDateHeader="ddd DD"
-              hoursInDisplay={12}
-              startHour={8}
-            />
-          )}
+          <WeekView
+            ref={r => {
+              this.componentRef = r;
+            }}
+            events={events}
+            selectedDate={selectedDate}
+            numberOfDays={7}
+            onEventPress={this.onEventPress}
+            onGridClick={this.onGridClick}
+            headerStyle={styles.header}
+            headerTextStyle={styles.headerText}
+            hourTextStyle={styles.hourText}
+            eventContainerStyle={styles.eventContainer}
+            formatDateHeader={showFixedComponent ? "ddd" : "ddd DD"}
+            hoursInDisplay={12}
+            startHour={8}
+            fixedHorizontally={showFixedComponent}
+            showTitle={!showFixedComponent}
+          />
         </SafeAreaView>
       </>
     );
