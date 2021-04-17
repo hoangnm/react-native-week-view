@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Added
-* `fixedHorizontally` prop, to support fixed-week behavior
+* `fixedHorizontally` prop and `createFixedWeekDate()` function, to support fixed-week behavior
 
 
 
