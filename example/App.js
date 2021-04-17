@@ -9,7 +9,7 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
-import WeekView, { FixedWeekView, createFixedWeekDate } from 'react-native-week-view';
+import WeekView, { createFixedWeekDate } from 'react-native-week-view';
 
 const generateDates = (hours, minutes) => {
   const date = new Date();

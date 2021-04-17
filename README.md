@@ -161,7 +161,7 @@ const myEvents = [
 ];
 
 const MyComponent = () => (
-  <FixedWeekView
+  <WeekView
     events={myEvents}
     fixedHorizontally={true}
     // Recommended props:
