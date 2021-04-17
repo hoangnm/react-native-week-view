@@ -1,62 +1,116 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, TouchableOpacity } from 'react-native';
-import Draggable, { positionPropType } from '../Draggable/Draggable.js';
+import {
+  Animated,
+  PanResponder,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import styles from './Event.styles';
 
-const Event = ({
-  event,
-  onPress,
-  position,
-  EventComponent,
-  containerStyle,
-  isDraggable,
-  onDragEvent,
-}) => {
-  const child = EventComponent ? (
-    <EventComponent event={event} position={position} />
-  ) : (
-    <Text style={styles.description}>{event.description}</Text>
-  );
-  if (!isDraggable || !onDragEvent) {
+class Event extends React.Component {
+  translatedByDrag = new Animated.ValueXY();
+
+  panResponder = PanResponder.create({
+    // If the press is disabled, the drag-gesture will be handled in the capture phase
+    // If the press is enabled, will be handled in the bubbling phase
+    onStartShouldSetPanResponder: () => this.isDragEnabled(),
+    onStartShouldSetPanResponderCapture: () => this.isPressDisabled()
+      && this.isDragEnabled(),
+    onMoveShouldSetPanResponder: (_, gestureState) => this.isDragEnabled()
+      && this.hasMovedEnough(gestureState),
+    onMoveShouldSetPanResponderCapture: (_, gestureState) => this.isPressDisabled()
+      && this.isDragEnabled()
+      && this.hasMovedEnough(gestureState),
+    onPanResponderMove: Animated.event(
+      [
+        null,
+        {
+          dx: this.translatedByDrag.x,
+          dy: this.translatedByDrag.y,
+        },
+      ],
+      {
+        useNativeDriver: false,
+      }
+    ),
+    onPanResponderRelease: (_, gestureState) => {
+      const { dx, dy } = gestureState;
+      this.onDragRelease(dx, dy);
+    },
+    onPanResponderTerminate: () => {
+      this.translatedByDrag.setValue({ x: 0, y: 0 });
+    },
+  });
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.position !== this.props.position) {
+      this.translatedByDrag.setValue({ x: 0, y: 0 });
+    }
+  }
+
+  isPressDisabled = () => {
+    return !this.props.onPress;
+  }
+
+  isDragEnabled = () => {
+    const { isDraggable, onDrag } = this.props;
+    return isDraggable && onDrag;
+  }
+
+  hasMovedEnough = (gestureState) => {
+    const { dx, dy } = gestureState;
+    const hasMovedEnough = Math.abs(dx) > 2 || Math.abs(dy) > 2;
+    return hasMovedEnough;
+  };
+
+  onDragRelease = (dx, dy) => {
+    const { position, onDrag } = this.props;
+    if (!onDrag) {
+      return;
+    }
+
+    const newX = (position.left + position.width / 2) + dx;
+    const newY = position.top + dy;
+    onDrag(this.props.event, newX, newY);
+  }
+
+  render() {
+    const {
+      event,
+      onPress,
+      position,
+      EventComponent,
+      containerStyle,
+    } = this.props;
+
     return (
-      <TouchableOpacity
-        onPress={() => onPress && onPress(event)}
+      <Animated.View
         style={[
-          styles.item,
+          styles.container,
           position,
+          this.translatedByDrag.getTranslateTransform(),
           {
             backgroundColor: event.color,
           },
           containerStyle,
         ]}
-        disabled={!onPress}
+        {...this.panResponder.panHandlers}
       >
-        {child}
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.touchableContainer}
+          disabled={!onPress}
+          onPress={() => onPress && onPress(event)}
+        >
+          {EventComponent ? (
+            <EventComponent event={event} position={position} />
+          ) : (
+            <Text style={styles.description}>{event.description}</Text>
+          )}
+        </TouchableOpacity>
+      </Animated.View>
     );
   }
-  const onDragRelease = React.useCallback((newX, newY) => {
-    onDragEvent(event, newX, newY);
-  }, [event]);
-
-  return (
-    <Draggable
-      position={position}
-      style={[
-        styles.item,
-        {
-          backgroundColor: event.color,
-        },
-        containerStyle,
-      ]}
-      onPress={() => onPress && onPress(event)}
-      onDragRelease={onDragRelease}
-      disabled={!onPress}
-    >
-      {child}
-    </Draggable>
-  );
 };
 
 const eventPropType = PropTypes.shape({
@@ -67,6 +121,13 @@ const eventPropType = PropTypes.shape({
   endDate: PropTypes.instanceOf(Date).isRequired,
 });
 
+const positionPropType = PropTypes.shape({
+  height: PropTypes.number,
+  width: PropTypes.number,
+  top: PropTypes.number,
+  left: PropTypes.number,
+});
+
 Event.propTypes = {
   event: eventPropType.isRequired,
   onPress: PropTypes.func,
@@ -74,7 +135,7 @@ Event.propTypes = {
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   isDraggable: PropTypes.bool,
-  onDragEvent: PropTypes.func,
+  onDrag: PropTypes.func,
 };
 
 export default Event;

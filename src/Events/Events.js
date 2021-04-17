@@ -257,7 +257,7 @@ class Events extends PureComponent {
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                     isDraggable={areEventsDraggable}
-                    onDragEvent={this.onDragEvent}
+                    onDrag={this.onDragEvent}
                   />
                 ))}
               </View>
