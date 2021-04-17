@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Added
-* `FixedWeekView` component
+* `fixedHorizontally` prop, to support fixed-week behavior
 
 
 

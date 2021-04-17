@@ -2,6 +2,7 @@
 
 ![weekView](images/gif.gif)
 
+
 ## Basic usage
 
 ```js
@@ -32,7 +33,6 @@ const MyComponent = () => (
 ## Full API
 
 ### Props
-
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
 * **`onEventPress`** _(Function)_ - Callback when event item is clicked
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
@@ -52,11 +52,10 @@ const MyComponent = () => (
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
   * `startHour` _(Number)_ - hour clicked (as integer)
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
-* **`EventComponent`** _(React.Component)_ - Component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
+* **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
 * **`rightToLeft`** _(Boolean)_ - If true, render older days to the right and more recent days to the left.
 * **`fixedHorizontally`** _(Boolean)_ - If true, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week)
 * **`prependMostRecent`** _(Boolean)_ - If true, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is false.
-
 
 ### Event Object
 ```js
@@ -84,7 +83,6 @@ To use the component methods save a reference to it:
 
 
 ### Custom `EventComponent`
-
 The custom component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
 * **`event`** _(Event)_ - Event object as described before.
 * **`position`**: _(Object)_ - object containing `top`, `left`, `height` and `width` values in pixels.
@@ -128,7 +126,7 @@ addLocale('fr', {
 
 The `WeekView` component can be used to display a fixed week (as a timetable):
 
-* Use the prop `fixedHorizontally={true}`
+* Use the prop `fixedHorizontally={true}`. This prop should not be changed after the first render
 
 * To set `startDate` and `endDate` in each event, you should use the function provided: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`, where:
   * `day`: _(Number|String)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc. for english).
