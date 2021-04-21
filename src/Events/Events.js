@@ -198,10 +198,14 @@ class Events extends PureComponent {
 
   onDragEvent = (event, newX, newY) => {
     const { onDragEvent } = this.props;
+    if (!onDragEvent) {
+      return;
+    }
 
     const movedDays = Math.floor(newX / this.getEventItemWidth());
 
-    const newStartDate = new Date(event.startDate.getTime());
+    const startTime = event.startDate.getTime();
+    const newStartDate = new Date(startTime);
     newStartDate.setDate(newStartDate.getDate() + movedDays);
 
     let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
@@ -209,7 +213,10 @@ class Events extends PureComponent {
     newMinutes = newMinutes % 60;
     newStartDate.setHours(newHour, newMinutes);
 
-    onDragEvent(event.id, newStartDate);
+    const eventDuration = event.endDate.getTime() - startTime;
+    const newEndDate = new Date(newStartDate.getTime() + eventDuration);
+
+    onDragEvent(event.id, newStartDate, newEndDate);
   }
 
   render() {
