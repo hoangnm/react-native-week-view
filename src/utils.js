@@ -2,6 +2,7 @@ import { Dimensions } from 'react-native';
 import moment from 'moment';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+export const CONTENT_OFFSET = 16;
 export const TIME_LABELS_IN_DISPLAY = 12;
 export const CONTAINER_HEIGHT = SCREEN_HEIGHT - 60;
 export const CONTAINER_WIDTH = SCREEN_WIDTH - 60;
@@ -9,6 +10,11 @@ export const TIME_LABEL_HEIGHT = CONTAINER_HEIGHT / TIME_LABELS_IN_DISPLAY;
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
 const MINUTES_IN_DAY = 60 * 24;
+
+export const minutesToYDimension = (hoursInDisplay, minutes) => {
+  const minutesInDisplay = 60 * hoursInDisplay;
+  return (minutes * CONTAINER_HEIGHT) / minutesInDisplay;
+};
 
 export const getFormattedDate = (date, format) => {
   return moment(date).format(format);

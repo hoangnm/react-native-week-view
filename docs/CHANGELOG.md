@@ -2,6 +2,7 @@
 
 ## Unreleased
 ### Added
+* "Now line" is displayed
 * `fixedHorizontally` prop and `createFixedWeekDate()` function, to support fixed-week behavior
 
 

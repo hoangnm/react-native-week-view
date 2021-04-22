@@ -106,6 +106,7 @@ class App extends React.Component {
             startHour={8}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
+            showNowLine
           />
         </SafeAreaView>
       </>
