@@ -4,6 +4,7 @@ import { View, TouchableWithoutFeedback } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
+import NowLine from '../NowLine/NowLine';
 import Event from '../Event/Event';
 import {
   TIME_LABEL_HEIGHT,
@@ -12,9 +13,11 @@ import {
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
+  minutesToYDimension,
+  CONTENT_OFFSET,
 } from '../utils';
 
-import styles, { CONTENT_OFFSET } from './Events.styles';
+import styles from './Events.styles';
 
 const MINUTES_IN_HOUR = 60;
 const EVENT_HORIZONTAL_PADDING = 15;
@@ -30,13 +33,15 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
 
 class Events extends PureComponent {
   getStyleForEvent = (item) => {
+    const { hoursInDisplay } = this.props;
+
     const startDate = moment(item.startDate);
     const startHours = startDate.hours();
     const startMinutes = startDate.minutes();
     const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
-    const top = this.minutesToYDimension(totalStartMinutes);
+    const top = minutesToYDimension(hoursInDisplay, totalStartMinutes);
     const deltaMinutes = moment(item.endDate).diff(item.startDate, 'minutes');
-    const height = this.minutesToYDimension(deltaMinutes);
+    const height = minutesToYDimension(hoursInDisplay, deltaMinutes);
     const width = this.getEventItemWidth();
 
     return {
@@ -151,21 +156,16 @@ class Events extends PureComponent {
     });
   };
 
-  minutesToYDimension = (minutes) => {
-    const { hoursInDisplay } = this.props;
-    const minutesInDisplay = MINUTES_IN_HOUR * hoursInDisplay;
-    return (minutes * CONTAINER_HEIGHT) / minutesInDisplay;
-  };
-
   yToHour = (y) => {
     const { hoursInDisplay } = this.props;
     const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT;
     return hour;
   };
 
-  getEventItemWidth = () => {
+  getEventItemWidth = (padded = true) => {
     const { numberOfDays } = this.props;
-    return EVENTS_CONTAINER_WIDTH / numberOfDays;
+    const fullWidth = padded ? EVENTS_CONTAINER_WIDTH : CONTAINER_WIDTH;
+    return fullWidth / numberOfDays;
   };
 
   processEvents = memoizeOne(
@@ -219,6 +219,12 @@ class Events extends PureComponent {
     onDragEvent(event.id, newStartDate, newEndDate);
   }
 
+  isToday = (dayIndex) => {
+    const { initialDate } = this.props;
+    const today = moment();
+    return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
+  }
+
   render() {
     const {
       eventsByDate,
@@ -229,6 +235,9 @@ class Events extends PureComponent {
       eventContainerStyle,
       EventComponent,
       rightToLeft,
+      hoursInDisplay,
+      showNowLine,
+      nowLineColor,
       areEventsDraggable,
     } = this.props;
     const totalEvents = this.processEvents(
@@ -255,6 +264,13 @@ class Events extends PureComponent {
               key={dayIndex}
             >
               <View style={styles.eventsColumn}>
+                {showNowLine && this.isToday(dayIndex) && (
+                  <NowLine
+                    color={nowLineColor}
+                    hoursInDisplay={hoursInDisplay}
+                    width={this.getEventItemWidth(false)}
+                  />
+                )}
                 {eventsInSection.map((item) => (
                   <Event
                     key={item.data.id}
@@ -288,6 +304,8 @@ Events.propTypes = {
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
+  showNowLine: PropTypes.bool,
+  nowLineColor: PropTypes.string,
   areEventsDraggable: PropTypes.bool,
   onDragEvent: PropTypes.func,
 };
