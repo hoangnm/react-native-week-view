@@ -12,11 +12,11 @@ cd example/
 npm install
 
 # 2. Install from local
-npm run sync:rm # removes symlink folder, which does not work with the react-native metro-bundler
-npm run sync # copies using rsync
+npm run sync:rmlink # removes symlink folder, which does not work with the react-native metro-bundler
+npm run sync # copies files using rsync
 ```
 
-### Running app
+### Running app on android
 ```sh
 npm run android
 npm run start

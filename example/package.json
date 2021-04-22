@@ -9,7 +9,8 @@
     "test": "jest",
     "lint": "eslint .",
     "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/",
-    "sync:rm": "rm ./node_modules/react-native-week-view"
+    "sync:rmlink": "unlink ./node_modules/react-native-week-view",
+    "sync:reset": "rm -rf ./node_modules/react-native-week-view"
   },
   "dependencies": {
     "moment": "^2.29.1",
