@@ -317,6 +317,8 @@ export default class WeekView extends Component {
       EventComponent,
       prependMostRecent,
       rightToLeft,
+      showNowLine,
+      nowLineColor,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(hoursInDisplay);
@@ -387,6 +389,8 @@ export default class WeekView extends Component {
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     rightToLeft={rightToLeft}
+                    showNowLine={showNowLine}
+                    nowLineColor={nowLineColor}
                   />
                 );
               }}
@@ -436,6 +440,8 @@ WeekView.propTypes = {
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
+  showNowLine: PropTypes.bool,
+  nowLineColor: PropTypes.string,
 };
 
 WeekView.defaultProps = {

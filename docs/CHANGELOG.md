@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+* "Now line" is displayed
+
 
 ## 0.3.0 - 2021-02-13
 ### Changed
