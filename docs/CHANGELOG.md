@@ -1,11 +1,12 @@
 # Changelog
 
 ## Unreleased
-### Added
-* "Now line" is displayed
-* `fixedHorizontally` prop and `createFixedWeekDate()` function, to support fixed-week behavior
 
-
+## 0.4.0 - 2021-04-23
+### Changed
+* Add two props `showNowLine` and `nowLineColor` to support showing the current date [#78](https://github.com/hoangnm/react-native-week-view/pull/78)
+### Fixed
+* The wrong selected date from onGridClick event [#77](https://github.com/hoangnm/react-native-week-view/pull/77)
 
 ## 0.3.0 - 2021-02-13
 ### Changed
