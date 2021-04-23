@@ -216,7 +216,7 @@ class Events extends PureComponent {
     const eventDuration = event.endDate.getTime() - startTime;
     const newEndDate = new Date(newStartDate.getTime() + eventDuration);
 
-    onDragEvent(event.id, newStartDate, newEndDate);
+    onDragEvent(event, newStartDate, newEndDate);
   }
 
   isToday = (dayIndex) => {
