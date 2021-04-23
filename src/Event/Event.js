@@ -14,6 +14,8 @@ const hasMovedEnough = (gestureState) => {
   return hasMovedEnough;
 };
 
+const UPDATE_EVENT_ANIMATION_DURATION = 150;
+
 class Event extends React.Component {
   translatedByDrag = new Animated.ValueXY();
 
@@ -49,9 +51,34 @@ class Event extends React.Component {
     },
   });
 
+  constructor(props) {
+    super(props);
+
+    const { left, width } = props.position;
+    this.currentWidth = new Animated.Value(width);
+    this.currentLeft = new Animated.Value(left);
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.position !== this.props.position) {
       this.translatedByDrag.setValue({ x: 0, y: 0 });
+      const animations = [];
+      const { left, width } = this.props.position;
+      if (prevProps.position.width !== width) {
+        animations.push(Animated.timing(this.currentWidth, {
+          toValue: width,
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+          useNativeDriver: false,
+        }));
+      }
+      if (prevProps.position.left !== left) {
+        animations.push(Animated.timing(this.currentLeft, {
+          toValue: left,
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+          useNativeDriver: false,
+        }));
+      }
+      Animated.parallel(animations).start();
     }
   }
 
@@ -84,15 +111,19 @@ class Event extends React.Component {
       containerStyle,
     } = this.props;
 
+    const { top, height } = position;
     return (
       <Animated.View
         style={[
           styles.container,
-          position,
-          this.translatedByDrag.getTranslateTransform(),
           {
+            top,
+            left: this.currentLeft,
+            height,
+            width: this.currentWidth,
             backgroundColor: event.color,
           },
+          this.translatedByDrag.getTranslateTransform(),
           containerStyle,
         ]}
         {...this.panResponder.panHandlers}
