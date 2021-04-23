@@ -54,9 +54,9 @@ const MyComponent = () => (
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
 * **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
 * **`showNowLine`** _(Boolean)_ - If `true`, displays a line indicating the time right now. Defaults to `false`.
-* **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`
+* **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
-* **`fixedHorizontally`** _(Boolean)_ - If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week)
+* **`fixedHorizontally`** _(Boolean)_ - If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week).
 * **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
 
 ### Event Object
