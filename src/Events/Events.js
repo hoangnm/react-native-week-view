@@ -213,8 +213,7 @@ class Events extends PureComponent {
     newMinutes = newMinutes % 60;
     newStartDate.setHours(newHour, newMinutes);
 
-    const eventDuration = event.endDate.getTime() - startTime;
-    const newEndDate = new Date(newStartDate.getTime() + eventDuration);
+    const newEndDate = new Date(newStartDate.getTime() + event.originalDuration);
 
     onDragEvent(event, newStartDate, newEndDate);
   }

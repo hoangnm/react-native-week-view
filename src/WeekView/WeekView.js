@@ -260,6 +260,7 @@ export default class WeekView extends Component {
     // If an event spans through multiple days, adds the event multiple times
     const sortedEvents = {};
     events.forEach((event) => {
+      const originalDuration = event.endDate.getTime() - event.startDate.getTime(); // in milliseconds
       const startDate = moment(event.startDate);
       const endDate = moment(event.endDate);
 
@@ -283,6 +284,7 @@ export default class WeekView extends Component {
           ...event,
           startDate: actualStartDate.toDate(),
           endDate: actualEndDate.toDate(),
+          originalDuration,
         });
       }
     });
