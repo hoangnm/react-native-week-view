@@ -99,7 +99,6 @@ class App extends React.Component {
             hoursInDisplay={12}
             startHour={8}
             showNowLine
-            areEventsDraggable
             onDragEvent={this.onDragEvent}
           />
         </SafeAreaView>

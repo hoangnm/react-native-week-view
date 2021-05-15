@@ -8,12 +8,6 @@ import {
 } from 'react-native';
 import styles from './Event.styles';
 
-const hasMovedEnough = (gestureState) => {
-  const { dx, dy } = gestureState;
-  const hasMovedEnough = Math.abs(dx) > 2 || Math.abs(dy) > 2;
-  return hasMovedEnough;
-};
-
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
 
 class Event extends React.Component {
@@ -23,13 +17,9 @@ class Event extends React.Component {
     // If the press is disabled, the drag-gesture will be handled in the capture phase
     // If the press is enabled, will be handled in the bubbling phase
     onStartShouldSetPanResponder: () => this.isDragEnabled(),
-    onStartShouldSetPanResponderCapture: () => this.isPressDisabled()
-      && this.isDragEnabled(),
-    onMoveShouldSetPanResponder: (_, gestureState) => this.isDragEnabled()
-      && hasMovedEnough(gestureState),
-    onMoveShouldSetPanResponderCapture: (_, gestureState) => this.isPressDisabled()
-      && this.isDragEnabled()
-      && hasMovedEnough(gestureState),
+    onStartShouldSetPanResponderCapture: () => this.isPressDisabled() && this.isDragEnabled(),
+    onMoveShouldSetPanResponder: () => this.isDragEnabled(),
+    onMoveShouldSetPanResponderCapture: () => this.isPressDisabled() && this.isDragEnabled(),
     onPanResponderMove: Animated.event(
       [
         null,
@@ -42,6 +32,7 @@ class Event extends React.Component {
         useNativeDriver: false,
       }
     ),
+    onPanResponderTerminationRequest: () => false,
     onPanResponderRelease: (_, gestureState) => {
       const { dx, dy } = gestureState;
       this.onDragRelease(dx, dy);
@@ -87,8 +78,7 @@ class Event extends React.Component {
   }
 
   isDragEnabled = () => {
-    const { isDraggable, onDrag } = this.props;
-    return isDraggable && onDrag;
+    return !!this.props.onDrag;
   }
 
   onDragRelease = (dx, dy) => {
@@ -165,7 +155,6 @@ Event.propTypes = {
   onPress: PropTypes.func,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
-  isDraggable: PropTypes.bool,
   onDrag: PropTypes.func,
 };
 

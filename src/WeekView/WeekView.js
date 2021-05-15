@@ -319,7 +319,6 @@ export default class WeekView extends Component {
       rightToLeft,
       showNowLine,
       nowLineColor,
-      areEventsDraggable,
       onDragEvent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
@@ -368,7 +367,12 @@ export default class WeekView extends Component {
             }}
           />
         </View>
-        <ScrollView ref={this.verticalAgendaRef}>
+        <ScrollView
+          ref={this.verticalAgendaRef}
+          onStartShouldSetResponderCapture={() => false}
+          onMoveShouldSetResponderCapture={() => false}
+          onResponderTerminationRequest={() => false}
+        >
           <View style={styles.scrollViewContent}>
             <Times times={times} textStyle={hourTextStyle} />
             <VirtualizedList
@@ -378,6 +382,9 @@ export default class WeekView extends Component {
               getItemLayout={(_, index) => this.getListItemLayout(index)}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
+              onStartShouldSetResponderCapture={() => false}
+              onMoveShouldSetResponderCapture={() => false}
+              onResponderTerminationRequest={() => false}
               renderItem={({ item }) => {
                 return (
                   <Events
@@ -393,7 +400,6 @@ export default class WeekView extends Component {
                     rightToLeft={rightToLeft}
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
-                    areEventsDraggable={areEventsDraggable}
                     onDragEvent={onDragEvent}
                   />
                 );
@@ -446,7 +452,6 @@ WeekView.propTypes = {
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
-  areEventsDraggable: PropTypes.bool,
   onDragEvent: PropTypes.func,
 };
 

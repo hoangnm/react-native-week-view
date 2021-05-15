@@ -238,7 +238,7 @@ class Events extends PureComponent {
       hoursInDisplay,
       showNowLine,
       nowLineColor,
-      areEventsDraggable,
+      onDragEvent,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -279,8 +279,7 @@ class Events extends PureComponent {
                     onPress={onEventPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
-                    isDraggable={areEventsDraggable}
-                    onDrag={this.onDragEvent}
+                    onDrag={onDragEvent && this.onDragEvent}
                   />
                 ))}
               </View>
@@ -306,7 +305,6 @@ Events.propTypes = {
   rightToLeft: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
-  areEventsDraggable: PropTypes.bool,
   onDragEvent: PropTypes.func,
 };
 
