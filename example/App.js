@@ -97,6 +97,7 @@ class App extends React.Component {
             eventContainerStyle={styles.eventContainer}
             formatDateHeader="MMM D"
             hoursInDisplay={12}
+            timeStep={60}
             startHour={8}
             showNowLine
             onDragEvent={this.onDragEvent}
@@ -111,7 +112,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 22,
   },
   header: {
     backgroundColor: '#4286f4',
