@@ -137,6 +137,21 @@ export default class WeekView extends Component {
     if (targetIndex === this.currentPageIndex) {
       return;
     }
+    this.goToPageIndex(targetIndex, animated);
+  };
+
+  goToNextPage = (animated = true) => {
+    const signToTheFuture = this.getSignToTheFuture();
+    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
+  }
+
+  goToPrevPage = (animated = true) => {
+    const signToTheFuture = this.getSignToTheFuture();
+    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
+  }
+
+  goToPageIndex = (targetIndex, animated = true) => {
+    const { initialDates } = this.state;
 
     const scrollTo = (moveToIndex) => {
       this.eventsGrid.scrollToIndex({
