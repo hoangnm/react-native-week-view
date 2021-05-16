@@ -134,9 +134,6 @@ export default class WeekView extends Component {
     const signToTheFuture = this.getSignToTheFuture();
     let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
-    if (targetIndex === this.currentPageIndex) {
-      return;
-    }
     this.goToPageIndex(targetIndex, animated);
   };
 
@@ -151,6 +148,10 @@ export default class WeekView extends Component {
   }
 
   goToPageIndex = (targetIndex, animated = true) => {
+    if (targetIndex === this.currentPageIndex) {
+      return;
+    }
+
     const { initialDates } = this.state;
 
     const scrollTo = (moveToIndex) => {
