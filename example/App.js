@@ -103,6 +103,7 @@ class App extends React.Component {
             eventContainerStyle={styles.eventContainer}
             formatDateHeader={showFixedComponent ? "ddd" : "ddd DD"}
             hoursInDisplay={12}
+            timeStep={60}
             startHour={8}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
@@ -118,7 +119,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 22,
   },
   header: {
     backgroundColor: '#4286f4',

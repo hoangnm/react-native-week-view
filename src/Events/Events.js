@@ -7,7 +7,6 @@ import memoizeOne from 'memoize-one';
 import NowLine from '../NowLine/NowLine';
 import Event from '../Event/Event';
 import {
-  TIME_LABEL_HEIGHT,
   CONTAINER_HEIGHT,
   CONTAINER_WIDTH,
   calculateDaysArray,
@@ -15,6 +14,7 @@ import {
   availableNumberOfDays,
   minutesToYDimension,
   CONTENT_OFFSET,
+  getTimeLabelHeight,
 } from '../utils';
 
 import styles from './Events.styles';
@@ -213,6 +213,7 @@ class Events extends PureComponent {
       EventComponent,
       rightToLeft,
       hoursInDisplay,
+      timeStep,
       showNowLine,
       nowLineColor,
     } = this.props;
@@ -228,7 +229,7 @@ class Events extends PureComponent {
         {times.map((time) => (
           <View
             key={time}
-            style={[styles.timeRow, { height: TIME_LABEL_HEIGHT }]}
+            style={[styles.timeRow, { height: getTimeLabelHeight(hoursInDisplay, timeStep) }]}
           >
             <View style={styles.timeLabelLine} />
           </View>
@@ -272,6 +273,7 @@ Events.propTypes = {
     .isRequired,
   initialDate: PropTypes.string.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
+  timeStep: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,

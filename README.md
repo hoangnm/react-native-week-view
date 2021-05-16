@@ -47,6 +47,7 @@ const MyComponent = () => (
 * **`hourTextStyle`** _(Object)_ - custom styles for text displaying hours in the left.
 * **`eventContainerStyle`** _(Object)_ - custom styles for the event container. Notice the background color and positioning (absolute) are already set.
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
+* **`timeStep`** _(Number)_ - Number of minutes to use as step in the time labels shown in the left. Default is 60 (1 hour).
 * **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
 * **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
@@ -81,7 +82,9 @@ To use the component methods save a reference to it:
 />
 ```
 
-* **`goToDate(date, animated = true)`**: when called, the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+* **`goToNextPage(animated = true)`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
+* **`goToPrevPage(animated = true)`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
 
 
 ### Custom `EventComponent`
