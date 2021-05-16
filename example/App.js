@@ -9,7 +9,7 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
-import WeekView, { createFixedWeekDate } from 'react-native-week-view';
+import WeekView, {createFixedWeekDate} from 'react-native-week-view';
 
 const generateDates = (hours, minutes) => {
   const date = new Date();
@@ -101,7 +101,7 @@ class App extends React.Component {
             headerTextStyle={styles.headerText}
             hourTextStyle={styles.hourText}
             eventContainerStyle={styles.eventContainer}
-            formatDateHeader={showFixedComponent ? "ddd" : "ddd DD"}
+            formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
             startHour={8}
