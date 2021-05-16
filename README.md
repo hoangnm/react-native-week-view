@@ -47,8 +47,7 @@ const MyComponent = () => (
 * **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
 * **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
-* **`areEventsDraggable`** _(Boolean)_ - Allow dragging events through the canvas. If `true`, the prop `onDragEvent` should be provided as well.
-* **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.
+* **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The events are draggable only if this callback is provided.
 
 ## Event Object
 ```js

@@ -210,13 +210,15 @@ class Events extends PureComponent {
 
     let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
     const newHour = Math.floor(newMinutes / 60);
-    newMinutes = newMinutes % 60;
+    newMinutes %= 60;
     newStartDate.setHours(newHour, newMinutes);
 
-    const newEndDate = new Date(newStartDate.getTime() + event.originalDuration);
+    const newEndDate = new Date(
+      newStartDate.getTime() + event.originalDuration,
+    );
 
     onDragEvent(event, newStartDate, newEndDate);
-  }
+  };
 
   isToday = (dayIndex) => {
     const { initialDate } = this.props;

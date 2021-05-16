@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Animated,
-  PanResponder,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
 
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
@@ -17,9 +12,11 @@ class Event extends React.Component {
     // If the press is disabled, the drag-gesture will be handled in the capture phase
     // If the press is enabled, will be handled in the bubbling phase
     onStartShouldSetPanResponder: () => this.isDragEnabled(),
-    onStartShouldSetPanResponderCapture: () => this.isPressDisabled() && this.isDragEnabled(),
+    onStartShouldSetPanResponderCapture: () =>
+      this.isPressDisabled() && this.isDragEnabled(),
     onMoveShouldSetPanResponder: () => this.isDragEnabled(),
-    onMoveShouldSetPanResponderCapture: () => this.isPressDisabled() && this.isDragEnabled(),
+    onMoveShouldSetPanResponderCapture: () =>
+      this.isPressDisabled() && this.isDragEnabled(),
     onPanResponderMove: Animated.event(
       [
         null,
@@ -30,7 +27,7 @@ class Event extends React.Component {
       ],
       {
         useNativeDriver: false,
-      }
+      },
     ),
     onPanResponderTerminationRequest: () => false,
     onPanResponderRelease: (_, gestureState) => {
@@ -56,18 +53,22 @@ class Event extends React.Component {
       const animations = [];
       const { left, width } = this.props.position;
       if (prevProps.position.width !== width) {
-        animations.push(Animated.timing(this.currentWidth, {
-          toValue: width,
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-          useNativeDriver: false,
-        }));
+        animations.push(
+          Animated.timing(this.currentWidth, {
+            toValue: width,
+            duration: UPDATE_EVENT_ANIMATION_DURATION,
+            useNativeDriver: false,
+          }),
+        );
       }
       if (prevProps.position.left !== left) {
-        animations.push(Animated.timing(this.currentLeft, {
-          toValue: left,
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-          useNativeDriver: false,
-        }));
+        animations.push(
+          Animated.timing(this.currentLeft, {
+            toValue: left,
+            duration: UPDATE_EVENT_ANIMATION_DURATION,
+            useNativeDriver: false,
+          }),
+        );
       }
       Animated.parallel(animations).start();
     }
@@ -75,11 +76,11 @@ class Event extends React.Component {
 
   isPressDisabled = () => {
     return !this.props.onPress;
-  }
+  };
 
   isDragEnabled = () => {
     return !!this.props.onDrag;
-  }
+  };
 
   onDragRelease = (dx, dy) => {
     const { position, onDrag } = this.props;
@@ -87,10 +88,10 @@ class Event extends React.Component {
       return;
     }
 
-    const newX = (position.left + position.width / 2) + dx;
+    const newX = position.left + position.width / 2 + dx;
     const newY = position.top + dy;
     onDrag(this.props.event, newX, newY);
-  }
+  };
 
   render() {
     const {
@@ -116,6 +117,7 @@ class Event extends React.Component {
           this.translatedByDrag.getTranslateTransform(),
           containerStyle,
         ]}
+        /* eslint-disable react/jsx-props-no-spreading */
         {...this.panResponder.panHandlers}
       >
         <TouchableOpacity
@@ -132,7 +134,7 @@ class Event extends React.Component {
       </Animated.View>
     );
   }
-};
+}
 
 const eventPropType = PropTypes.shape({
   color: PropTypes.string,

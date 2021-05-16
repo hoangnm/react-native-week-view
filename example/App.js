@@ -74,7 +74,7 @@ class App extends React.Component {
         },
       ],
     });
-  }
+  };
 
   render() {
     const {events, selectedDate} = this.state;
