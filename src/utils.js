@@ -14,9 +14,9 @@ export const minutesToYDimension = (hoursInDisplay, minutes) => {
 };
 
 export const getTimeLabelHeight = (hoursInDisplay, minutesStep) => {
-  const timeLabelsInDisplay = Math.ceil(hoursInDisplay * 60 / minutesStep);
+  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
   return CONTAINER_HEIGHT / timeLabelsInDisplay;
-}
+};
 
 export const getFormattedDate = (date, format) => {
   return moment(date).format(format);

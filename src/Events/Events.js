@@ -200,7 +200,7 @@ class Events extends PureComponent {
     const { initialDate } = this.props;
     const today = moment();
     return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
-  }
+  };
 
   render() {
     const {
@@ -229,7 +229,10 @@ class Events extends PureComponent {
         {times.map((time) => (
           <View
             key={time}
-            style={[styles.timeRow, { height: getTimeLabelHeight(hoursInDisplay, timeStep) }]}
+            style={[
+              styles.timeRow,
+              { height: getTimeLabelHeight(hoursInDisplay, timeStep) },
+            ]}
           >
             <View style={styles.timeLabelLine} />
           </View>
