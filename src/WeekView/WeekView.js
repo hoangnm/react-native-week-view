@@ -17,7 +17,6 @@ import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
-  TIME_LABELS_IN_DISPLAY,
   CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
   availableNumberOfDays,
@@ -70,10 +69,8 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.removeAllListeners();
   }
 
-  calculateTimes = memoizeOne((hoursInDisplay) => {
+  calculateTimes = memoizeOne((minutesStep) => {
     const times = [];
-    const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
-    const minutesStep = 60 / timeLabelsPerHour;
     for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
       let minutes = timer % 60;
       if (minutes < 10) minutes = `0${minutes}`;
@@ -329,6 +326,7 @@ export default class WeekView extends Component {
       onEventPress,
       events,
       hoursInDisplay,
+      timeStep,
       onGridClick,
       EventComponent,
       prependMostRecent,
@@ -337,7 +335,7 @@ export default class WeekView extends Component {
       nowLineColor,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
-    const times = this.calculateTimes(hoursInDisplay);
+    const times = this.calculateTimes(timeStep);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
@@ -384,7 +382,12 @@ export default class WeekView extends Component {
         </View>
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
-            <Times times={times} textStyle={hourTextStyle} />
+            <Times
+              times={times}
+              textStyle={hourTextStyle}
+              hoursInDisplay={hoursInDisplay}
+              timeStep={timeStep}
+            />
             <VirtualizedList
               data={initialDates}
               getItem={(data, index) => data[index]}
@@ -402,6 +405,7 @@ export default class WeekView extends Component {
                     onEventPress={onEventPress}
                     onGridClick={onGridClick}
                     hoursInDisplay={hoursInDisplay}
+                    timeStep={timeStep}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     rightToLeft={rightToLeft}
@@ -451,6 +455,7 @@ WeekView.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
+  timeStep: PropTypes.number,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
@@ -464,6 +469,7 @@ WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
+  timeStep: 60,
   startHour: 0,
   showTitle: true,
   rightToLeft: false,
