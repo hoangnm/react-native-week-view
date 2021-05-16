@@ -17,13 +17,12 @@ import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
+  TIME_LABELS_IN_DISPLAY,
   CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
   CONTAINER_WIDTH,
-  bucketEventsByDate,
-  getTimesArray,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -72,7 +71,19 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.removeAllListeners();
   }
 
-  calculateTimes = memoizeOne(getTimesArray);
+  calculateTimes = memoizeOne((hoursInDisplay) => {
+    const times = [];
+    const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
+    const minutesStep = 60 / timeLabelsPerHour;
+    for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
+      let minutes = timer % 60;
+      if (minutes < 10) minutes = `0${minutes}`;
+      const hour = Math.floor(timer / 60);
+      const timeString = `${hour}:${minutes}`;
+      times.push(timeString);
+    }
+    return times;
+  });
 
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
@@ -244,7 +255,46 @@ export default class WeekView extends Component {
     return prependMostRecent ? initialDates.reverse() : initialDates;
   };
 
-  sortEventsByDate = memoizeOne(bucketEventsByDate);
+  sortEventsByDate = memoizeOne((events) => {
+    // Stores the events hashed by their date
+    // For example: { "2020-02-03": [event1, event2, ...] }
+    // If an event spans through multiple days, adds the event multiple times
+    const sortedEvents = {};
+    events.forEach((event) => {
+      const startDate = moment(event.startDate);
+      const endDate = moment(event.endDate);
+
+      for (
+        let date = moment(startDate);
+        date.isSameOrBefore(endDate, 'days');
+        date.add(1, 'days')
+      ) {
+        // Calculate actual start and end dates
+        const startOfDay = moment(date).startOf('day');
+        const endOfDay = moment(date).endOf('day');
+        const actualStartDate = moment.max(startDate, startOfDay);
+        const actualEndDate = moment.min(endDate, endOfDay);
+
+        // Add to object
+        const dateStr = date.format(DATE_STR_FORMAT);
+        if (!sortedEvents[dateStr]) {
+          sortedEvents[dateStr] = [];
+        }
+        sortedEvents[dateStr].push({
+          ...event,
+          startDate: actualStartDate.toDate(),
+          endDate: actualEndDate.toDate(),
+        });
+      }
+    });
+    // For each day, sort the events by the minute (in-place)
+    Object.keys(sortedEvents).forEach((date) => {
+      sortedEvents[date].sort((a, b) => {
+        return moment(a.startDate).diff(b.startDate, 'minutes');
+      });
+    });
+    return sortedEvents;
+  });
 
   getListItemLayout = (index) => ({
     length: CONTAINER_WIDTH,
@@ -266,9 +316,9 @@ export default class WeekView extends Component {
       hoursInDisplay,
       onGridClick,
       EventComponent,
+      prependMostRecent,
       rightToLeft,
       fixedHorizontally,
-      prependMostRecent,
       showNowLine,
       nowLineColor,
     } = this.props;
