@@ -125,11 +125,13 @@ export default class WeekView extends Component {
     const { initialDates } = this.state;
     const { numberOfDays } = this.props;
 
-    const currentDate = moment(initialDates[this.currentPageIndex]).startOf('day');
+    const currentDate = moment(initialDates[this.currentPageIndex]).startOf(
+      'day',
+    );
     const deltaDay = moment(targetDate).startOf('day').diff(currentDate, 'day');
     const deltaIndex = Math.floor(deltaDay / numberOfDays);
     const signToTheFuture = this.getSignToTheFuture();
-    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+    const targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
     this.goToPageIndex(targetIndex, animated);
   };
@@ -137,15 +139,15 @@ export default class WeekView extends Component {
   goToNextPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
     this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
-  }
+  };
 
   goToPrevPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
     this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
-  }
+  };
 
-  goToPageIndex = (targetIndex, animated = true) => {
-    if (targetIndex === this.currentPageIndex) {
+  goToPageIndex = (target, animated = true) => {
+    if (target === this.currentPageIndex) {
       return;
     }
 
@@ -161,6 +163,8 @@ export default class WeekView extends Component {
 
     const newState = {};
     let newStateCallback = () => {};
+    // The final target may change, if pages are added
+    let targetIndex = target;
 
     const lastViewablePage = initialDates.length - this.pageOffset;
     if (targetIndex < this.pageOffset) {

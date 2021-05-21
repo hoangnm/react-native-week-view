@@ -1,11 +1,8 @@
 import React from 'react';
-import { Text, View, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
 import PropTypes from 'prop-types';
 
-import {
-  minutesToYDimension,
-  CONTENT_OFFSET,
-} from '../utils';
+import { minutesToYDimension, CONTENT_OFFSET } from '../utils';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
@@ -24,7 +21,7 @@ class NowLine extends React.Component {
 
     this.state = {
       currentTranslateY: new Animated.Value(0),
-    }
+    };
 
     this.intervalCallbackId = null;
   }
@@ -68,7 +65,8 @@ class NowLine extends React.Component {
             {
               backgroundColor: color,
             },
-        ]}/>
+          ]}
+        />
       </Animated.View>
     );
   }
