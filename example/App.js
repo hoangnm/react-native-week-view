@@ -9,7 +9,7 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
 
-import WeekView from 'react-native-week-view';
+import WeekView, {createFixedWeekDate} from 'react-native-week-view';
 
 const generateDates = (hours, minutes) => {
   const date = new Date();
@@ -44,9 +44,29 @@ const sampleEvents = [
   },
 ];
 
+const sampleFixedEvents = [
+  {
+    id: 1,
+    description: 'Event 1',
+    startDate: createFixedWeekDate('Monday', 12),
+    endDate: createFixedWeekDate(1, 14),
+    color: 'blue',
+  },
+  {
+    id: 2,
+    description: 'Event 2',
+    startDate: createFixedWeekDate('wed', 16),
+    endDate: createFixedWeekDate(3, 17, 30),
+    color: 'red',
+  },
+];
+
+// For debugging purposes
+const showFixedComponent = true;
+
 class App extends React.Component {
   state = {
-    events: sampleEvents,
+    events: showFixedComponent ? sampleFixedEvents : sampleEvents,
     selectedDate: new Date(),
   };
 
@@ -88,17 +108,19 @@ class App extends React.Component {
             }}
             events={events}
             selectedDate={selectedDate}
-            numberOfDays={3}
+            numberOfDays={7}
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
             headerStyle={styles.header}
             headerTextStyle={styles.headerText}
             hourTextStyle={styles.hourText}
             eventContainerStyle={styles.eventContainer}
-            formatDateHeader="MMM D"
+            formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
             startHour={8}
+            fixedHorizontally={showFixedComponent}
+            showTitle={!showFixedComponent}
             showNowLine
             onDragEvent={this.onDragEvent}
           />

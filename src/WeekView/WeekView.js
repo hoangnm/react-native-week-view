@@ -40,6 +40,7 @@ export default class WeekView extends Component {
       props.selectedDate,
       props.numberOfDays,
       props.prependMostRecent,
+      props.fixedHorizontally,
     );
     this.state = {
       // currentMoment should always be the first date of the current page
@@ -125,11 +126,13 @@ export default class WeekView extends Component {
     const { initialDates } = this.state;
     const { numberOfDays } = this.props;
 
-    const currentDate = moment(initialDates[this.currentPageIndex]).startOf('day');
+    const currentDate = moment(initialDates[this.currentPageIndex]).startOf(
+      'day',
+    );
     const deltaDay = moment(targetDate).startOf('day').diff(currentDate, 'day');
     const deltaIndex = Math.floor(deltaDay / numberOfDays);
     const signToTheFuture = this.getSignToTheFuture();
-    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+    const targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
     this.goToPageIndex(targetIndex, animated);
   };
@@ -137,15 +140,15 @@ export default class WeekView extends Component {
   goToNextPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
     this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
-  }
+  };
 
   goToPrevPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
     this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
-  }
+  };
 
-  goToPageIndex = (targetIndex, animated = true) => {
-    if (targetIndex === this.currentPageIndex) {
+  goToPageIndex = (target, animated = true) => {
+    if (target === this.currentPageIndex) {
       return;
     }
 
@@ -161,6 +164,8 @@ export default class WeekView extends Component {
 
     const newState = {};
     let newStateCallback = () => {};
+    // The final target may change, if pages are added
+    let targetIndex = target;
 
     const lastViewablePage = initialDates.length - this.pageOffset;
     if (targetIndex < this.pageOffset) {
@@ -253,10 +258,10 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent) => {
+  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent, fixedHorizontally) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
-    if (numberOfDays === 7) {
+    if (numberOfDays === 7 || fixedHorizontally) {
       // Start week on monday
       centralDate.startOf('isoWeek');
     }
@@ -335,6 +340,7 @@ export default class WeekView extends Component {
       EventComponent,
       prependMostRecent,
       rightToLeft,
+      fixedHorizontally,
       showNowLine,
       nowLineColor,
       onDragEvent,
@@ -405,6 +411,7 @@ export default class WeekView extends Component {
               getItemLayout={(_, index) => this.getListItemLayout(index)}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
+              scrollEnabled={!fixedHorizontally}
               onStartShouldSetResponderCapture={() => false}
               onMoveShouldSetResponderCapture={() => false}
               onResponderTerminationRequest={() => false}
@@ -474,6 +481,7 @@ WeekView.propTypes = {
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
+  fixedHorizontally: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,

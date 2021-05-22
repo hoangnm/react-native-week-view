@@ -14,9 +14,9 @@ export const minutesToYDimension = (hoursInDisplay, minutes) => {
 };
 
 export const getTimeLabelHeight = (hoursInDisplay, minutesStep) => {
-  const timeLabelsInDisplay = Math.ceil(hoursInDisplay * 60 / minutesStep);
+  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
   return CONTAINER_HEIGHT / timeLabelsInDisplay;
-}
+};
 
 export const getFormattedDate = (date, format) => {
   return moment(date).format(format);
@@ -43,4 +43,12 @@ export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
     dates.push(currentDate);
   }
   return rightToLeft ? dates.reverse() : dates;
+};
+
+export const createFixedWeekDate = (day, hours, minutes=0, seconds=0) => {
+  const date = moment();
+  date.isoWeekday(day);
+  date.hours(hours);
+  date.minutes(minutes);
+  return date.toDate();
 };
