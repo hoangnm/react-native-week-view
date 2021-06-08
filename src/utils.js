@@ -45,10 +45,11 @@ export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   return rightToLeft ? dates.reverse() : dates;
 };
 
-export const createFixedWeekDate = (day, hours, minutes=0, seconds=0) => {
+export const createFixedWeekDate = (day, hours, minutes = 0, seconds = 0) => {
   const date = moment();
   date.isoWeekday(day);
   date.hours(hours);
   date.minutes(minutes);
+  date.seconds(seconds);
   return date.toDate();
 };

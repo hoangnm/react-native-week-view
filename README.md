@@ -48,6 +48,7 @@ const MyComponent = () => (
 * **`eventContainerStyle`** _(Object)_ - custom styles for the event container. Notice the background color and positioning (absolute) are already set.
 * **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
 * **`timeStep`** _(Number)_ - Number of minutes to use as step in the time labels shown in the left. Default is 60 (1 hour).
+* **`formatTimeLabel`** _(String)_ - Formatter for the time labels shown in the left. Defaults to `"H:mm"` (e.g. 16:00, 16:30, etc). To use AM/PM formatting, set to `"h:mm A"` (e.g. 4:00 PM, 4:30 PM, etc), or `"h:mm a"` for lowercase. See [docs on momentjs](https://momentjs.com/docs/#/displaying/format/) for all available formatters.
 * **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
 * **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
