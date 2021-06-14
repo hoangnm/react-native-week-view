@@ -52,9 +52,12 @@ export default class WeekView extends Component {
   }
 
   componentDidMount() {
-    requestAnimationFrame(() => {
-      this.scrollToVerticalStart();
-    });
+    if (!this.props.onlyEventsInterval) {
+      requestAnimationFrame(() => {
+        this.scrollToVerticalStart();
+      });
+    }
+
     this.eventsGridScrollX.addListener((position) => {
       this.header.scrollToOffset({ offset: position.value, animated: false });
     });
@@ -77,6 +80,23 @@ export default class WeekView extends Component {
   }
 
   calculateTimes = memoizeOne((hoursInDisplay) => {
+    const {
+      onlyEventsInterval,
+      startInterval,
+      endInterval,
+    } = this.props;
+
+    let startHour = null;
+    let endHour = null;
+    let startMinutes = null;
+    let endMinutes = null;
+    if (onlyEventsInterval && startInterval !== null && endInterval !== null) {
+      startHour = startInterval.getHours();
+      endHour = endInterval.getHours();
+      startMinutes = startInterval.getMinutes();
+      endMinutes = endInterval.getMinutes();
+    }
+
     const times = [];
     const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
     const minutesStep = 60 / timeLabelsPerHour;
@@ -85,15 +105,34 @@ export default class WeekView extends Component {
       if (minutes < 10) minutes = `0${minutes}`;
       const hour = Math.floor(timer / 60);
       const timeString = `${hour}:${minutes}`;
+
+      if (onlyEventsInterval) {
+        const minutesInt = parseInt(minutes);
+        if (hour < startHour || hour > endHour) {
+          continue;
+        }
+        if (hour === startHour && minutesInt < startMinutes) {
+          continue;
+        }
+        if (hour === endHour && minutesInt > endMinutes) {
+          continue;
+        }
+      }
+
       times.push(timeString);
     }
+    
     return times;
-  });
+  }, () => !this.props.onlyEventsInterval);
 
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
-      const { startHour, hoursInDisplay } = this.props;
-      const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
+      const { startHour, hoursInDisplay, onlyEventsInterval } = this.props;
+      let startHeight = hoursInDisplay;
+      if (!onlyEventsInterval) {
+        startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
+      }
+
       this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
     }
   };
@@ -312,6 +351,7 @@ export default class WeekView extends Component {
       eventContainerStyle,
       formatDateHeader,
       onEventPress,
+      onEventLongPress,
       events,
       hoursInDisplay,
       onGridClick,
@@ -383,6 +423,7 @@ export default class WeekView extends Component {
                     initialDate={item}
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
+                    onEventLongPress={onEventLongPress}
                     onGridClick={onGridClick}
                     hoursInDisplay={hoursInDisplay}
                     EventComponent={EventComponent}
@@ -424,6 +465,7 @@ WeekView.propTypes = {
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
@@ -437,6 +479,9 @@ WeekView.propTypes = {
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
+  onlyEventsInterval: PropTypes.bool,
+  startInterval: PropTypes.instanceOf(Date),
+  endInterval: PropTypes.instanceOf(Date),
 };
 
 WeekView.defaultProps = {
@@ -447,4 +492,7 @@ WeekView.defaultProps = {
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
+  onlyEventsInterval: false,
+  startInterval: null,
+  endInterval: null,
 };

@@ -32,8 +32,19 @@ class Events extends PureComponent {
   getStyleForEvent = (item) => {
     const startDate = moment(item.startDate);
     const startHours = startDate.hours();
+
+    let startTimeHour = 0;
+    let startTimeMinutes = 0;
+    const { times } = this.props;
+    if (times.length) {
+      const startTime = times[0].split(':');
+      startTimeHour = parseInt(startTime[0]);
+      startTimeMinutes = parseInt(startTime[1]);
+    }
+
     const startMinutes = startDate.minutes();
-    const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
+    const totalStartMinutes = (startHours - startTimeHour) * MINUTES_IN_HOUR + startMinutes - startTimeMinutes;
+
     const top = this.minutesToYDimension(totalStartMinutes);
     const deltaMinutes = moment(item.endDate).diff(item.startDate, 'minutes');
     const height = this.minutesToYDimension(deltaMinutes);
@@ -203,6 +214,7 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      onEventLongPress,
       eventContainerStyle,
       EventComponent,
       rightToLeft,
@@ -237,6 +249,7 @@ class Events extends PureComponent {
                     event={item.data}
                     position={item.style}
                     onPress={onEventPress}
+                    onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                   />
@@ -258,6 +271,7 @@ Events.propTypes = {
   hoursInDisplay: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
