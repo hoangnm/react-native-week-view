@@ -15,6 +15,7 @@ import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
+import RefreshSpinner from '../RefreshSpinner/RefreshSpinner';
 import styles from './WeekView.styles';
 import {
   CONTAINER_HEIGHT,
@@ -343,6 +344,8 @@ export default class WeekView extends Component {
       fixedHorizontally,
       showNowLine,
       nowLineColor,
+      isRefreshing,
+      RefreshComponent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -390,6 +393,7 @@ export default class WeekView extends Component {
             }}
           />
         </View>
+        {isRefreshing && <RefreshSpinner CustomComponent={RefreshComponent} />}
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times
@@ -476,6 +480,8 @@ WeekView.propTypes = {
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
+  isRefreshing: PropTypes.bool,
+  RefreshComponent: PropTypes.elementType,
 };
 
 WeekView.defaultProps = {
