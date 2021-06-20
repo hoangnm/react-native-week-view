@@ -34,7 +34,8 @@ const MyComponent = () => (
 
 ### Props
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
-* **`onEventPress`** _(Function)_ - Callback when event item is clicked
+* **`onEventPress`** _(Function)_ - Callback when event item is pressed, receives the event-object: `(event) => {}`.
+* **`onEventLongPress`** _(Function)_ - Callback when event item is long pressed, same signature as `onEventPress`.
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
 * **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
 * **`selectedDate`** _(Date)_ - Intial date to show week/days in the view. Note: changing this prop will not have any effect in the displayed date; to actually change the date being displayed, use the `goToDate()` method, see below.

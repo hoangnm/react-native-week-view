@@ -209,6 +209,7 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      onEventLongPress,
       eventContainerStyle,
       EventComponent,
       rightToLeft,
@@ -257,6 +258,7 @@ class Events extends PureComponent {
                     event={item.data}
                     position={item.style}
                     onPress={onEventPress}
+                    onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                   />
@@ -279,6 +281,7 @@ Events.propTypes = {
   timeStep: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
