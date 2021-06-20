@@ -55,6 +55,7 @@ const MyComponent = () => (
   * `startHour` _(Number)_ - hour clicked (as integer)
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
 * **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
+* **`TodayHeaderComponent`** _(React.Component)_ - Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent)
 * **`showNowLine`** _(Boolean)_ - If `true`, displays a line indicating the time right now. Defaults to `false`.
 * **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
@@ -107,6 +108,25 @@ const MyEventComponent = ({ event, position }) => (
 <WeekView
   // ... other props
   EventComponent={MyEventComponent}
+/>
+```
+
+
+### Custom TodayComponent
+Use this prop to highlight today in the header, by rendering it differently from the other days. The component `TodayHeaderComponent` receives these props:
+* `date` _(moment Date)_ - moment date object containing today's date.
+* `formattedDate` _(String)_ - day formatted according to `formatDateHeader`, e.g. `"Mon 3"`.
+* `textStyle` _(Object)_ - text style used for every day.
+
+For example, to highlight today with a bold font:
+```js
+const MyTodayComponent = ({ formattedDate, textStyle }) => (
+  <Text style={[textStyle, { fontWeight: 'bold' }]}>{formattedDate}</Text>
+);
+
+<WeekView
+  // ... other props
+  TodayHeaderComponent={MyTodayComponent}
 />
 ```
 

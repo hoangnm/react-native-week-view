@@ -330,6 +330,7 @@ export default class WeekView extends Component {
       headerTextStyle,
       hourTextStyle,
       eventContainerStyle,
+      TodayHeaderComponent,
       formatDateHeader,
       onEventPress,
       events,
@@ -380,6 +381,7 @@ export default class WeekView extends Component {
                   <Header
                     style={headerStyle}
                     textStyle={headerTextStyle}
+                    TodayComponent={TodayHeaderComponent}
                     formatDate={formatDateHeader}
                     initialDate={item}
                     numberOfDays={numberOfDays}
@@ -470,6 +472,7 @@ WeekView.propTypes = {
   formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
+  TodayHeaderComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   fixedHorizontally: PropTypes.bool,
