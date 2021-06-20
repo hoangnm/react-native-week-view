@@ -337,6 +337,7 @@ export default class WeekView extends Component {
       timeStep,
       formatTimeLabel,
       onGridClick,
+      onGridLongPress,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -415,6 +416,7 @@ export default class WeekView extends Component {
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
                     onGridClick={onGridClick}
+                    onGridLongPress={onGridLongPress}
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
                     EventComponent={EventComponent}
@@ -459,6 +461,7 @@ WeekView.propTypes = {
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
   onGridClick: PropTypes.func,
+  onGridLongPress: PropTypes.func,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,

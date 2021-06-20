@@ -54,6 +54,7 @@ const MyComponent = () => (
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
   * `startHour` _(Number)_ - hour clicked (as integer)
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
+* **`onGridLongPress`** _(Function)_ - Callback when the grid view is long-pressed. Same signature as `onGridClick`
 * **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
 * **`showNowLine`** _(Boolean)_ - If `true`, displays a line indicating the time right now. Defaults to `false`.
 * **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
