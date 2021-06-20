@@ -5,6 +5,11 @@ import styles from './Event.styles';
 
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
 
+const hasMovedEnough = (gestureState) => {
+  const { dx, dy } = gestureState;
+  return Math.abs(dx) > 2 || Math.abs(dy) > 2;
+};
+
 class Event extends React.Component {
   translatedByDrag = new Animated.ValueXY();
 
@@ -14,9 +19,12 @@ class Event extends React.Component {
     onStartShouldSetPanResponder: () => this.isDragEnabled(),
     onStartShouldSetPanResponderCapture: () =>
       this.isPressDisabled() && this.isDragEnabled(),
-    onMoveShouldSetPanResponder: () => this.isDragEnabled(),
-    onMoveShouldSetPanResponderCapture: () =>
-      this.isPressDisabled() && this.isDragEnabled(),
+    onMoveShouldSetPanResponder: (_, gestureState) =>
+      this.isDragEnabled() && hasMovedEnough(gestureState),
+    onMoveShouldSetPanResponderCapture: (_, gestureState) =>
+      this.isPressDisabled() &&
+      this.isDragEnabled() &&
+      hasMovedEnough(gestureState),
     onPanResponderMove: Animated.event(
       [
         null,
