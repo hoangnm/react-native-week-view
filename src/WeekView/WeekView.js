@@ -70,14 +70,12 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.removeAllListeners();
   }
 
-  calculateTimes = memoizeOne((minutesStep) => {
+  calculateTimes = memoizeOne((minutesStep, formatTimeLabel) => {
     const times = [];
+    const startOfDay = moment().startOf('day');
     for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
-      let minutes = timer % 60;
-      if (minutes < 10) minutes = `0${minutes}`;
-      const hour = Math.floor(timer / 60);
-      const timeString = `${hour}:${minutes}`;
-      times.push(timeString);
+      const time = startOfDay.clone().minutes(timer);
+      times.push(time.format(formatTimeLabel));
     }
     return times;
   });
@@ -258,7 +256,12 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent, fixedHorizontally) => {
+  calculatePagesDates = (
+    currentMoment,
+    numberOfDays,
+    prependMostRecent,
+    fixedHorizontally,
+  ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
     if (numberOfDays === 7 || fixedHorizontally) {
@@ -336,6 +339,7 @@ export default class WeekView extends Component {
       events,
       hoursInDisplay,
       timeStep,
+      formatTimeLabel,
       onGridClick,
       EventComponent,
       prependMostRecent,
@@ -346,7 +350,7 @@ export default class WeekView extends Component {
       onDragEvent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
-    const times = this.calculateTimes(timeStep);
+    const times = this.calculateTimes(timeStep, formatTimeLabel);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
@@ -477,6 +481,7 @@ WeekView.propTypes = {
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   timeStep: PropTypes.number,
+  formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
@@ -493,6 +498,7 @@ WeekView.defaultProps = {
   locale: 'en',
   hoursInDisplay: 6,
   timeStep: 60,
+  formatTimeLabel: 'H:mm',
   startHour: 0,
   showTitle: true,
   rightToLeft: false,
