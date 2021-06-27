@@ -1,7 +1,8 @@
-name: Super-Linter
+name: Linter
 
 on:
-  push:
+  pull_request:
+    branches: [ master ]
 
 jobs:
   lint-main:
@@ -14,19 +15,8 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: JS Linter
-        uses: github/super-linter@v3
-        env:
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-          LINTER_RULES_PATH: /
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JSX: true
-          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc
-
-          # Validate only new and changed files
-          VALIDATE_ALL_CODEBASE: false
+      - run: yarn lint
+        working-directory: example
 
 
   lint-example:
@@ -40,17 +30,5 @@ jobs:
       - run: yarn install --frozen-lockfile
         working-directory: example
 
-      - name: JS Linter
-        uses: github/super-linter@v3
+      - run: yarn lint
         working-directory: example
-        env:
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-          LINTER_RULES_PATH: /
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JSX: true
-          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.js
-
-          # Validate only new and changed files
-          VALIDATE_ALL_CODEBASE: false
