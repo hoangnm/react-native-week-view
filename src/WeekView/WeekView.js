@@ -17,7 +17,6 @@ import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
-  TIME_LABELS_IN_DISPLAY,
   CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
   availableNumberOfDays,
@@ -41,6 +40,7 @@ export default class WeekView extends Component {
       props.selectedDate,
       props.numberOfDays,
       props.prependMostRecent,
+      props.fixedHorizontally,
     );
     this.state = {
       // currentMoment should always be the first date of the current page
@@ -70,16 +70,12 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.removeAllListeners();
   }
 
-  calculateTimes = memoizeOne((hoursInDisplay) => {
+  calculateTimes = memoizeOne((minutesStep, formatTimeLabel) => {
     const times = [];
-    const timeLabelsPerHour = TIME_LABELS_IN_DISPLAY / hoursInDisplay;
-    const minutesStep = 60 / timeLabelsPerHour;
+    const startOfDay = moment().startOf('day');
     for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
-      let minutes = timer % 60;
-      if (minutes < 10) minutes = `0${minutes}`;
-      const hour = Math.floor(timer / 60);
-      const timeString = `${hour}:${minutes}`;
-      times.push(timeString);
+      const time = startOfDay.clone().minutes(timer);
+      times.push(time.format(formatTimeLabel));
     }
     return times;
   });
@@ -128,15 +124,33 @@ export default class WeekView extends Component {
     const { initialDates } = this.state;
     const { numberOfDays } = this.props;
 
-    const currentDate = initialDates[this.currentPageIndex];
-    const deltaDay = moment(targetDate).diff(currentDate, 'day');
+    const currentDate = moment(initialDates[this.currentPageIndex]).startOf(
+      'day',
+    );
+    const deltaDay = moment(targetDate).startOf('day').diff(currentDate, 'day');
     const deltaIndex = Math.floor(deltaDay / numberOfDays);
     const signToTheFuture = this.getSignToTheFuture();
-    let targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+    const targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
-    if (targetIndex === this.currentPageIndex) {
+    this.goToPageIndex(targetIndex, animated);
+  };
+
+  goToNextPage = (animated = true) => {
+    const signToTheFuture = this.getSignToTheFuture();
+    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
+  };
+
+  goToPrevPage = (animated = true) => {
+    const signToTheFuture = this.getSignToTheFuture();
+    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
+  };
+
+  goToPageIndex = (target, animated = true) => {
+    if (target === this.currentPageIndex) {
       return;
     }
+
+    const { initialDates } = this.state;
 
     const scrollTo = (moveToIndex) => {
       this.eventsGrid.scrollToIndex({
@@ -148,6 +162,8 @@ export default class WeekView extends Component {
 
     const newState = {};
     let newStateCallback = () => {};
+    // The final target may change, if pages are added
+    let targetIndex = target;
 
     const lastViewablePage = initialDates.length - this.pageOffset;
     if (targetIndex < this.pageOffset) {
@@ -240,10 +256,15 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  calculatePagesDates = (currentMoment, numberOfDays, prependMostRecent) => {
+  calculatePagesDates = (
+    currentMoment,
+    numberOfDays,
+    prependMostRecent,
+    fixedHorizontally,
+  ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
-    if (numberOfDays === 7) {
+    if (numberOfDays === 7 || fixedHorizontally) {
       // Start week on monday
       centralDate.startOf('isoWeek');
     }
@@ -313,15 +334,18 @@ export default class WeekView extends Component {
       onEventPress,
       events,
       hoursInDisplay,
+      timeStep,
+      formatTimeLabel,
       onGridClick,
       EventComponent,
       prependMostRecent,
       rightToLeft,
+      fixedHorizontally,
       showNowLine,
       nowLineColor,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
-    const times = this.calculateTimes(hoursInDisplay);
+    const times = this.calculateTimes(timeStep, formatTimeLabel);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
@@ -368,7 +392,12 @@ export default class WeekView extends Component {
         </View>
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
-            <Times times={times} textStyle={hourTextStyle} />
+            <Times
+              times={times}
+              textStyle={hourTextStyle}
+              hoursInDisplay={hoursInDisplay}
+              timeStep={timeStep}
+            />
             <VirtualizedList
               data={initialDates}
               getItem={(data, index) => data[index]}
@@ -376,6 +405,7 @@ export default class WeekView extends Component {
               getItemLayout={(_, index) => this.getListItemLayout(index)}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
+              scrollEnabled={!fixedHorizontally}
               renderItem={({ item }) => {
                 return (
                   <Events
@@ -386,6 +416,7 @@ export default class WeekView extends Component {
                     onEventPress={onEventPress}
                     onGridClick={onGridClick}
                     hoursInDisplay={hoursInDisplay}
+                    timeStep={timeStep}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     rightToLeft={rightToLeft}
@@ -435,10 +466,13 @@ WeekView.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
+  timeStep: PropTypes.number,
+  formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
+  fixedHorizontally: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
@@ -448,6 +482,8 @@ WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
+  timeStep: 60,
+  formatTimeLabel: 'H:mm',
   startHour: 0,
   showTitle: true,
   rightToLeft: false,

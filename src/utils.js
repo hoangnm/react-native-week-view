@@ -3,16 +3,19 @@ import moment from 'moment';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export const CONTENT_OFFSET = 16;
-export const TIME_LABELS_IN_DISPLAY = 12;
 export const CONTAINER_HEIGHT = SCREEN_HEIGHT - 60;
 export const CONTAINER_WIDTH = SCREEN_WIDTH - 60;
-export const TIME_LABEL_HEIGHT = CONTAINER_HEIGHT / TIME_LABELS_IN_DISPLAY;
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
 
 export const minutesToYDimension = (hoursInDisplay, minutes) => {
   const minutesInDisplay = 60 * hoursInDisplay;
   return (minutes * CONTAINER_HEIGHT) / minutesInDisplay;
+};
+
+export const getTimeLabelHeight = (hoursInDisplay, minutesStep) => {
+  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
+  return CONTAINER_HEIGHT / timeLabelsInDisplay;
 };
 
 export const getFormattedDate = (date, format) => {
@@ -40,4 +43,13 @@ export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
     dates.push(currentDate);
   }
   return rightToLeft ? dates.reverse() : dates;
+};
+
+export const createFixedWeekDate = (day, hours, minutes = 0, seconds = 0) => {
+  const date = moment();
+  date.isoWeekday(day);
+  date.hours(hours);
+  date.minutes(minutes);
+  date.seconds(seconds);
+  return date.toDate();
 };
