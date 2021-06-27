@@ -3,36 +3,27 @@
 
 ## Run `example/` app:
 
-
-### Installation
+Use `yarn`, not `npm`
 
 ```sh
 # 1. Install dependencies:
 cd example/
-npm install
+yarn
 
-# 2. Install from local
-npm run sync:rmlink # removes symlink folder, which does not work with the react-native metro-bundler
-npm run sync # copies files using rsync
+# 2. Run app on android
+yarn android
+yarn start
+
+# 3. Sync changes
+# After making changes to `react-native-week-view/` code,
+# you need to manually sync the code and reload the app to see the changes
+yarn sync
 ```
-
-### Running app on android
-```sh
-npm run android
-npm run start
-```
-
-
-#### Syncing changes
-
-When you make changes to the `react-native-week-view/` package, you need to manually sync the code with the `example/` app to see the changes.
-After each change, run `npm run sync` and reload the app.
-
 
 
 ## Tests and linter
 
 Run tests and linter in both folders (`react-native-week-view/` and `example/`):
 
-* `npm run lint`
-* `npm run test`
+* `yarn lint`
+* `yarn test`
