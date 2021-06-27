@@ -1,0 +1,59 @@
+name: Super-Linter
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint-main:
+    name: Lint main folder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - run: yarn install --frozen-lockfile
+
+      - name: JS Linter
+        uses: github/super-linter@v3
+        env:
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          LINTER_RULES_PATH: /
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JSX: true
+          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc
+
+          # Validate only new and changed files
+          VALIDATE_ALL_CODEBASE: false
+
+
+  lint-example:
+    name: Lint example app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - run: yarn install --frozen-lockfile
+        working-directory: example
+
+      - name: JS Linter
+        uses: github/super-linter@v3
+        working-directory: example
+        env:
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          LINTER_RULES_PATH: /
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_JSX: true
+          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.js
+
+          # Validate only new and changed files
+          VALIDATE_ALL_CODEBASE: false
+
+

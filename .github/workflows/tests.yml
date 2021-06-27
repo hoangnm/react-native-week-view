@@ -1,0 +1,38 @@
+name: Node tests
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-main:
+    name: Run lib tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+
+    - run: yarn install --frozen-lockfile
+    - run: yarn test
+
+
+  test-example:
+    name: Run example app tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v1
+      working-directory: example
+      with:
+        node-version: 14.x
+
+    - run: yarn install --frozen-lockfile
+      working-directory: example
+    - run: yarn test
+      working-directory: example
