@@ -8,7 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/"
+    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/",
+    "install:local": "yarn link react-native-week-view && rm ./node_modules/react-native-week-view && yarn sync"
   },
   "dependencies": {
     "react": "17.0.1",
@@ -26,6 +27,15 @@
     "react-test-renderer": "17.0.1"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "setupFiles": [
+      "../src/__tests__/config.js"
+    ],
+    "testMatch": [
+      "<rootDir>/__tests__/**/*.test.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@react-native|react-native|react-native-week-view))"
+    ]
   }
 }

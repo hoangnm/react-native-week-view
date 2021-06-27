@@ -47,7 +47,10 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^26.6.3",
     "jest-extended": "^0.11.5",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "react": "17.0.1",
+    "react-test-renderer": "17.0.1",
+    "react-native": "0.64.2"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0",
@@ -55,8 +58,14 @@
   },
   "jest": {
     "preset": "react-native",
+    "setupFiles": [
+      "<rootDir>/src/__tests__/config.js"
+    ],
     "setupFilesAfterEnv": [
       "jest-extended"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.test.js"
     ]
   }
 }
