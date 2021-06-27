@@ -16,8 +16,6 @@ jobs:
       - run: yarn install --frozen-lockfile
 
       - run: yarn lint
-        working-directory: example
-
 
   lint-example:
     name: Lint example app
