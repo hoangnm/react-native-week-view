@@ -11,7 +11,6 @@
     "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/"
   },
   "dependencies": {
-    "moment": "^2.29.1",
     "react": "16.11.0",
     "react-native": "0.62.0",
     "react-native-week-view": "file:../"
