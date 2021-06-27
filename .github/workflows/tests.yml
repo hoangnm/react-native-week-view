@@ -28,7 +28,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup node
       uses: actions/setup-node@v1
-      working-directory: example
       with:
         node-version: 14.x
 
