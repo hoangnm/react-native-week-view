@@ -1,8 +1,7 @@
 name: Super-Linter
 
 on:
-  pull_request:
-    branches: [ master ]
+  push:
 
 jobs:
   lint-main:
