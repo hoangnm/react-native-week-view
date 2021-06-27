@@ -55,5 +55,3 @@ jobs:
 
           # Validate only new and changed files
           VALIDATE_ALL_CODEBASE: false
-
-
