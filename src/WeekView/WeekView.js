@@ -190,7 +190,17 @@ export default class WeekView extends Component {
     this.setState(newState, newStateCallback);
   };
 
+  scrollBegun = () => {
+    this.isScrollingHorizontal = true;
+  };
+
   scrollEnded = (event) => {
+    if (!this.isScrollingHorizontal) {
+      // Ensure the callback is called only once
+      return;
+    }
+    this.isScrollingHorizontal = false;
+
     const {
       nativeEvent: { contentOffset, contentSize },
     } = event;
@@ -428,6 +438,7 @@ export default class WeekView extends Component {
               horizontal
               pagingEnabled
               inverted={horizontalInverted}
+              onMomentumScrollBegin={this.scrollBegun}
               onMomentumScrollEnd={this.scrollEnded}
               scrollEventThrottle={32}
               onScroll={Animated.event(
