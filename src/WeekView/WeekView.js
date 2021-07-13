@@ -60,9 +60,28 @@ export default class WeekView extends Component {
     });
   }
 
-  componentDidUpdate(prevprops) {
-    if (this.props.locale !== prevprops.locale) {
+  componentDidUpdate(prevProps) {
+    if (this.props.locale !== prevProps.locale) {
       setLocale(this.props.locale);
+    }
+    if (this.props.numberOfDays !== prevProps.numberOfDays) {
+      const initialDates = this.calculatePagesDates(
+        this.state.currentMoment,
+        this.props.numberOfDays,
+        this.props.prependMostRecent,
+        this.props.fixedHorizontally,
+      );
+
+      this.currentPageIndex = this.pageOffset;
+      this.setState({
+        currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+        initialDates,
+      }, () => {
+        this.eventsGrid.scrollToIndex({
+          index: this.pageOffset,
+          animated: false,
+        });
+      });
     }
   }
 
