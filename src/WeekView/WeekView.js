@@ -39,6 +39,7 @@ export default class WeekView extends Component {
     const initialDates = this.calculatePagesDates(
       props.selectedDate,
       props.numberOfDays,
+      props.weekStartsOn,
       props.prependMostRecent,
       props.fixedHorizontally,
     );
@@ -259,14 +260,18 @@ export default class WeekView extends Component {
   calculatePagesDates = (
     currentMoment,
     numberOfDays,
+    weekStartsOn,
     prependMostRecent,
     fixedHorizontally,
   ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
     if (numberOfDays === 7 || fixedHorizontally) {
-      // Start week on monday
-      centralDate.startOf('isoWeek');
+      centralDate.subtract(
+        // Ensure centralDate is before currentMoment
+        (centralDate.day() + 7 - weekStartsOn) % 7,
+        'days',
+      );
     }
     for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
       const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
@@ -455,6 +460,7 @@ WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
+  weekStartsOn: PropTypes.number,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
@@ -482,6 +488,7 @@ WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
+  weekStartsOn: 1,
   timeStep: 60,
   formatTimeLabel: 'H:mm',
   startHour: 0,
