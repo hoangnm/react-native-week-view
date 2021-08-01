@@ -36,6 +36,7 @@ const MyComponent = () => (
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
 * **`onEventPress`** _(Function)_ - Callback when event item is clicked
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
+* **`weekStartsOn`** _(Number)_ - Day to start the week (0 is Sunday, 1 is Monday, and so on). Defaults to 1. Only useful when `numberOfDays === 7` or `fixedHorizontally` is true.
 * **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
 * **`selectedDate`** _(Date)_ - Intial date to show week/days in the view. Note: changing this prop will not have any effect in the displayed date; to actually change the date being displayed, use the `goToDate()` method, see below.
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
