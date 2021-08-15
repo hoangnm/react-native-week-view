@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
+import moment from 'moment';
 
 import {
   getFormattedDate,
@@ -16,17 +17,41 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
-const Column = ({ column, numberOfDays, format, style, textStyle }) => {
+const Column = ({
+  column,
+  numberOfDays,
+  format,
+  style,
+  textStyle,
+  TodayComponent,
+}) => {
+  const formattedDate = getFormattedDate(column, format);
+  const useTodayComponent = TodayComponent && moment().isSame(column, 'days');
+  const fullTextStyle = [getDayTextStyles(numberOfDays), textStyle];
+
   return (
     <View style={[styles.column, style]}>
-      <Text style={[getDayTextStyles(numberOfDays), textStyle]}>
-        {getFormattedDate(column, format)}
-      </Text>
+      {useTodayComponent ? (
+        <TodayComponent
+          date={column}
+          formattedDate={formattedDate}
+          textStyle={fullTextStyle}
+        />
+      ) : (
+        <Text style={fullTextStyle}>{formattedDate}</Text>
+      )}
     </View>
   );
 };
 
-const Columns = ({ columns, numberOfDays, format, style, textStyle }) => {
+const Columns = ({
+  columns,
+  numberOfDays,
+  format,
+  style,
+  textStyle,
+  TodayComponent,
+}) => {
   return (
     <View style={styles.columns}>
       {columns.map((column) => {
@@ -38,6 +63,7 @@ const Columns = ({ columns, numberOfDays, format, style, textStyle }) => {
             column={column}
             numberOfDays={numberOfDays}
             format={format}
+            TodayComponent={TodayComponent}
           />
         );
       })}
@@ -51,6 +77,7 @@ const WeekViewHeader = ({
   formatDate,
   style,
   textStyle,
+  TodayComponent,
   rightToLeft,
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
@@ -63,6 +90,7 @@ const WeekViewHeader = ({
           numberOfDays={numberOfDays}
           style={style}
           textStyle={textStyle}
+          TodayComponent={TodayComponent}
         />
       )}
     </View>
@@ -76,6 +104,7 @@ WeekViewHeader.propTypes = {
   style: PropTypes.object,
   textStyle: PropTypes.object,
   rightToLeft: PropTypes.bool,
+  TodayComponent: PropTypes.elementType,
 };
 
 WeekViewHeader.defaultProps = {

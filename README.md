@@ -34,8 +34,10 @@ const MyComponent = () => (
 
 ### Props
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
-* **`onEventPress`** _(Function)_ - Callback when event item is clicked
+* **`onEventPress`** _(Function)_ - Callback when event item is pressed, receives the event-object: `(event) => {}`.
+* **`onEventLongPress`** _(Function)_ - Callback when event item is long pressed, same signature as `onEventPress`.
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
+* **`weekStartsOn`** _(Number)_ - Day to start the week (0 is Sunday, 1 is Monday, and so on). Defaults to 1. Only useful when `numberOfDays === 7` or `fixedHorizontally` is true.
 * **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
 * **`selectedDate`** _(Date)_ - Intial date to show week/days in the view. Note: changing this prop will not have any effect in the displayed date; to actually change the date being displayed, use the `goToDate()` method, see below.
 * **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
@@ -54,7 +56,9 @@ const MyComponent = () => (
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
   * `startHour` _(Number)_ - hour clicked (as integer)
   * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
+* **`onGridLongPress`** _(Function)_ - Callback when the grid view is long-pressed. Same signature as `onGridClick`
 * **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
+* **`TodayHeaderComponent`** _(React.Component)_ - Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent)
 * **`showNowLine`** _(Boolean)_ - If `true`, displays a line indicating the time right now. Defaults to `false`.
 * **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
@@ -107,6 +111,25 @@ const MyEventComponent = ({ event, position }) => (
 <WeekView
   // ... other props
   EventComponent={MyEventComponent}
+/>
+```
+
+
+### Custom TodayComponent
+Use this prop to highlight today in the header, by rendering it differently from the other days. The component `TodayHeaderComponent` receives these props:
+* `date` _(moment Date)_ - moment date object containing today's date.
+* `formattedDate` _(String)_ - day formatted according to `formatDateHeader`, e.g. `"Mon 3"`.
+* `textStyle` _(Object)_ - text style used for every day.
+
+For example, to highlight today with a bold font:
+```js
+const MyTodayComponent = ({ formattedDate, textStyle }) => (
+  <Text style={[textStyle, { fontWeight: 'bold' }]}>{formattedDate}</Text>
+);
+
+<WeekView
+  // ... other props
+  TodayHeaderComponent={MyTodayComponent}
 />
 ```
 
