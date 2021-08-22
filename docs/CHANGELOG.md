@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 - 2021-08-22
+
+### Fixed
+- Fix wrong display when updating `numberOfDays` prop [#126](https://github.com/hoangnm/react-native-week-view/pull/126)
+
 ## 0.6.0 - 2021-08-05
 
 ### Changed
