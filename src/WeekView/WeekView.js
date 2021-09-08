@@ -6,6 +6,7 @@ import {
   Animated,
   VirtualizedList,
   InteractionManager,
+  ActivityIndicator,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -15,7 +16,6 @@ import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
-import RefreshSpinner from '../RefreshSpinner/RefreshSpinner';
 import styles from './WeekView.styles';
 import {
   CONTAINER_HEIGHT,
@@ -431,7 +431,9 @@ export default class WeekView extends Component {
             }}
           />
         </View>
-        {isRefreshing && <RefreshSpinner CustomComponent={RefreshComponent} />}
+        {isRefreshing && RefreshComponent && (
+          <RefreshComponent style={styles.loadingSpinner} />
+        )}
         <ScrollView ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times
@@ -540,4 +542,5 @@ WeekView.defaultProps = {
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
+  RefreshComponent: ActivityIndicator,
 };
