@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.1 - 2021-08-22
+
+### Fixed
+- Fix wrong display when updating `numberOfDays` prop [#126](https://github.com/hoangnm/react-native-week-view/pull/126)
+
+## 0.6.0 - 2021-08-05
+
+### Changed
+- Add `fixedHorizontally` prop to display a fixed week [#75](https://github.com/hoangnm/react-native-week-view/pull/75)
+- Add `formatTimeLabel` prop [#103](https://github.com/hoangnm/react-native-week-view/pull/103)
+- Add `weekStartsOn` prop [#120](https://github.com/hoangnm/react-native-week-view/pull/120)
+- Add `TodayHeaderComponent` prop [#113](https://github.com/hoangnm/react-native-week-view/pull/113)
+
+### Fixed
+- Fix scroll called twice [#117](https://github.com/hoangnm/react-native-week-view/pull/117)
+
 ## 0.5.0 - 2021-05-16
 
 ### Changed
