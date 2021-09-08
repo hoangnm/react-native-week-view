@@ -183,9 +183,10 @@ class Events extends PureComponent {
     },
   );
 
-  onGridClick = (event, dayIndex) => {
-    const { initialDate, onGridClick } = this.props;
-    if (!onGridClick) {
+  onGridTouch = (event, dayIndex, longPress) => {
+    const { initialDate, onGridClick, onGridLongPress } = this.props;
+    const callback = longPress ? onGridLongPress : onGridClick;
+    if (!callback) {
       return;
     }
     const { locationY } = event.nativeEvent;
@@ -193,7 +194,7 @@ class Events extends PureComponent {
 
     const date = moment(initialDate).add(dayIndex, 'day').toDate();
 
-    onGridClick(event, hour, date);
+    callback(event, hour, date);
   };
 
   onDragEvent = (event, newX, newY) => {
@@ -233,6 +234,7 @@ class Events extends PureComponent {
       numberOfDays,
       times,
       onEventPress,
+      onEventLongPress,
       eventContainerStyle,
       EventComponent,
       rightToLeft,
@@ -265,7 +267,8 @@ class Events extends PureComponent {
         <View style={styles.eventsContainer}>
           {totalEvents.map((eventsInSection, dayIndex) => (
             <TouchableWithoutFeedback
-              onPress={(e) => this.onGridClick(e, dayIndex)}
+              onPress={(e) => this.onGridTouch(e, dayIndex, false)}
+              onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
               key={dayIndex}
             >
               <View style={styles.eventsColumn}>
@@ -282,6 +285,7 @@ class Events extends PureComponent {
                     event={item.data}
                     position={item.style}
                     onPress={onEventPress}
+                    onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                     onDrag={onDragEvent && this.onDragEvent}
@@ -305,7 +309,9 @@ Events.propTypes = {
   timeStep: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
+  onGridLongPress: PropTypes.func,
   eventContainerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,

@@ -83,7 +83,7 @@ class Event extends React.Component {
   }
 
   isPressDisabled = () => {
-    return !this.props.onPress;
+    return !this.props.onPress && !this.props.onLongPress;
   };
 
   isDragEnabled = () => {
@@ -105,6 +105,7 @@ class Event extends React.Component {
     const {
       event,
       onPress,
+      onLongPress,
       position,
       EventComponent,
       containerStyle,
@@ -130,8 +131,9 @@ class Event extends React.Component {
       >
         <TouchableOpacity
           style={styles.touchableContainer}
-          disabled={!onPress}
+          disabled={this.isPressDisabled()}
           onPress={() => onPress && onPress(event)}
+          onLongPress={() => onLongPress && onLongPress(event)}
         >
           {EventComponent ? (
             <EventComponent event={event} position={position} />
@@ -161,8 +163,9 @@ const positionPropType = PropTypes.shape({
 
 Event.propTypes = {
   event: eventPropType.isRequired,
-  position: positionPropType.isRequired,
   onPress: PropTypes.func,
+  onLongPress: PropTypes.func,
+  position: positionPropType,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   onDrag: PropTypes.func,
