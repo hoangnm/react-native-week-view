@@ -111,6 +111,7 @@ class App extends React.Component {
             numberOfDays={7}
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
+            onDragEvent={this.onDragEvent}
             headerStyle={styles.header}
             headerTextStyle={styles.headerText}
             hourTextStyle={styles.hourText}
@@ -122,7 +123,6 @@ class App extends React.Component {
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
             showNowLine
-            onDragEvent={this.onDragEvent}
           />
         </SafeAreaView>
       </>

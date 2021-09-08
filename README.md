@@ -36,6 +36,7 @@ const MyComponent = () => (
 * **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
 * **`onEventPress`** _(Function)_ - Callback when event item is pressed, receives the event-object: `(event) => {}`.
 * **`onEventLongPress`** _(Function)_ - Callback when event item is long pressed, same signature as `onEventPress`.
+* **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The events are draggable only if this callback is provided.
 * **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
 * **`weekStartsOn`** _(Number)_ - Day to start the week (0 is Sunday, 1 is Monday, and so on). Defaults to 1. Only useful when `numberOfDays === 7` or `fixedHorizontally` is true.
 * **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
@@ -64,7 +65,6 @@ const MyComponent = () => (
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
 * **`fixedHorizontally`** _(Boolean)_ - If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week).
 * **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
-* **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The events are draggable only if this callback is provided.
 
 ### Event Object
 ```js
