@@ -7,7 +7,13 @@
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet, StatusBar, Alert} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  StatusBar,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 
 import WeekView, {createFixedWeekDate} from 'react-native-week-view';
 
@@ -64,6 +70,11 @@ const sampleFixedEvents = [
 // For debugging purposes
 const showFixedComponent = true;
 
+const MyRefreshComponent = ({style}) => (
+  // Just an example
+  <ActivityIndicator style={style} color="red" size="large" />
+);
+
 class App extends React.Component {
   state = {
     events: showFixedComponent ? sampleFixedEvents : sampleEvents,
@@ -108,6 +119,8 @@ class App extends React.Component {
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
             showNowLine
+            isRefreshing={false}
+            RefreshComponent={MyRefreshComponent}
           />
         </SafeAreaView>
       </>

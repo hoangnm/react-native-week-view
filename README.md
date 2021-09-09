@@ -63,6 +63,8 @@ const MyComponent = () => (
 * **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
 * **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
 * **`fixedHorizontally`** _(Boolean)_ - If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week).
+* **`isRefreshing`** _(Boolean)_ - If `true`, the component will show the `<RefreshComponent />` in the middle of the grid.
+* **`RefreshComponent`** _(React.Component)_ - Component used when `isRefreshing` is `true`. Receives a `style` prop that must be passed down (sets the component position), for example: `MyRefreshControl = ({ style }) => <Text style={style}>loading...</Text>`. Defaults to an `<ActivityIndicator />` with default parameters (notice the `ActivityIndicator` default color in some devices may be white).
 * **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
 
 ### Event Object
