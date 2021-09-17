@@ -28,13 +28,7 @@ class NowLine extends React.Component {
 
   componentDidMount() {
     this.intervalCallbackId = setInterval(() => {
-      const newTop = getCurrentTop(this.props.hoursInDisplay);
-      Animated.timing(this.state.currentTranslateY, {
-        toValue: newTop - this.initialTop,
-        duration: 1000,
-        useNativeDriver: true,
-        isInteraction: false,
-      }).start();
+      this.updateLinePosition(1000);
     }, UPDATE_EVERY_MILLISECONDS);
   }
 
@@ -42,6 +36,22 @@ class NowLine extends React.Component {
     if (this.intervalCallbackId) {
       clearInterval(this.intervalCallbackId);
     }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.hoursInDisplay !== this.props.hoursInDisplay) {
+      this.updateLinePosition(500);
+    }
+  }
+
+  updateLinePosition = (animationDuration) => {
+    const newTop = getCurrentTop(this.props.hoursInDisplay);
+    Animated.timing(this.state.currentTranslateY, {
+      toValue: newTop - this.initialTop,
+      duration: animationDuration,
+      useNativeDriver: true,
+      isInteraction: false,
+    }).start();
   }
 
   render() {
