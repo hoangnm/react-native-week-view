@@ -122,8 +122,8 @@ class Event extends React.Component {
             height,
             width: this.currentWidth,
             backgroundColor: event.color,
+            transform: this.translatedByDrag.getTranslateTransform(),
           },
-          this.translatedByDrag.getTranslateTransform(),
           containerStyle,
         ]}
         /* eslint-disable react/jsx-props-no-spreading */
