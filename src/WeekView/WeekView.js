@@ -6,6 +6,7 @@ import {
   Animated,
   VirtualizedList,
   InteractionManager,
+  ActivityIndicator,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -39,6 +40,7 @@ export default class WeekView extends Component {
     const initialDates = this.calculatePagesDates(
       props.selectedDate,
       props.numberOfDays,
+      props.weekStartsOn,
       props.prependMostRecent,
       props.fixedHorizontally,
     );
@@ -60,9 +62,30 @@ export default class WeekView extends Component {
     });
   }
 
-  componentDidUpdate(prevprops) {
-    if (this.props.locale !== prevprops.locale) {
+  componentDidUpdate(prevProps) {
+    if (this.props.locale !== prevProps.locale) {
       setLocale(this.props.locale);
+    }
+    if (this.props.numberOfDays !== prevProps.numberOfDays) {
+      const initialDates = this.calculatePagesDates(
+        this.state.currentMoment,
+        this.props.numberOfDays,
+        this.props.prependMostRecent,
+        this.props.fixedHorizontally,
+      );
+
+      this.currentPageIndex = this.pageOffset;
+      this.setState({
+          currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+          initialDates,
+        },
+        () => {
+          this.eventsGrid.scrollToIndex({
+            index: this.pageOffset,
+            animated: false,
+          });
+        },
+      );
     }
   }
 
@@ -190,7 +213,17 @@ export default class WeekView extends Component {
     this.setState(newState, newStateCallback);
   };
 
+  scrollBegun = () => {
+    this.isScrollingHorizontal = true;
+  };
+
   scrollEnded = (event) => {
+    if (!this.isScrollingHorizontal) {
+      // Ensure the callback is called only once
+      return;
+    }
+    this.isScrollingHorizontal = false;
+
     const {
       nativeEvent: { contentOffset, contentSize },
     } = event;
@@ -259,14 +292,18 @@ export default class WeekView extends Component {
   calculatePagesDates = (
     currentMoment,
     numberOfDays,
+    weekStartsOn,
     prependMostRecent,
     fixedHorizontally,
   ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
     if (numberOfDays === 7 || fixedHorizontally) {
-      // Start week on monday
-      centralDate.startOf('isoWeek');
+      centralDate.subtract(
+        // Ensure centralDate is before currentMoment
+        (centralDate.day() + 7 - weekStartsOn) % 7,
+        'days',
+      );
     }
     for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
       const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
@@ -334,13 +371,16 @@ export default class WeekView extends Component {
       headerTextStyle,
       hourTextStyle,
       eventContainerStyle,
+      TodayHeaderComponent,
       formatDateHeader,
       onEventPress,
+      onEventLongPress,
       events,
       hoursInDisplay,
       timeStep,
       formatTimeLabel,
       onGridClick,
+      onGridLongPress,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -348,6 +388,8 @@ export default class WeekView extends Component {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      isRefreshing,
+      RefreshComponent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -385,6 +427,7 @@ export default class WeekView extends Component {
                   <Header
                     style={headerStyle}
                     textStyle={headerTextStyle}
+                    TodayComponent={TodayHeaderComponent}
                     formatDate={formatDateHeader}
                     initialDate={item}
                     numberOfDays={numberOfDays}
@@ -395,12 +438,14 @@ export default class WeekView extends Component {
             }}
           />
         </View>
+        {isRefreshing && RefreshComponent && (
+          <RefreshComponent style={styles.loadingSpinner} />
+        )}
         <ScrollView
-          ref={this.verticalAgendaRef}
           onStartShouldSetResponderCapture={() => false}
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
-        >
+          ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
@@ -427,7 +472,9 @@ export default class WeekView extends Component {
                     initialDate={item}
                     numberOfDays={numberOfDays}
                     onEventPress={onEventPress}
+                    onEventLongPress={onEventLongPress}
                     onGridClick={onGridClick}
+                    onGridLongPress={onGridLongPress}
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
                     EventComponent={EventComponent}
@@ -442,6 +489,7 @@ export default class WeekView extends Component {
               horizontal
               pagingEnabled
               inverted={horizontalInverted}
+              onMomentumScrollBegin={this.scrollBegun}
               onMomentumScrollEnd={this.scrollEnded}
               scrollEventThrottle={32}
               onScroll={Animated.event(
@@ -469,10 +517,13 @@ WeekView.propTypes = {
   events: PropTypes.arrayOf(Event.propTypes.event),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
+  weekStartsOn: PropTypes.number,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onEventPress: PropTypes.func,
+  onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
+  onGridLongPress: PropTypes.func,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
@@ -484,6 +535,7 @@ WeekView.propTypes = {
   formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
+  TodayHeaderComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   fixedHorizontally: PropTypes.bool,
@@ -491,16 +543,20 @@ WeekView.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
+  isRefreshing: PropTypes.bool,
+  RefreshComponent: PropTypes.elementType,
 };
 
 WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
+  weekStartsOn: 1,
   timeStep: 60,
   formatTimeLabel: 'H:mm',
   startHour: 0,
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
+  RefreshComponent: ActivityIndicator,
 };

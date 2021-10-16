@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
@@ -10,139 +10,116 @@ const hasMovedEnough = (gestureState) => {
   return Math.abs(dx) > 2 || Math.abs(dy) > 2;
 };
 
-class Event extends React.Component {
-  translatedByDrag = new Animated.ValueXY();
-
-  panResponder = PanResponder.create({
-    // If the press is disabled, the drag-gesture will be handled in the capture phase
-    // If the press is enabled, will be handled in the bubbling phase
-    onStartShouldSetPanResponder: () => this.isDragEnabled(),
-    onStartShouldSetPanResponderCapture: () =>
-      this.isPressDisabled() && this.isDragEnabled(),
-    onMoveShouldSetPanResponder: (_, gestureState) =>
-      this.isDragEnabled() && hasMovedEnough(gestureState),
-    onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-      this.isPressDisabled() &&
-      this.isDragEnabled() &&
-      hasMovedEnough(gestureState),
-    onPanResponderMove: Animated.event(
-      [
-        null,
-        {
-          dx: this.translatedByDrag.x,
-          dy: this.translatedByDrag.y,
-        },
-      ],
-      {
-        useNativeDriver: false,
-      },
-    ),
-    onPanResponderTerminationRequest: () => false,
-    onPanResponderRelease: (_, gestureState) => {
-      const { dx, dy } = gestureState;
-      this.onDragRelease(dx, dy);
-    },
-    onPanResponderTerminate: () => {
-      this.translatedByDrag.setValue({ x: 0, y: 0 });
-    },
-  });
-
-  constructor(props) {
-    super(props);
-
-    const { left, width } = props.position;
-    this.currentWidth = new Animated.Value(width);
-    this.currentLeft = new Animated.Value(left);
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.position !== this.props.position) {
-      this.translatedByDrag.setValue({ x: 0, y: 0 });
-      const animations = [];
-      const { left, width } = this.props.position;
-      if (prevProps.position.width !== width) {
-        animations.push(
-          Animated.timing(this.currentWidth, {
-            toValue: width,
-            duration: UPDATE_EVENT_ANIMATION_DURATION,
-            useNativeDriver: false,
-          }),
-        );
-      }
-      if (prevProps.position.left !== left) {
-        animations.push(
-          Animated.timing(this.currentLeft, {
-            toValue: left,
-            duration: UPDATE_EVENT_ANIMATION_DURATION,
-            useNativeDriver: false,
-          }),
-        );
-      }
-      Animated.parallel(animations).start();
-    }
-  }
-
-  isPressDisabled = () => {
-    return !this.props.onPress;
+const Event = ({
+  event,
+  onPress,
+  onLongPress,
+  position,
+  EventComponent,
+  containerStyle,
+  onDrag,
+}) => {
+  const isDragEnabled = () => {
+    return !!onDrag;
   };
 
-  isDragEnabled = () => {
-    return !!this.props.onDrag;
+  const isPressDisabled = () => {
+    return !onPress;
   };
 
-  onDragRelease = (dx, dy) => {
-    const { position, onDrag } = this.props;
+  const onDragRelease = (dx, dy) => {
     if (!onDrag) {
       return;
     }
 
     const newX = position.left + position.width / 2 + dx;
     const newY = position.top + dy;
-    onDrag(this.props.event, newX, newY);
+    onDrag(event, newX, newY);
   };
 
-  render() {
-    const {
-      event,
-      onPress,
-      position,
-      EventComponent,
-      containerStyle,
-    } = this.props;
-
-    const { top, height } = position;
-    return (
-      <Animated.View
-        style={[
-          styles.container,
+  const translatedByDrag = useRef(new Animated.ValueXY()).current;
+  const currentWidth = useRef(new Animated.Value(position.width)).current;
+  const currentLeft = useRef(new Animated.Value(position.left)).current;
+  useEffect(() => {
+    translatedByDrag.setValue({ x: 0, y: 0 });
+    const { left, width } = position;
+    const animations = [
+      Animated.timing(currentWidth, {
+        toValue: width,
+        duration: UPDATE_EVENT_ANIMATION_DURATION,
+        useNativeDriver: false,
+      }),
+      Animated.timing(currentLeft, {
+        toValue: left,
+        duration: UPDATE_EVENT_ANIMATION_DURATION,
+        useNativeDriver: false,
+      }),
+    ];
+    Animated.parallel(animations).start();
+  }, [position]);
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => isDragEnabled(),
+      onStartShouldSetPanResponderCapture: () =>
+        isPressDisabled() && isDragEnabled(),
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        isDragEnabled() && hasMovedEnough(gestureState),
+      onMoveShouldSetPanResponderCapture: (_, gestureState) =>
+        isPressDisabled() && isDragEnabled() && hasMovedEnough(gestureState),
+      onPanResponderMove: Animated.event(
+        [
+          null,
           {
-            top,
-            left: this.currentLeft,
-            height,
-            width: this.currentWidth,
-            backgroundColor: event.color,
+            dx: translatedByDrag.x,
+            dy: translatedByDrag.y,
           },
-          this.translatedByDrag.getTranslateTransform(),
-          containerStyle,
-        ]}
-        /* eslint-disable react/jsx-props-no-spreading */
-        {...this.panResponder.panHandlers}
+        ],
+        {
+          useNativeDriver: false,
+        },
+      ),
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderRelease: (_, gestureState) => {
+        const { dx, dy } = gestureState;
+        onDragRelease(dx, dy);
+      },
+      onPanResponderTerminate: () => {
+        translatedByDrag.setValue({ x: 0, y: 0 });
+      },
+    }),
+  ).current;
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          top: position.top,
+          left: currentLeft,
+          height: position.height,
+          width: currentWidth,
+          backgroundColor: event.color,
+          transform: translatedByDrag.getTranslateTransform(),
+        },
+        containerStyle,
+      ]}
+      /* eslint-disable react/jsx-props-no-spreading */
+      {...panResponder.panHandlers}
+    >
+      <TouchableOpacity
+        onPress={() => onPress && onPress(event)}
+        onLongPress={() => onLongPress && onLongPress(event)}
+        style={styles.touchableContainer}
+        disabled={!onPress && !onLongPress}
       >
-        <TouchableOpacity
-          style={styles.touchableContainer}
-          disabled={!onPress}
-          onPress={() => onPress && onPress(event)}
-        >
-          {EventComponent ? (
-            <EventComponent event={event} position={position} />
-          ) : (
-            <Text style={styles.description}>{event.description}</Text>
-          )}
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  }
-}
+        {EventComponent ? (
+          <EventComponent event={event} position={position} />
+        ) : (
+          <Text style={styles.description}>{event.description}</Text>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 const eventPropType = PropTypes.shape({
   color: PropTypes.string,
@@ -163,6 +140,7 @@ Event.propTypes = {
   event: eventPropType.isRequired,
   position: positionPropType.isRequired,
   onPress: PropTypes.func,
+  onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   onDrag: PropTypes.func,
