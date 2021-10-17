@@ -76,14 +76,16 @@ export default class WeekView extends Component {
 
       this.currentPageIndex = this.pageOffset;
       this.setState({
-        currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
-        initialDates,
-      }, () => {
-        this.eventsGrid.scrollToIndex({
-          index: this.pageOffset,
-          animated: false,
-        });
-      });
+          currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
+          initialDates,
+        },
+        () => {
+          this.eventsGrid.scrollToIndex({
+            index: this.pageOffset,
+            animated: false,
+          });
+        },
+      );
     }
   }
 
@@ -316,6 +318,9 @@ export default class WeekView extends Component {
     // If an event spans through multiple days, adds the event multiple times
     const sortedEvents = {};
     events.forEach((event) => {
+      // in milliseconds
+      const originalDuration =
+        event.endDate.getTime() - event.startDate.getTime();
       const startDate = moment(event.startDate);
       const endDate = moment(event.endDate);
 
@@ -339,6 +344,7 @@ export default class WeekView extends Component {
           ...event,
           startDate: actualStartDate.toDate(),
           endDate: actualEndDate.toDate(),
+          originalDuration,
         });
       }
     });
@@ -381,6 +387,7 @@ export default class WeekView extends Component {
       fixedHorizontally,
       showNowLine,
       nowLineColor,
+      onDragEvent,
       isRefreshing,
       RefreshComponent,
     } = this.props;
@@ -434,7 +441,11 @@ export default class WeekView extends Component {
         {isRefreshing && RefreshComponent && (
           <RefreshComponent style={styles.loadingSpinner} />
         )}
-        <ScrollView ref={this.verticalAgendaRef}>
+        <ScrollView
+          onStartShouldSetResponderCapture={() => false}
+          onMoveShouldSetResponderCapture={() => false}
+          onResponderTerminationRequest={() => false}
+          ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
@@ -450,6 +461,9 @@ export default class WeekView extends Component {
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
               scrollEnabled={!fixedHorizontally}
+              onStartShouldSetResponderCapture={() => false}
+              onMoveShouldSetResponderCapture={() => false}
+              onResponderTerminationRequest={() => false}
               renderItem={({ item }) => {
                 return (
                   <Events
@@ -468,6 +482,7 @@ export default class WeekView extends Component {
                     rightToLeft={rightToLeft}
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
+                    onDragEvent={onDragEvent}
                   />
                 );
               }}
@@ -527,6 +542,7 @@ WeekView.propTypes = {
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
+  onDragEvent: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
 };

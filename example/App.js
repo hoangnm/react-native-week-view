@@ -93,6 +93,20 @@ class App extends React.Component {
     Alert.alert(`Date: ${dateStr}\nStart hour: ${startHour}`);
   };
 
+  onDragEvent = (event, newStartDate, newEndDate) => {
+    // Here you should update the event in your DB with the new date and hour
+    this.setState({
+      events: [
+        ...this.state.events.filter(e => e.id !== event.id),
+        {
+          ...event,
+          startDate: newStartDate,
+          endDate: newEndDate,
+        },
+      ],
+    });
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -119,6 +133,7 @@ class App extends React.Component {
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
             showNowLine
+            onDragEvent={this.onDragEvent}
             isRefreshing={false}
             RefreshComponent={MyRefreshComponent}
           />

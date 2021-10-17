@@ -21,7 +21,8 @@
     "react/forbid-prop-types": 0,
     "react/no-array-index-key": 0,
     "react/destructuring-assignment": 0,
-    "react/sort-comp": 0
+    "react/sort-comp": 0,
+    "react-hooks/exhaustive-deps": "warn"
   },
   "plugins": [
     "react",

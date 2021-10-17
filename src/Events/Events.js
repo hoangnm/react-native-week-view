@@ -199,6 +199,30 @@ class Events extends PureComponent {
     callback(event, hour, date);
   };
 
+  onDragEvent = (event, newX, newY) => {
+    const { onDragEvent } = this.props;
+    if (!onDragEvent) {
+      return;
+    }
+
+    const movedDays = Math.floor(newX / this.getEventItemWidth());
+
+    const startTime = event.startDate.getTime();
+    const newStartDate = new Date(startTime);
+    newStartDate.setDate(newStartDate.getDate() + movedDays);
+
+    let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
+    const newHour = Math.floor(newMinutes / 60);
+    newMinutes %= 60;
+    newStartDate.setHours(newHour, newMinutes);
+
+    const newEndDate = new Date(
+      newStartDate.getTime() + event.originalDuration,
+    );
+
+    onDragEvent(event, newStartDate, newEndDate);
+  };
+
   isToday = (dayIndex) => {
     const { initialDate } = this.props;
     const today = moment();
@@ -220,6 +244,7 @@ class Events extends PureComponent {
       timeStep,
       showNowLine,
       nowLineColor,
+      onDragEvent,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -242,14 +267,14 @@ class Events extends PureComponent {
             <View style={styles.timeLabelLine} />
           </View>
         ))}
-        <View style={styles.events}>
+        <View style={styles.eventsContainer}>
           {totalEvents.map((eventsInSection, dayIndex) => (
             <TouchableWithoutFeedback
               onPress={(e) => this.onGridTouch(e, dayIndex, false)}
               onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
               key={dayIndex}
             >
-              <View style={styles.event}>
+              <View style={styles.eventsColumn}>
                 {showNowLine && this.isToday(dayIndex) && (
                   <NowLine
                     color={nowLineColor}
@@ -266,6 +291,7 @@ class Events extends PureComponent {
                     onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
+                    onDrag={onDragEvent && this.onDragEvent}
                   />
                 ))}
               </View>
@@ -294,6 +320,7 @@ Events.propTypes = {
   rightToLeft: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
+  onDragEvent: PropTypes.func,
 };
 
 export default Events;
