@@ -1,4 +1,7 @@
 # react-native-week-view
+The week view component for react-native.
+
+Supported react-native versions: from version 0.59 and above.
 
 ![weekView](images/gif.gif)
 

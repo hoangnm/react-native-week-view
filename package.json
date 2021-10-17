@@ -1,6 +1,6 @@
 {
   "name": "react-native-week-view",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Week View Calendar for React Native",
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
@@ -50,8 +50,8 @@
     "prettier": "^2.0.5"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "react": "^16.8.0",
+    "react-native": "^0.59.0"
   },
   "jest": {
     "preset": "react-native",
