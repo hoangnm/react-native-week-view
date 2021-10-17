@@ -24,7 +24,7 @@ const Event = ({
   };
 
   const isPressDisabled = () => {
-    return !onPress;
+    return !onPress && !onLongPress;
   };
 
   const onDragRelease = (dx, dy) => {
