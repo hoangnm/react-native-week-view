@@ -2,6 +2,25 @@
 
 ![weekView](images/gif.gif)
 
+## Key features
+
+* Supported in Android and iOS
+* Many user interactions supported: **drag and drop events**, swipe through pages, event press and long-press, grid press and long-press
+* Customizable styles
+* Multiple locale support
+
+
+## Installation
+
+> `npm install --save react-native-week-view`
+
+or
+
+> `yarn add react-native-week-view`
+
+Requires react-native 0.59 or above (from `react-native-week-view >= 0.7.0`)
+
+
 
 ## Basic usage
 
