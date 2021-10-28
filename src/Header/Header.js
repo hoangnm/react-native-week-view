@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import moment from 'moment';
 
 import {
@@ -24,6 +24,7 @@ const Column = ({
   style,
   textStyle,
   TodayComponent,
+  DayComponent,
 }) => {
   const formattedDate = getFormattedDate(column, format);
   const useTodayComponent = TodayComponent && moment().isSame(column, 'days');
@@ -38,7 +39,11 @@ const Column = ({
           textStyle={fullTextStyle}
         />
       ) : (
-        <Text style={fullTextStyle}>{formattedDate}</Text>
+        <DayComponent
+          date={column}
+          formattedDate={formattedDate}
+          textStyle={fullTextStyle}
+        />
       )}
     </View>
   );
@@ -51,6 +56,7 @@ const Columns = ({
   style,
   textStyle,
   TodayComponent,
+  DayComponent,
 }) => {
   return (
     <View style={styles.columns}>
@@ -64,6 +70,7 @@ const Columns = ({
             numberOfDays={numberOfDays}
             format={format}
             TodayComponent={TodayComponent}
+            DayComponent={DayComponent}
           />
         );
       })}
@@ -78,6 +85,7 @@ const WeekViewHeader = ({
   style,
   textStyle,
   TodayComponent,
+  DayComponent,
   rightToLeft,
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
@@ -91,6 +99,7 @@ const WeekViewHeader = ({
           style={style}
           textStyle={textStyle}
           TodayComponent={TodayComponent}
+          DayComponent={DayComponent}
         />
       )}
     </View>
@@ -105,6 +114,7 @@ WeekViewHeader.propTypes = {
   textStyle: PropTypes.object,
   rightToLeft: PropTypes.bool,
   TodayComponent: PropTypes.elementType,
+  DayComponent: PropTypes.elementType,
 };
 
 WeekViewHeader.defaultProps = {

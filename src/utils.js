@@ -1,5 +1,6 @@
 import { Dimensions } from 'react-native';
 import moment from 'moment';
+import 'moment/locale/ko';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export const CONTENT_OFFSET = 16;
