@@ -23,6 +23,7 @@ import {
   availableNumberOfDays,
   setLocale,
   CONTAINER_WIDTH,
+  getFormattedDate,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -75,7 +76,8 @@ export default class WeekView extends Component {
       );
 
       this.currentPageIndex = this.pageOffset;
-      this.setState({
+      this.setState(
+        {
           currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
           initialDates,
         },
@@ -363,6 +365,11 @@ export default class WeekView extends Component {
     index,
   });
 
+  getTargetDate = () => {
+    const { currentMoment } = this.state;
+    return getFormattedDate(currentMoment, DATE_STR_FORMAT);
+  };
+
   render() {
     const {
       showTitle,
@@ -372,6 +379,7 @@ export default class WeekView extends Component {
       hourTextStyle,
       eventContainerStyle,
       TodayHeaderComponent,
+      DayHeaderComponent,
       formatDateHeader,
       onEventPress,
       onEventLongPress,
@@ -390,6 +398,7 @@ export default class WeekView extends Component {
       onDragEvent,
       isRefreshing,
       RefreshComponent,
+      getTargetDate,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -397,6 +406,8 @@ export default class WeekView extends Component {
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
+
+    getTargetDate(this.getTargetDate());
 
     return (
       <View style={styles.container}>
@@ -428,6 +439,7 @@ export default class WeekView extends Component {
                     style={headerStyle}
                     textStyle={headerTextStyle}
                     TodayComponent={TodayHeaderComponent}
+                    DayComponent={DayHeaderComponent}
                     formatDate={formatDateHeader}
                     initialDate={item}
                     numberOfDays={numberOfDays}
@@ -445,7 +457,8 @@ export default class WeekView extends Component {
           onStartShouldSetResponderCapture={() => false}
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
-          ref={this.verticalAgendaRef}>
+          ref={this.verticalAgendaRef}
+        >
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
@@ -536,6 +549,7 @@ WeekView.propTypes = {
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   TodayHeaderComponent: PropTypes.elementType,
+  DayHeaderComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   fixedHorizontally: PropTypes.bool,
@@ -545,6 +559,7 @@ WeekView.propTypes = {
   onDragEvent: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
+  getTargetDate: PropTypes.func,
 };
 
 WeekView.defaultProps = {
