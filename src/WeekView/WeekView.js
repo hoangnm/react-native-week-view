@@ -71,6 +71,7 @@ export default class WeekView extends Component {
       const initialDates = this.calculatePagesDates(
         this.state.currentMoment,
         this.props.numberOfDays,
+        this.props.weekStartsOn,
         this.props.prependMostRecent,
         this.props.fixedHorizontally,
       );
