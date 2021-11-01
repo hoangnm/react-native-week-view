@@ -399,7 +399,7 @@ export default class WeekView extends Component {
       onDragEvent,
       isRefreshing,
       RefreshComponent,
-      getTargetDate,
+      onGetTargetDate,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -408,7 +408,7 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    getTargetDate(this.getTargetDate());
+    onGetTargetDate(this.getTargetDate());
 
     return (
       <View style={styles.container}>
@@ -560,7 +560,7 @@ WeekView.propTypes = {
   onDragEvent: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
-  getTargetDate: PropTypes.func,
+  onGetTargetDate: PropTypes.func,
 };
 
 WeekView.defaultProps = {
@@ -575,4 +575,5 @@ WeekView.defaultProps = {
   rightToLeft: false,
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
+  onGetTargetDate: () => {},
 };
