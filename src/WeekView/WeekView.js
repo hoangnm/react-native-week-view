@@ -160,15 +160,15 @@ export default class WeekView extends Component {
 
   goToNextPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
+    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated, direction = 'next');
   };
 
   goToPrevPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
+    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated, direction = 'prev');
   };
 
-  goToPageIndex = (target, animated = true) => {
+  goToPageIndex = (target, animated = true, direction = '') => {
     if (target === this.currentPageIndex) {
       return;
     }
@@ -209,8 +209,17 @@ export default class WeekView extends Component {
       scrollTo(targetIndex);
     }
 
-    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
+    const newMoment = moment(initialDates[targetIndex]).toDate()
+    newState.currentMoment = newMoment;
     this.setState(newState, newStateCallback);
+
+    const { onSwipePrev, onSwipeNext } = this.props;
+    if (direction === 'next') {
+      onSwipeNext && onSwipeNext(newMoment);
+    }
+    if (direction === 'prev') {
+      onSwipePrev && onSwipePrev(newMoment);
+    }
   };
 
   scrollBegun = () => {
