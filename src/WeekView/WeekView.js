@@ -321,6 +321,10 @@ export default class WeekView extends Component {
     return prependMostRecent ? initialDates.reverse() : initialDates;
   };
 
+  isEqual = function (first = [], second = []) {
+    return first?.length !== second?.length;
+  };
+
   sortEventsByDate = memoizeOne((events) => {
     // Stores the events hashed by their date
     // For example: { "2020-02-03": [event1, event2, ...] }
@@ -364,7 +368,7 @@ export default class WeekView extends Component {
       });
     });
     return sortedEvents;
-  });
+  }, this.isEqual);
 
   getListItemLayout = (index) => ({
     length: CONTAINER_WIDTH,
