@@ -192,9 +192,21 @@ class Events extends PureComponent {
       return;
     }
     const { locationY } = event.nativeEvent;
-    const hour = Math.floor(this.yToHour(locationY - CONTENT_OFFSET));
 
-    const date = moment(initialDate).add(dayIndex, 'day').toDate();
+    // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
+    const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
+    const minutesWDec = (hoursWDec - parseInt(hoursWDec)) * 60;
+    const seconds = Math.floor((minutesWDec - parseInt(minutesWDec)) * 60);
+
+    const hour = Math.floor(hoursWDec);
+    const minutes = Math.floor(minutesWDec);
+
+    const date = moment(initialDate)
+      .add(dayIndex, 'day')
+      .hours(hour)
+      .minutes(minutes)
+      .seconds(seconds)
+      .toDate();
 
     callback(event, hour, date);
   };
