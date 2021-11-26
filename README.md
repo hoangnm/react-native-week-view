@@ -174,7 +174,94 @@ addLocale('fr', {
 });
 ```
 
-## Other example usages
+## Example usages
+
+### User-event interactions:
+
+1. Drag and drop event
+2. Long press on the grid to create an event
+3. Edit an event by (a) long pressing, (b) dragging the bottom border
+
+```js
+class MyComponent extends React.Component {
+  state = {
+    events: [
+      // ...
+    ],
+  };
+
+  // (1) Drag and drop event
+  handleDragEvent = (event, newStartDate, newEndDate) => {
+    // Update the event in your DB with the new date and hour
+    this.setState({
+      events: [
+        ...this.state.events.filter(e => e.id !== event.id),
+        {
+          ...event,
+          startDate: newStartDate,
+          endDate: newEndDate,
+        },
+      ],
+    });
+  };
+
+  // (2) Long-press on grid to create event
+  handleCreateNewEvent = (event, startHour, date) => {
+    // Create a dummy event placed on date and startHour
+    const maxId = Math.max(...this.state.events.map(e => e.id));
+    const startDate = date;
+    startDate.setHours(startHour);
+    const endDate = new Date(startDate.getTime());
+    endDate.setHours(startDate.getHours() + 2);
+    const dummyEvent = {
+      id: maxId + 1,
+      description: 'New Event',
+      color: 'rgb(0, 200, 0)',
+      startDate,
+      endDate,
+    };
+
+    // You could open a modal or something else to fetch real data
+
+    // Update DB with the new event
+    this.setState({
+      events: [
+        ...this.state.events,
+        dummyEvent,
+      ],
+    });
+  };
+
+  // (3) Edit event
+  handleEditEventEndDate = (event, newEndDate) => {
+    // Update event in the DB
+    this.setState({
+      events: [
+        ...this.state.events.filter(e => e.id !== event.id),
+        {
+          ...event,
+          endDate: newEndDate,
+        },
+      ],
+    });
+  };
+
+  render() {
+    const { events } = this.state;
+    return (
+      <WeekView
+        events={events}
+        onDragEvent={this.handleDragEvent}
+        onGridLongPress={this.handleCreateNewEvent}
+        onEditEventEndDate={this.handleEditEventEndDate}
+        // ... other props
+      />
+    );
+  }
+}
+```
+
+
 
 ### Fixed week
 
