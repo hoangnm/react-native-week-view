@@ -233,11 +233,12 @@ class MyComponent extends React.Component {
   };
 
   // (3) Edit event
-  handleEditEventEndDate = (event, newEndDate) => {
+  handleEditEventEndDate = (oldEvent, newEndDate) => {
     // Update event in the DB
+    const event = this.state.events.find(e => e.id === oldEvent.id);
     this.setState({
       events: [
-        ...this.state.events.filter(e => e.id !== event.id),
+        ...this.state.events.filter(e => e.id !== oldEvent.id),
         {
           ...event,
           endDate: newEndDate,

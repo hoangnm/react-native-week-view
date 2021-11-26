@@ -127,7 +127,8 @@ class App extends React.Component {
     });
   };
 
-  onEditEventEndDate = (event, newEndDate) => {
+  onEditEventEndDate = (oldEvent, newEndDate) => {
+    const event = this.state.events.find(e => e.id === oldEvent.id);
     this.setState({
       events: [
         ...this.state.events.filter(e => e.id !== event.id),
