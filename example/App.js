@@ -107,6 +107,38 @@ class App extends React.Component {
     });
   };
 
+  onGridLongPress = (event, startHour, date) => {
+    const maxId = Math.max(...this.state.events.map(e => e.id));
+    const startDate = date;
+    startDate.setHours(startHour);
+    const endDate = new Date(startDate.getTime());
+    endDate.setHours(startDate.getHours() + 2);
+    this.setState({
+      events: [
+        ...this.state.events,
+        {
+          id: maxId + 1,
+          description: 'New Event',
+          color: 'rgb(0, 200, 0)',
+          startDate,
+          endDate,
+        },
+      ],
+    });
+  };
+
+  onEditEventEndDate = (event, newEndDate) => {
+    this.setState({
+      events: [
+        ...this.state.events.filter(e => e.id !== event.id),
+        {
+          ...event,
+          endDate: newEndDate,
+        },
+      ],
+    });
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -122,6 +154,7 @@ class App extends React.Component {
             numberOfDays={7}
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
+            onGridLongPress={this.onGridLongPress}
             headerStyle={styles.header}
             headerTextStyle={styles.headerText}
             hourTextStyle={styles.hourText}
@@ -134,6 +167,7 @@ class App extends React.Component {
             showTitle={!showFixedComponent}
             showNowLine
             onDragEvent={this.onDragEvent}
+            onEditEventEndDate={this.onEditEventEndDate}
             isRefreshing={false}
             RefreshComponent={MyRefreshComponent}
           />

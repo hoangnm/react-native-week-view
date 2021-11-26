@@ -229,6 +229,22 @@ class Events extends PureComponent {
     return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
   };
 
+  onEditEventEndDate = (event, newY) => {
+    const { onEditEventEndDate } = this.props;
+    if (!onEditEventEndDate) {
+      return;
+    }
+    const { endDate } = event;
+
+    const newSeconds = this.yToHour(newY - CONTENT_OFFSET) * 3600;
+    const newEndDate = moment(endDate)
+      .startOf('day')
+      .seconds(newSeconds)
+      .toDate();
+
+    onEditEventEndDate(event, newEndDate);
+  };
+
   render() {
     const {
       eventsByDate,
@@ -245,6 +261,10 @@ class Events extends PureComponent {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      onEditEventEndDate,
+      editingEventId,
+      onStartEditingEvent,
+      editingInteraction,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -292,6 +312,10 @@ class Events extends PureComponent {
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                     onDrag={onDragEvent && this.onDragEvent}
+                    onEditEndDate={onEditEventEndDate && this.onEditEventEndDate}
+                    editingEventId={editingEventId}
+                    onStartEditingEvent={onStartEditingEvent}
+                    editingInteraction={editingInteraction}
                   />
                 ))}
               </View>
@@ -321,6 +345,10 @@ Events.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
+  onEditEventEndDate: PropTypes.func,
+  editingEventId: PropTypes.number,
+  onStartEditingEvent: PropTypes.func,
+  editingInteraction: PropTypes.oneOf(['press', 'longPress']),
 };
 
 export default Events;

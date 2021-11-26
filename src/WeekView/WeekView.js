@@ -48,6 +48,7 @@ export default class WeekView extends Component {
       // currentMoment should always be the first date of the current page
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
+      editingEventId: null,
     };
 
     setLocale(props.locale);
@@ -363,6 +364,21 @@ export default class WeekView extends Component {
     index,
   });
 
+  startEditingEvent = (event) => {
+    if (!this.props.onEditEventEndDate) {
+      return;
+    }
+
+    const { editingEventId } = this.state;
+    if (event != null && editingEventId != null) {
+      return;
+    }
+
+    this.setState({
+      editingEventId: event && event.id,
+    });
+  };
+
   render() {
     const {
       showTitle,
@@ -388,10 +404,12 @@ export default class WeekView extends Component {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      onEditEventEndDate,
+      editingInteraction,
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates } = this.state;
+    const { currentMoment, initialDates, editingEventId } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
@@ -483,6 +501,10 @@ export default class WeekView extends Component {
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
                     onDragEvent={onDragEvent}
+                    onEditEventEndDate={onEditEventEndDate}
+                    editingEventId={editingEventId}
+                    onStartEditingEvent={this.startEditingEvent}
+                    editingInteraction={editingInteraction}
                   />
                 );
               }}
@@ -545,6 +567,8 @@ WeekView.propTypes = {
   onDragEvent: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
+  onEditEventEndDate: PropTypes.func,
+  editingInteraction: PropTypes.oneOf(['press', 'longPress']),
 };
 
 WeekView.defaultProps = {
@@ -559,4 +583,5 @@ WeekView.defaultProps = {
   rightToLeft: false,
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
+  editingInteraction: 'longPress',
 };
