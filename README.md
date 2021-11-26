@@ -6,7 +6,7 @@ The week view component for react-native.
 ## Key features
 
 * Supported in Android and iOS
-* Many user interactions supported: **drag and drop events**, swipe through pages, event press and long-press, grid press and long-press
+* Many user interactions supported: **drag and drop events**, swipe through pages, event press and long-press, grid press and long-press, press grid to create events, hold event to edit
 * Customizable styles
 * Multiple locale support
 
@@ -87,6 +87,8 @@ const MyComponent = () => (
 * **`RefreshComponent`** _(React.Component)_ - Component used when `isRefreshing` is `true`. Receives a `style` prop that must be passed down (sets the component position), for example: `MyRefreshControl = ({ style }) => <Text style={style}>loading...</Text>`. Defaults to an `<ActivityIndicator />` with default parameters (notice the `ActivityIndicator` default color in some devices may be white).
 * **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
 * **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The events are draggable only if this callback is provided.
+* **`onEditEventEndDate`** _(Function)_ - Callback when an event is edited. To enable edit mode, press or long-press (see next prop), and edit the end hour by dragging the bottom border. Function signature: `(event, newEndDate) => {}`, the event edited and the `newEndDate` is a `Date` object. In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The edit-mode is enabled only if this callback is provided.
+* **`editingInteraction`** _(String)_ - indicates interaction to enable editing mode, one of `"press"` or `"longPress"` (defaults to `"longPress"`).
 
 ### Event Object
 ```js
