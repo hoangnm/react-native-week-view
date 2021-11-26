@@ -176,7 +176,7 @@ addLocale('fr', {
 
 ## Example usages
 
-### User-event interactions:
+### Common user-event interactions:
 
 1. Drag and drop event
 2. Long press on the grid to create an event
