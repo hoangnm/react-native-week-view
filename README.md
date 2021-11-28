@@ -75,7 +75,7 @@ const MyComponent = () => (
 * **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
   * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
   * `startHour` _(Number)_ - hour clicked (as integer)
-  * `date` _(Date)_ - date object indicating day clicked (the hour is not relevant)
+  * `date` _(Date)_ - date object indicating day and time pressed with precision up to seconds (hours, minutes and seconds). Notice: finger pressing is usually not so precise.
 * **`onGridLongPress`** _(Function)_ - Callback when the grid view is long-pressed. Same signature as `onGridClick`
 * **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
 * **`TodayHeaderComponent`** _(React.Component)_ - Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent)

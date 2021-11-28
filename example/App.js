@@ -68,7 +68,7 @@ const sampleFixedEvents = [
 ];
 
 // For debugging purposes
-const showFixedComponent = true;
+const showFixedComponent = false;
 
 const MyRefreshComponent = ({style}) => (
   // Just an example
@@ -89,8 +89,14 @@ class App extends React.Component {
   };
 
   onGridClick = (event, startHour, date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    Alert.alert(`Date: ${dateStr}\nStart hour: ${startHour}`);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // zero-based
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
   };
 
   onDragEvent = (event, newStartDate, newEndDate) => {
