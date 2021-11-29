@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 - 2021-11-29
+- Add precision up to seconds in onGrid callbacks [#149](https://github.com/hoangnm/react-native-week-view/pull/149)
+
+## 0.7.0 - 2021-11-11
+- Add isRefreshing and RefreshComponent props [#112](https://github.com/hoangnm/react-native-week-view/pull/112)
+- Fix events break when changing hoursInDisplay [#133](https://github.com/hoangnm/react-native-week-view/pull/133)
+- Allow to drag-drop event [#143](https://github.com/hoangnm/react-native-week-view/pull/143) 
+- Support react-native above v0.59.0 only
 ## 0.6.1 - 2021-08-22
 
 ### Fixed
