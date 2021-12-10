@@ -574,14 +574,12 @@ WeekView.propTypes = {
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
   onGetTargetDate: PropTypes.func,
-  insets: PropTypes.arrayOf(
-    PropTypes.shape({
-      top: PropTypes.number,
-      bottom: PropTypes.number,
-      left: PropTypes.number,
-      right: PropTypes.number,
-    }),
-  ),
+  insets: PropTypes.shape({
+    top: PropTypes.number,
+    bottom: PropTypes.number,
+    left: PropTypes.number,
+    right: PropTypes.number,
+  }),
 };
 
 WeekView.defaultProps = {
