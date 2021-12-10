@@ -82,10 +82,7 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
           overlappedArr[lastEvtInLaneIndex];
         if (
           !lastEvtInLane ||
-          !areEventsOverlapped(
-            lastEvtInLane.data.endDate,
-            event.data.startDate,
-          )
+          !areEventsOverlapped(lastEvtInLane.data.endDate, event.data.startDate)
         ) {
           // Place in this lane
           latestByLane[lane] = index;
@@ -115,7 +112,11 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
   });
 };
 
-const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) => {
+const getEventsWithPosition = (
+  totalEvents,
+  regularItemWidth,
+  hoursInDisplay,
+) => {
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
@@ -131,21 +132,13 @@ const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) =>
         const endDate = moment(event.endDate);
         lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
       } else {
-        addOverlappedToArray(
-          eventsAcc,
-          overlappedSoFar,
-          regularItemWidth,
-        );
+        addOverlappedToArray(eventsAcc, overlappedSoFar, regularItemWidth);
         overlappedSoFar = [eventWithStyle];
         lastDate = moment(event.endDate);
       }
       return eventsAcc;
     }, []);
-    addOverlappedToArray(
-      eventsWithStyle,
-      overlappedSoFar,
-      regularItemWidth,
-    );
+    addOverlappedToArray(eventsWithStyle, overlappedSoFar, regularItemWidth);
     return eventsWithStyle;
   });
 };
@@ -158,9 +151,9 @@ class Events extends PureComponent {
   };
 
   getEventItemWidth = (padded = true) => {
-    const { numberOfDays } = this.props;
+    const { numberOfDays, insets } = this.props;
     const fullWidth = padded ? EVENTS_CONTAINER_WIDTH : CONTAINER_WIDTH;
-    return fullWidth / numberOfDays;
+    return (fullWidth - insets?.left - insets?.right) / numberOfDays;
   };
 
   processEvents = memoizeOne(
@@ -245,6 +238,7 @@ class Events extends PureComponent {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      insets,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -254,8 +248,13 @@ class Events extends PureComponent {
       rightToLeft,
     );
 
+    const containerStyle = {
+      ...styles.container,
+      width: CONTAINER_WIDTH - insets?.left - insets?.right,
+    };
+
     return (
-      <View style={styles.container}>
+      <View style={containerStyle}>
         {times.map((time) => (
           <View
             key={time}
@@ -321,6 +320,7 @@ Events.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
+  insets: PropTypes.object.isRequired,
 };
 
 export default Events;

@@ -360,11 +360,14 @@ export default class WeekView extends Component {
     return sortedEvents;
   });
 
-  getListItemLayout = (index) => ({
-    length: CONTAINER_WIDTH,
-    offset: CONTAINER_WIDTH * index,
-    index,
-  });
+  getListItemLayout = (index) => {
+    const { insets } = this.props;
+    return {
+      length: CONTAINER_WIDTH - insets?.left - insets?.right,
+      offset: (CONTAINER_WIDTH - insets?.left - insets?.right) * index,
+      index,
+    };
+  };
 
   getTargetDate = () => {
     const { currentMoment } = this.state;
@@ -400,6 +403,7 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
       onGetTargetDate,
+      insets,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -407,6 +411,14 @@ export default class WeekView extends Component {
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
+    const calendarHeaderStyle = {
+      ...styles.header,
+      width: CONTAINER_WIDTH - insets?.left - insets?.right,
+    };
+    const loadingSpinnerStyle = {
+      ...styles.loadingSpinner,
+      right: (CONTAINER_WIDTH - insets?.left - insets?.right) / 2,
+    };
 
     onGetTargetDate(this.getTargetDate());
 
@@ -435,7 +447,7 @@ export default class WeekView extends Component {
             initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
               return (
-                <View key={item} style={styles.header}>
+                <View key={item} style={calendarHeaderStyle}>
                   <Header
                     style={headerStyle}
                     textStyle={headerTextStyle}
@@ -452,7 +464,7 @@ export default class WeekView extends Component {
           />
         </View>
         {isRefreshing && RefreshComponent && (
-          <RefreshComponent style={styles.loadingSpinner} />
+          <RefreshComponent style={loadingSpinnerStyle} />
         )}
         <ScrollView
           onStartShouldSetResponderCapture={() => false}
@@ -497,6 +509,7 @@ export default class WeekView extends Component {
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
                     onDragEvent={onDragEvent}
+                    insets={insets}
                   />
                 );
               }}
@@ -561,6 +574,14 @@ WeekView.propTypes = {
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
   onGetTargetDate: PropTypes.func,
+  insets: PropTypes.arrayOf(
+    PropTypes.shape({
+      top: PropTypes.number,
+      bottom: PropTypes.number,
+      left: PropTypes.number,
+      right: PropTypes.number,
+    }),
+  ),
 };
 
 WeekView.defaultProps = {
@@ -576,4 +597,5 @@ WeekView.defaultProps = {
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
   onGetTargetDate: () => {},
+  insets: { top: 0, bottom: 0, left: 0, right: 0 },
 };

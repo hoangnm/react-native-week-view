@@ -4,7 +4,7 @@ import 'moment/locale/ko';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export const CONTENT_OFFSET = 16;
-export const CONTAINER_HEIGHT = SCREEN_HEIGHT - 60;
+export const CONTAINER_HEIGHT = SCREEN_HEIGHT > 540 ? SCREEN_HEIGHT : 540;
 export const CONTAINER_WIDTH = SCREEN_WIDTH - 60;
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
