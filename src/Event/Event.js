@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
@@ -19,27 +19,27 @@ const Event = ({
   containerStyle,
   onDrag,
 }) => {
-  const isDragEnabled = () => {
-    return !!onDrag;
-  };
+  const isDragEnabled = !!onDrag;
 
-  const isPressDisabled = () => {
-    return !onPress && !onLongPress;
-  };
+  const isPressDisabled = !onPress && !onLongPress;
 
-  const onDragRelease = (dx, dy) => {
-    if (!onDrag) {
-      return;
-    }
+  const onDragRelease = useCallback(
+    (dx, dy) => {
+      if (!onDrag) {
+        return;
+      }
 
-    const newX = position.left + position.width / 2 + dx;
-    const newY = position.top + dy;
-    onDrag(event, newX, newY);
-  };
+      const newX = position.left + position.width / 2 + dx;
+      const newY = position.top + dy;
+      onDrag(event, newX, newY);
+    },
+    [event, position, onDrag],
+  );
 
   const translatedByDrag = useRef(new Animated.ValueXY()).current;
   const currentWidth = useRef(new Animated.Value(position.width)).current;
   const currentLeft = useRef(new Animated.Value(position.left)).current;
+
   useEffect(() => {
     translatedByDrag.setValue({ x: 0, y: 0 });
     const { left, width } = position;
@@ -57,15 +57,16 @@ const Event = ({
     ];
     Animated.parallel(animations).start();
   }, [position]);
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => isDragEnabled(),
+
+  const panResponder = useMemo(() => {
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => isDragEnabled,
       onStartShouldSetPanResponderCapture: () =>
-        isPressDisabled() && isDragEnabled(),
+        isPressDisabled && isDragEnabled,
       onMoveShouldSetPanResponder: (_, gestureState) =>
-        isDragEnabled() && hasMovedEnough(gestureState),
+        isDragEnabled && hasMovedEnough(gestureState),
       onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-        isPressDisabled() && isDragEnabled() && hasMovedEnough(gestureState),
+        isPressDisabled && isDragEnabled && hasMovedEnough(gestureState),
       onPanResponderMove: Animated.event(
         [
           null,
@@ -86,8 +87,9 @@ const Event = ({
       onPanResponderTerminate: () => {
         translatedByDrag.setValue({ x: 0, y: 0 });
       },
-    }),
-  ).current;
+    });
+  }, [onDragRelease, isDragEnabled, isPressDisabled]);
+
   return (
     <Animated.View
       style={[
