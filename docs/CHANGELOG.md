@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.8.1 - 2021-12-30
+- Fix dragging event issue [#152](https://github.com/hoangnm/react-native-week-view/pull/152)
 ## 0.8.0 - 2021-11-29
 - Add precision up to seconds in onGrid callbacks [#149](https://github.com/hoangnm/react-native-week-view/pull/149)
 
