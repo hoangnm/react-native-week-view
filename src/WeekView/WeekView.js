@@ -370,6 +370,8 @@ export default class WeekView extends Component {
       headerStyle,
       headerTextStyle,
       hourTextStyle,
+      gridRowStyle,
+      gridColumnStyle,
       eventContainerStyle,
       TodayHeaderComponent,
       formatDateHeader,
@@ -479,6 +481,8 @@ export default class WeekView extends Component {
                     timeStep={timeStep}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
+                    gridRowStyle={gridRowStyle}
+                    gridColumnStyle={gridColumnStyle}
                     rightToLeft={rightToLeft}
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
@@ -528,6 +532,8 @@ WeekView.propTypes = {
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
+  gridRowStyle: Events.propTypes.gridRowStyle,
+  gridColumnStyle: Events.propTypes.gridColumnStyle,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,

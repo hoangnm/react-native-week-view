@@ -132,6 +132,8 @@ class App extends React.Component {
             headerTextStyle={styles.headerText}
             hourTextStyle={styles.hourText}
             eventContainerStyle={styles.eventContainer}
+            gridColumnStyle={styles.gridColumn}
+            gridRowStyle={styles.gridRow}
             formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
@@ -167,6 +169,14 @@ const styles = StyleSheet.create({
   eventContainer: {
     borderWidth: 1,
     borderColor: 'black',
+  },
+  gridRow: {
+    borderTopWidth: 1,
+    borderColor: '#E9EDF0',
+  },
+  gridColumn: {
+    borderLeftWidth: 1,
+    borderColor: '#E9EDF0',
   },
 });
 
