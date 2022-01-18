@@ -250,6 +250,8 @@ class Events extends PureComponent {
       onEventPress,
       onEventLongPress,
       eventContainerStyle,
+      gridRowStyle,
+      gridColumnStyle,
       EventComponent,
       rightToLeft,
       hoursInDisplay,
@@ -265,6 +267,7 @@ class Events extends PureComponent {
       hoursInDisplay,
       rightToLeft,
     );
+    const timeSlotHeight = getTimeLabelHeight(hoursInDisplay, timeStep);
 
     return (
       <View style={styles.container}>
@@ -273,11 +276,10 @@ class Events extends PureComponent {
             key={time}
             style={[
               styles.timeRow,
-              { height: getTimeLabelHeight(hoursInDisplay, timeStep) },
+              { height: timeSlotHeight },
+              gridRowStyle,
             ]}
-          >
-            <View style={styles.timeLabelLine} />
-          </View>
+          />
         ))}
         <View style={styles.eventsContainer}>
           {totalEvents.map((eventsInSection, dayIndex) => (
@@ -286,7 +288,7 @@ class Events extends PureComponent {
               onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
               key={dayIndex}
             >
-              <View style={styles.eventsColumn}>
+              <View style={[styles.eventsColumn, gridColumnStyle]}>
                 {showNowLine && this.isToday(dayIndex) && (
                   <NowLine
                     color={nowLineColor}
@@ -315,6 +317,17 @@ class Events extends PureComponent {
   }
 }
 
+const GridRowPropType = PropTypes.shape({
+  borderColor: PropTypes.string,
+  borderTopWidth: PropTypes.number,
+});
+
+const GridColumnPropType = PropTypes.shape({
+  borderColor: PropTypes.string,
+  borderLeftWidth: PropTypes.number,
+});
+
+
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(Event.propTypes.event))
@@ -328,6 +341,8 @@ Events.propTypes = {
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
   eventContainerStyle: PropTypes.object,
+  gridRowStyle: GridRowPropType,
+  gridColumnStyle: GridColumnPropType,
   EventComponent: PropTypes.elementType,
   rightToLeft: PropTypes.bool,
   showNowLine: PropTypes.bool,

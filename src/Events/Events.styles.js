@@ -11,13 +11,9 @@ const styles = StyleSheet.create({
   },
   timeRow: {
     flex: 0,
-  },
-  timeLabelLine: {
-    height: 1,
-    backgroundColor: GREY_COLOR,
-    position: 'absolute',
-    right: 0,
-    left: 0,
+    borderTopWidth: 1,
+    borderColor: GREY_COLOR,
+    backgroundColor: 'transparent',
   },
   eventsColumn: {
     flex: 1,
