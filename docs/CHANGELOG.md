@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.9.0 - 2022-01-18
+- Add gridRowStyle and gridColumnStyle props [#158](https://github.com/hoangnm/react-native-week-view/pull/158)
 ## 0.8.1 - 2021-12-30
 - Fix dragging event issue [#152](https://github.com/hoangnm/react-native-week-view/pull/152)
 ## 0.8.0 - 2021-11-29
