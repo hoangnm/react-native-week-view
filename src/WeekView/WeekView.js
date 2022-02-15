@@ -7,6 +7,7 @@ import {
   VirtualizedList,
   InteractionManager,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -404,6 +405,7 @@ export default class WeekView extends Component {
       RefreshComponent,
       onGetTargetDate,
       insets,
+      onRefresh,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
@@ -471,6 +473,9 @@ export default class WeekView extends Component {
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
           ref={this.verticalAgendaRef}
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+          }
         >
           <View style={styles.scrollViewContent}>
             <Times
@@ -580,6 +585,7 @@ WeekView.propTypes = {
     left: PropTypes.number,
     right: PropTypes.number,
   }),
+  onRefresh: PropTypes.func,
 };
 
 WeekView.defaultProps = {
@@ -595,5 +601,7 @@ WeekView.defaultProps = {
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
   onGetTargetDate: () => {},
+  onRefresh: () => {},
+  isRefreshing: false,
   insets: { top: 0, bottom: 0, left: 0, right: 0 },
 };
