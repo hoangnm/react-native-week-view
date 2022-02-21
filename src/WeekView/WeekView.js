@@ -19,12 +19,13 @@ import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
-  CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
   CONTAINER_WIDTH,
   getFormattedDate,
+  CONTENT_OFFSET,
+  minutesToYDimension,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -91,6 +92,19 @@ export default class WeekView extends Component {
         },
       );
     }
+    if (
+      moment().isSame(this.props.selectedDate, 'date') ||
+      moment().isBetween(
+        this.props.selectedDate,
+        moment(this.props.selectedDate).add(this.props.numberOfDays, 'days'),
+        undefined,
+        '[)',
+      )
+    ) {
+      requestAnimationFrame(() => {
+        this.scrollToVerticalStart();
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -109,8 +123,11 @@ export default class WeekView extends Component {
 
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
-      const { startHour, hoursInDisplay } = this.props;
-      const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
+      const { hoursInDisplay } = this.props;
+      const now = new Date();
+      const minutes = now.getHours() * 60 + now.getMinutes();
+      const startHeight =
+        minutesToYDimension(hoursInDisplay, minutes) + CONTENT_OFFSET;
       this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
     }
   };
