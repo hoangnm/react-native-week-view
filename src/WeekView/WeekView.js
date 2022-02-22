@@ -93,13 +93,14 @@ export default class WeekView extends Component {
       );
     }
     if (
-      moment().isSame(this.props.selectedDate, 'date') ||
-      moment().isBetween(
-        this.props.selectedDate,
-        moment(this.props.selectedDate).add(this.props.numberOfDays, 'days'),
-        undefined,
-        '[)',
-      )
+      this.props.selectedDate !== prevProps.selectedDate &&
+      (moment().isSame(this.props.selectedDate, 'date') ||
+        moment().isBetween(
+          this.props.selectedDate,
+          moment(this.props.selectedDate).add(this.props.numberOfDays, 'days'),
+          undefined,
+          '[)',
+        ))
     ) {
       requestAnimationFrame(() => {
         this.scrollToVerticalStart();

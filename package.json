@@ -1,6 +1,6 @@
 {
   "name": "@payhereinc/react-native-week-view",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Week View Calendar for React Native",
   "main": "index.js",
   "repository": {
