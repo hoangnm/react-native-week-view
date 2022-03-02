@@ -41,7 +41,9 @@ export default class WeekView extends Component {
     this.eventsGridScrollX = new Animated.Value(0);
 
     const initialDates = this.calculatePagesDates(
-      props.selectedDate,
+      moment(props.selectedDate).month() === moment().month()
+        ? moment().toDate()
+        : props.selectedDate,
       props.numberOfDays,
       props.weekStartsOn,
       props.prependMostRecent,
@@ -70,8 +72,20 @@ export default class WeekView extends Component {
       setLocale(this.props.locale);
     }
     if (this.props.numberOfDays !== prevProps.numberOfDays) {
+      const prevMonth =
+        prevProps.numberOfDays === 7
+          ? moment(this.state.currentMoment).endOf('week').month()
+          : moment(this.state.currentMoment).month();
+      const currentMoment =
+        moment().month() !== prevMonth
+          ? moment(this.state.currentMoment)
+              .endOf('week')
+              .startOf('month')
+              .toDate()
+          : moment().toDate();
+
       const initialDates = this.calculatePagesDates(
-        this.state.currentMoment,
+        currentMoment,
         this.props.numberOfDays,
         this.props.weekStartsOn,
         this.props.prependMostRecent,
@@ -320,7 +334,7 @@ export default class WeekView extends Component {
   ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
-    if (numberOfDays === 7 || fixedHorizontally) {
+    if (numberOfDays !== 1 && (numberOfDays === 7 || fixedHorizontally)) {
       centralDate.subtract(
         // Ensure centralDate is before currentMoment
         (centralDate.day() + 7 - weekStartsOn) % 7,
