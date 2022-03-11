@@ -99,9 +99,10 @@ const Event = ({
           width: currentWidth,
           backgroundColor: event.color,
           transform: translatedByDrag.getTranslateTransform(),
-          borderWidth: event.borderWidth,
+          borderWidth: 1,
           borderRadius: 8,
-          borderColor: event.borderColor
+          borderStyle: event.borderStyle,
+          borderColor: event.borderColor,
         },
         containerStyle,
       ]}
