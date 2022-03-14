@@ -53,45 +53,49 @@ const MyComponent = () => (
 ## Full API
 
 ### Props
-* **`events`** _(Array)_ - Events to display, in `Event Object` format (see [sub-section below](#event-object))
-* **`onEventPress`** _(Function)_ - Callback when event item is pressed, receives the event-object: `(event) => {}`.
-* **`onEventLongPress`** _(Function)_ - Callback when event item is long pressed, same signature as `onEventPress`.
-* **`numberOfDays`** _(Number)_ - Set number of days to show in view, can be `1`, `3`, `5`, `7`.
-* **`weekStartsOn`** _(Number)_ - Day to start the week (0 is Sunday, 1 is Monday, and so on). Defaults to 1. Only useful when `numberOfDays === 7` or `fixedHorizontally` is true.
-* **`formatDateHeader`** _(String)_ - Format for dates of header, default is `MMM D`
-* **`selectedDate`** _(Date)_ - Intial date to show week/days in the view. Note: changing this prop will not have any effect in the displayed date; to actually change the date being displayed, use the `goToDate()` method, see below.
-* **`onSwipeNext`** _(Function)_ - Callback when calendar is swiped to next week/days
-* **`onSwipePrev`** _(Function)_ - Callback when calendar is swiped to previous week/days
-* **`locale`** _(String)_ - locale for the header, there's a `addLocale` function to add cusomized locale. Default is `en`.
-* **`showTitle`** _(Boolean)_ - show/hide the title (the selected month and year). Default is `true`.
-* **`headerStyle`** _(Object)_ - custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
-* **`headerTextStyle`** _(Object)_ - custom styles for text inside header. Includes day names and title (month)
-* **`hourTextStyle`** _(Object)_ - custom styles for text displaying hours in the left.
-* **`eventContainerStyle`** _(Object)_ - custom styles for the event container. Notice the background color and positioning (absolute) are already set.
-* **`hoursInDisplay`** _(Number)_ - Amount of hours to display in the screen. Default is 6.
-* **`timeStep`** _(Number)_ - Number of minutes to use as step in the time labels shown in the left. Default is 60 (1 hour).
-* **`formatTimeLabel`** _(String)_ - Formatter for the time labels shown in the left. Defaults to `"H:mm"` (e.g. 16:00, 16:30, etc). To use AM/PM formatting, set to `"h:mm A"` (e.g. 4:00 PM, 4:30 PM, etc), or `"h:mm a"` for lowercase. See [docs on momentjs](https://momentjs.com/docs/#/displaying/format/) for all available formatters.
-* **`startHour`** _(Number)_ - Hour to scroll to on start. Default is 8 (8 am).
-* **`onGridClick`** _(Function)_ - Callback when the grid view is clicked, signature: `(pressEvent, startHour, date) => {}`.
-  * `pressEvent` _(Object)_ - object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (and not an event object as defined below)
-  * `startHour` _(Number)_ - hour clicked (as integer)
-  * `date` _(Date)_ - date object indicating day and time pressed with precision up to seconds (hours, minutes and seconds). Notice: finger pressing is usually not so precise.
-* **`onGridLongPress`** _(Function)_ - Callback when the grid view is long-pressed. Same signature as `onGridClick`
-* **`EventComponent`** _(React.Component)_ - Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.
-* **`TodayHeaderComponent`** _(React.Component)_ - Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent)
-* **`showNowLine`** _(Boolean)_ - If `true`, displays a line indicating the time right now. Defaults to `false`.
-* **`nowLineColor`** _(String)_ - Color used for the now-line. Defaults to a red `#e53935`.
-* **`rightToLeft`** _(Boolean)_ - If `true`, render older days to the right and more recent days to the left.
-* **`fixedHorizontally`** _(Boolean)_ - If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week).
-* **`isRefreshing`** _(Boolean)_ - If `true`, the component will show the `<RefreshComponent />` in the middle of the grid.
-* **`RefreshComponent`** _(React.Component)_ - Component used when `isRefreshing` is `true`. Receives a `style` prop that must be passed down (sets the component position), for example: `MyRefreshControl = ({ style }) => <Text style={style}>loading...</Text>`. Defaults to an `<ActivityIndicator />` with default parameters (notice the `ActivityIndicator` default color in some devices may be white).
-* **`prependMostRecent`** _(Boolean)_ - If `true`, the horizontal prepending is done in the most recent dates. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. Default is `false`.
-* **`onDragEvent`** _(Function)_ - Callback when event item is dragged to another position, signature: `(event, newStartDate, newEndDate) => {}`. The `event` returns the event moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). In this callback you should trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event. The events are draggable only if this callback is provided.
-* Grid border styling props:
-  * **`gridRowStyle`** _(Object)_ - `{ borderTopWidth: <width>, borderColor: <color> }` to customize width and color of horizontal lines
-  * **`gridColumnStyle`** _(Object)_ - `{ borderLeftWidth: <width>, borderColor: <color> }` to customize width and color of vertical lines
 
-### Event Object
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| `events` | _Array_ | **required** | Events to display, in `Event Item` format ([see below](#event-item)). |
+| `selectedDate` | _Date_ | **required** | Date to show the week-view in the first render. Note: changing this prop after the first render will not have any effect in the week-view; to actually move the week-view, use the `goToDate()` method, [see below](#methods). |
+| `numberOfDays` | _Number_, one of `1`, `3`, `5`, `7` | **required** | Number of days to show in the week-view. |
+| <td colspan=4>**User interactions** (interactions enabled only for provided callbacks)</td> |
+| `onEventPress` | _Function:_ `(event) => {}` | `null` | Callback when an event item is pressed, receives the event-item pressed: `(event) => {}`. |
+| `onEventLongPress` | _Function:_ `(event) => {}` | `null` | Callback when an event item is long pressed, same signature as `onEventPress`. |
+| `onSwipeNext` | _Function:_ `(date) => {}` | `null` | Callback when week-view is swiped to next week/days, receives new date shown. |
+| `onSwipePrev` | _Function:_ `(date) => {}` | `null` | Callback when week-view is swiped to previous week/days, same signature as `onSwipeNext`. |
+| `onGridClick` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. |
+| `onGridLongPress` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is long-pressed. Same signature as `onGridClick` |
+| `onDragEvent` | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null` | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** |
+| <td colspan=4>**Week-view customizations**</td> |
+| `startHour` | _Number_ | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
+| `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |
+| `showTitle` | _Boolean_ | `true` | Show or hide the selected month and year in the top-left corner (a.k.a the title). |
+| `hoursInDisplay` | _Number_ | `6` | Amount of hours to display vertically in the agenda. Increasing this number will make the events look smaller. |
+| `timeStep` | _Number_ | `60` (minutes) | Number of minutes to use as step in the time labels at the left. Increasing this number will increase the vertical space between grid lines. |
+| `formatDateHeader` | _String_ | `"MMM D"` (e.g. "Apr 3") | Formatter for dates in the header. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
+| `formatTimeLabel` | _String_ | `"H:mm"` (24 hours) | Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or `"h:mm a"` for lowercase. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
+| `EventComponent` | _ReactComponent_ | `Text` | Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component. |
+| `TodayHeaderComponent` | _ReactComponent_ | `null` | Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent) |
+| `showNowLine` | _Boolean_ | `false` | If `true`, displays a line indicating the time right now. |
+| `nowLineColor` | _String_ | `red (#E53935)` | Color used for the now-line. |
+| `fixedHorizontally` | _Boolean_ | `false` | If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week). |
+| `isRefreshing` | _Boolean_ | `false` | When `true`, the week-view will show an `<ActivityIndicator />` in the middle of the grid. |
+| `RefreshComponent` | _ReactComponent_ | `ActivityIndicator` | Custom component used when `isRefreshing` is `true`. See [example below](#custom-refreshcomponent). |
+| `locale` | _String_ | `"en"` | Locale for the dates (e.g. header). There's an `addLocale()` function to add customized locale, [see below](#locales-customization). |
+| `rightToLeft` | _Boolean_ | `false` | If `true`, render older days to the right and more recent days to the left. |
+| <td colspan=4>**Week-view style props**</td> |
+| `headerStyle` | _Object_ | - | Custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }` |
+| `headerTextStyle` | _Object_ | - | Custom styles for text inside header. Applied to day names and month name (i.e. title) |
+| `hourTextStyle` | _Object_ | - | Custom styles for text displaying hours at the left. |
+| `eventContainerStyle` | _Object_ | - | Custom styles for each event item container. Note: the background color and (absolute) positioning are already set. |
+| <td colspan=4>**Grid lines props**</td> |
+| `gridRowStyle` | _Object_ | `width: 1`, `color: grey (#E9EDF0)` | Prop to customize width and color of horizontal lines, provide: `{ borderTopWidth: <width>, borderColor: <color> }` |
+| `gridColumnStyle` | _Object_ | same as above | Prop to customize width and color of vertical lines, provide: `{ borderLeftWidth: <width>, borderColor: <color> }` |
+| <td colspan=4>**Patching RN props**</td> |
+| `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. |
+
+### Event Item
 ```js
 {
   id: 1,
@@ -120,7 +124,7 @@ To use the component methods save a reference to it:
 
 ### Custom `EventComponent`
 The custom component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
-* **`event`** _(Event)_ - Event object as described before.
+* **`event`** _(Event)_ - Event item as described before.
 * **`position`**: _(Object)_ - object containing `top`, `left`, `height` and `width` values in pixels.
 
 For example, to display an icon inside each event, such as a [react-native-elements Icon](https://react-native-elements.github.io/react-native-elements/docs/icon/):
@@ -173,6 +177,23 @@ addLocale('fr', {
   weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
   weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
 });
+```
+
+### Custom RefreshComponent
+
+* `RefreshComponent` is a _ReactComponent_ that receives a `style` prop that must be used (since it sets the component position).
+* Note: the `ActivityIndicator` default color in some devices may be white.
+
+Example:
+```js
+const MyRefreshComponent = ({ style }) => (
+  <Text style={style}>loading...</Text>
+);
+
+<WeekView
+  // ... other props
+  RefreshComponent={MyRefreshComponent}
+/>
 ```
 
 ## Other example usages
