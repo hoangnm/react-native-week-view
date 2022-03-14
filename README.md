@@ -59,7 +59,7 @@ const MyComponent = () => (
 | `events` | _Array_ | **required** | Events to display, in `Event Item` format ([see below](#event-item)). |
 | `selectedDate` | _Date_ | **required** | Date to show the week-view in the first render. Note: changing this prop after the first render will not have any effect in the week-view; to actually move the week-view, use the `goToDate()` method, [see below](#methods). |
 | `numberOfDays` | _Number_, one of `1`, `3`, `5`, `7` | **required** | Number of days to show in the week-view. |
-| <td colspan=4>**User interactions** (interactions enabled only for provided callbacks)</td> |
+|**User interactions**|
 | `onEventPress` | _Function:_ `(event) => {}` | `null` | Callback when an event item is pressed, receives the event-item pressed: `(event) => {}`. |
 | `onEventLongPress` | _Function:_ `(event) => {}` | `null` | Callback when an event item is long pressed, same signature as `onEventPress`. |
 | `onSwipeNext` | _Function:_ `(date) => {}` | `null` | Callback when week-view is swiped to next week/days, receives new date shown. |
@@ -67,7 +67,7 @@ const MyComponent = () => (
 | `onGridClick` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. |
 | `onGridLongPress` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is long-pressed. Same signature as `onGridClick` |
 | `onDragEvent` | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null` | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** |
-| <td colspan=4>**Week-view customizations**</td> |
+|**Week-view customizations**|
 | `startHour` | _Number_ | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
 | `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |
 | `showTitle` | _Boolean_ | `true` | Show or hide the selected month and year in the top-left corner (a.k.a the title). |
@@ -84,15 +84,15 @@ const MyComponent = () => (
 | `RefreshComponent` | _ReactComponent_ | `ActivityIndicator` | Custom component used when `isRefreshing` is `true`. See [example below](#custom-refreshcomponent). |
 | `locale` | _String_ | `"en"` | Locale for the dates (e.g. header). There's an `addLocale()` function to add customized locale, [see below](#locales-customization). |
 | `rightToLeft` | _Boolean_ | `false` | If `true`, render older days to the right and more recent days to the left. |
-| <td colspan=4>**Week-view style props**</td> |
+|**Style props**|
 | `headerStyle` | _Object_ | - | Custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }` |
 | `headerTextStyle` | _Object_ | - | Custom styles for text inside header. Applied to day names and month name (i.e. title) |
 | `hourTextStyle` | _Object_ | - | Custom styles for text displaying hours at the left. |
 | `eventContainerStyle` | _Object_ | - | Custom styles for each event item container. Note: the background color and (absolute) positioning are already set. |
-| <td colspan=4>**Grid lines props**</td> |
+|**Grid lines props**|
 | `gridRowStyle` | _Object_ | `width: 1`, `color: grey (#E9EDF0)` | Prop to customize width and color of horizontal lines, provide: `{ borderTopWidth: <width>, borderColor: <color> }` |
 | `gridColumnStyle` | _Object_ | same as above | Prop to customize width and color of vertical lines, provide: `{ borderLeftWidth: <width>, borderColor: <color> }` |
-| <td colspan=4>**Patching RN props**</td> |
+|**Patch RN props**|
 | `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. |
 
 ### Event Item
