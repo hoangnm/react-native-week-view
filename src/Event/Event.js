@@ -1,14 +1,14 @@
-import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native';
+import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+import Animated, {
+  useAnimatedStyle, useAnimatedReaction, useSharedValue, withTiming, runOnJS,
+} from 'react-native-reanimated';
 import styles from './Event.styles';
 
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
 
-const hasMovedEnough = (gestureState) => {
-  const { dx, dy } = gestureState;
-  return Math.abs(dx) > 2 || Math.abs(dy) > 2;
-};
 
 const Event = ({
   event,
@@ -36,90 +36,84 @@ const Event = ({
     [event, position, onDrag],
   );
 
-  const translatedByDrag = useRef(new Animated.ValueXY()).current;
-  const currentWidth = useRef(new Animated.Value(position.width)).current;
-  const currentLeft = useRef(new Animated.Value(position.left)).current;
+  const translatedByDrag = useSharedValue({ x: 0, y: 0 });
+  const currentWidth = useSharedValue(position.width);
+  const currentLeft = useSharedValue(position.left);
+  const currentTop = useSharedValue(position.top);
+  const currentHeight = useSharedValue(position.height);
 
-  useEffect(() => {
-    translatedByDrag.setValue({ x: 0, y: 0 });
-    const { left, width } = position;
-    const animations = [
-      Animated.timing(currentWidth, {
-        toValue: width,
-        duration: UPDATE_EVENT_ANIMATION_DURATION,
-        useNativeDriver: false,
-      }),
-      Animated.timing(currentLeft, {
-        toValue: left,
-        duration: UPDATE_EVENT_ANIMATION_DURATION,
-        useNativeDriver: false,
-      }),
-    ];
-    Animated.parallel(animations).start();
-  }, [position]);
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translatedByDrag.value.x },
+        { translateY: translatedByDrag.value.y },
+      ],
+      width: currentWidth.value,
+      left: currentLeft.value,
+      top: currentTop.value,
+      height: currentHeight.value,
+    };
+  });
 
-  const panResponder = useMemo(() => {
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => isDragEnabled,
-      onStartShouldSetPanResponderCapture: () =>
-        isPressDisabled && isDragEnabled,
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        isDragEnabled && hasMovedEnough(gestureState),
-      onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-        isPressDisabled && isDragEnabled && hasMovedEnough(gestureState),
-      onPanResponderMove: Animated.event(
-        [
-          null,
-          {
-            dx: translatedByDrag.x,
-            dy: translatedByDrag.y,
-          },
-        ],
-        {
-          useNativeDriver: false,
-        },
-      ),
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderRelease: (_, gestureState) => {
-        const { dx, dy } = gestureState;
-        onDragRelease(dx, dy);
-      },
-      onPanResponderTerminate: () => {
-        translatedByDrag.setValue({ x: 0, y: 0 });
-      },
+  useAnimatedReaction(
+    () => position,
+    ({ top, left, height, width }) => {
+      if (currentTop.value !== top) {
+        currentTop.value = withTiming(top, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+      }
+      if (currentLeft.value !== left) {
+        currentLeft.value = withTiming(left, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+      }
+      if (currentHeight.value !== height) {
+        currentHeight.value = withTiming(height, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+      }
+      if (currentWidth.value !== width) {
+        currentWidth.value = withTiming(width, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+      }
+    },
+  );
+
+  const dragGesture = Gesture.Pan()
+    .enabled(isDragEnabled)
+    .onUpdate(e => {
+      translatedByDrag.value = {
+        x: e.translationX,
+        y: e.translationY,
+      };
+    })
+    .onEnd((evt, success) => {
+      if (!success) {
+        translatedByDrag.value = { x: 0, y: 0 };
+        return;
+      }
+      const { translationX, translationY } = evt;
+
+      currentTop.value = currentTop.value + translationY;
+      currentLeft.value = currentLeft.value + translationX;
+      translatedByDrag.value = { x: 0, y: 0 };
+
+      runOnJS(onDragRelease)(translationX, translationY);
     });
-  }, [onDragRelease, isDragEnabled, isPressDisabled]);
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          top: position.top,
-          left: currentLeft,
-          height: position.height,
-          width: currentWidth,
-          backgroundColor: event.color,
-          transform: translatedByDrag.getTranslateTransform(),
-        },
-        containerStyle,
-      ]}
-      /* eslint-disable react/jsx-props-no-spreading */
-      {...panResponder.panHandlers}
-    >
-      <TouchableOpacity
-        onPress={() => onPress && onPress(event)}
-        onLongPress={() => onLongPress && onLongPress(event)}
-        style={styles.touchableContainer}
-        disabled={!onPress && !onLongPress}
+    <GestureDetector gesture={dragGesture}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            backgroundColor: event.color,
+          },
+          containerStyle,
+          animatedStyles,
+        ]}
       >
-        {EventComponent ? (
-          <EventComponent event={event} position={position} />
-        ) : (
-          <Text style={styles.description}>{event.description}</Text>
-        )}
-      </TouchableOpacity>
-    </Animated.View>
+          {EventComponent ? (
+            <EventComponent event={event} position={position} />
+          ) : (
+            <Text style={styles.description}>{event.description}</Text>
+          )}
+      </Animated.View>
+    </GestureDetector>
   );
 };
 

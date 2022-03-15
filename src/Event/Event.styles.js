@@ -8,10 +8,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  touchableContainer: {
-    flex: 1,
-    alignSelf: 'stretch',
-  },
   description: {
     marginVertical: 8,
     marginHorizontal: 2,
