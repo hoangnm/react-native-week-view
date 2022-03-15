@@ -560,7 +560,7 @@ WeekView.defaultProps = {
   weekStartsOn: 1,
   timeStep: 60,
   formatTimeLabel: 'H:mm',
-  startHour: 0,
+  startHour: 8,
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
