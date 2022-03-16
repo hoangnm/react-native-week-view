@@ -186,11 +186,7 @@ class Events extends PureComponent {
     },
   );
 
-  onGridTouch = (pressEvt, isLongPress) => {
-    const {
-      initialDate, onGridClick, onGridLongPress,
-    } = this.props;
-    const callback = isLongPress ? onGridLongPress : onGridClick;
+  handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
@@ -205,7 +201,7 @@ class Events extends PureComponent {
     const hour = Math.floor(hoursWDec);
     const minutes = Math.floor(minutesWDec);
 
-    const date = moment(initialDate)
+    const date = moment(this.props.initialDate)
       .add(dayIndex, 'day')
       .hours(hour)
       .minutes(minutes)
@@ -215,7 +211,15 @@ class Events extends PureComponent {
     callback(pressEvt, hour, date);
   };
 
-  onDragEvent = (event, newX, newY) => {
+  handleGridPress = (pressEvt) => {
+    this.handleGridTouch(pressEvt, this.props.onGridClick);
+  }
+
+  handleGridLongPress = (pressEvt) => {
+    this.handleGridTouch(pressEvt, this.props.onGridLongPress);
+  }
+
+  handleDragEvent = (event, newX, newY) => {
     const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
@@ -263,6 +267,8 @@ class Events extends PureComponent {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      onGridClick,
+      onGridLongPress,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -288,8 +294,8 @@ class Events extends PureComponent {
         <ViewWithTouchable
           key={initialDate}
           style={styles.eventsContainer}
-          onPress={(evt) => this.onGridTouch(evt, false)}
-          onLongPress={(evt) => this.onGridTouch(evt, true)}
+          onPress={onGridClick && this.handleGridPress}
+          onLongPress={onGridLongPress && this.handleGridLongPress}
         >
           {totalEvents.map((eventsInSection, dayIndex) => (
             <View
@@ -312,7 +318,7 @@ class Events extends PureComponent {
                   onLongPress={onEventLongPress}
                   EventComponent={EventComponent}
                   containerStyle={eventContainerStyle}
-                  onDrag={onDragEvent && this.onDragEvent}
+                  onDrag={onDragEvent && this.handleDragEvent}
                 />
               ))}
             </View>
