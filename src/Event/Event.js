@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Text } from 'react-native';
 import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedStyle, useAnimatedReaction, useSharedValue, withTiming, runOnJS,
+  useAnimatedStyle, useAnimatedReaction, useSharedValue,
+  withTiming, withSpring, runOnJS, useDerivedValue,
 } from 'react-native-reanimated';
 import styles from './Event.styles';
 
@@ -21,7 +22,10 @@ const Event = ({
 }) => {
   const isDragEnabled = !!onDrag;
 
-  const isPressDisabled = !onPress && !onLongPress;
+  // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
+  // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
+  const onPressWrapper = useCallback(() => onPress && onPress(event), [event]);
+  const onLongPressWrapper = useCallback(() => onLongPress && onLongPress(event), [event]);
 
   const onDragRelease = useCallback(
     (dx, dy) => {
@@ -42,6 +46,17 @@ const Event = ({
   const currentTop = useSharedValue(position.top);
   const currentHeight = useSharedValue(position.height);
 
+  const isDragging = useSharedValue(false);
+  const isPressing = useSharedValue(false);
+  const isLongPressing = useSharedValue(false);
+
+  const currentOpacity = useDerivedValue(() => {
+    if (isDragging.value || isPressing.value || isLongPressing.value) {
+      return 0.5;
+    }
+    return 1;
+  });
+
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [
@@ -52,6 +67,7 @@ const Event = ({
       left: currentLeft.value,
       top: currentTop.value,
       height: currentHeight.value,
+      opacity: withSpring(currentOpacity.value),
     };
   });
 
@@ -75,6 +91,9 @@ const Event = ({
 
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
+    .onTouchesDown(() => {
+      isDragging.value = true;
+    })
     .onUpdate(e => {
       translatedByDrag.value = {
         x: e.translationX,
@@ -93,10 +112,46 @@ const Event = ({
       translatedByDrag.value = { x: 0, y: 0 };
 
       runOnJS(onDragRelease)(translationX, translationY);
+    })
+    .onFinalize(() => {
+      isDragging.value = false;
     });
 
+  const longPressGesture = Gesture.LongPress()
+    .enabled(!!onLongPress)
+    .maxDistance(20)
+    .onTouchesDown(() => {
+      isLongPressing.value = true;
+    })
+    .onEnd((evt, success) => {
+      if (success) {
+        runOnJS(onLongPressWrapper)();
+      }
+    })
+    .onFinalize(() => {
+      isLongPressing.value = false;
+    });
+
+  const pressGesture = Gesture.Tap()
+    .enabled(!!onPress)
+    .onTouchesDown(() => {
+      isPressing.value = true;
+    })
+    .onEnd((evt, success) => {
+      if (success) {
+        runOnJS(onPressWrapper)();
+      }
+    })
+    .onFinalize(() => {
+      isPressing.value = false;
+    });
+
+  const composedGesture = Gesture.Exclusive(
+    dragGesture, longPressGesture, pressGesture,
+  );
+
   return (
-    <GestureDetector gesture={dragGesture}>
+    <GestureDetector gesture={composedGesture}>
       <Animated.View
         style={[
           styles.container,
