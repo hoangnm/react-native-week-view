@@ -146,7 +146,7 @@ const Event = ({
       isPressing.value = false;
     });
 
-  const composedGesture = Gesture.Exclusive(
+  const composedGesture = Gesture.Race(
     dragGesture, longPressGesture, pressGesture,
   );
 
