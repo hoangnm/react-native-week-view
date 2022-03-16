@@ -19,7 +19,16 @@ or
 
 > `yarn add react-native-week-view`
 
-Requires react-native 0.59 or above (from `react-native-week-view >= 0.7.0`)
+**Requirements:** install peer dependencies [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) ^2.3.2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) ^2.4.1, which we use for smoother interactions and animations (e.g. drag and drop).
+Required by react-native-week-view versions 0.10.0 and higher.
+
+
+### Compatibility
+
+| react-native-week-view | react-native |
+| --- | --- |
+| >= 0.7.0 | >= 0.59 |
+| >= 0.10.0 | >= 0.60.0 |
 
 
 
@@ -64,7 +73,7 @@ const MyComponent = () => (
 | `onEventLongPress` | _Function:_ `(event) => {}` | `null` | Callback when an event item is long pressed, same signature as `onEventPress`. |
 | `onSwipeNext` | _Function:_ `(date) => {}` | `null` | Callback when week-view is swiped to next week/days, receives new date shown. |
 | `onSwipePrev` | _Function:_ `(date) => {}` | `null` | Callback when week-view is swiped to previous week/days, same signature as `onSwipeNext`. |
-| `onGridClick` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [TouchableWithoutFeedback.onPress() method](https://reactnative.dev/docs/touchablewithoutfeedback#onpress) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. |
+| `onGridClick` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [react-native-gesture-handler touch events](https://docs.swmansion.com/react-native-gesture-handler/docs/api/gestures/touch-events) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. |
 | `onGridLongPress` | _Function:_ `(pressEvent, startHour, date) => {}` | `null` | Callback when the grid view is long-pressed. Same signature as `onGridClick` |
 | `onDragEvent` | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null` | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** |
 |**_Week-view <br> customizations_**|
