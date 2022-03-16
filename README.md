@@ -19,7 +19,7 @@ or
 
 > `yarn add react-native-week-view`
 
-**Requirements:** install peer dependencies [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) ^2.3.2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) ^2.4.1, which we use for smoother interactions and animations (e.g. drag and drop).
+**Requirements:** install peer dependencies [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) v2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) v2, which we use to provide smoother interactions and animations (e.g. drag and drop).
 Required by react-native-week-view versions 0.10.0 and higher.
 
 
