@@ -390,6 +390,8 @@ export default class WeekView extends Component {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      onMonthPress,
+      onDayPress,
       isRefreshing,
       RefreshComponent,
     } = this.props;
@@ -409,6 +411,7 @@ export default class WeekView extends Component {
             textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
+            onMonthPress={onMonthPress}
           />
           <VirtualizedList
             horizontal
@@ -434,6 +437,7 @@ export default class WeekView extends Component {
                     initialDate={item}
                     numberOfDays={numberOfDays}
                     rightToLeft={rightToLeft}
+                    onDayPress={onDayPress}
                   />
                 </View>
               );
@@ -549,6 +553,8 @@ WeekView.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
+  onMonthPress: PropTypes.func,
+  onDayPress: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
 };

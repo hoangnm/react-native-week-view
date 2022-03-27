@@ -113,6 +113,14 @@ class App extends React.Component {
     });
   };
 
+  onDayPress = (date, formattedDate) => {
+    console.log('Day: ', date, formattedDate);
+  };
+
+  onMonthPress = (date, formattedDate) => {
+    console.log('Month: ', date, formattedDate);
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -144,6 +152,8 @@ class App extends React.Component {
             onDragEvent={this.onDragEvent}
             isRefreshing={false}
             RefreshComponent={MyRefreshComponent}
+            onDayPress={this.onDayPress}
+            onMonthPress={this.onMonthPress}
           />
         </SafeAreaView>
       </>
