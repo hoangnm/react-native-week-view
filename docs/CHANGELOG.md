@@ -1,5 +1,7 @@
 # Changelog
-
+## 0.10.0 - 2022-03-27
+- Add onDayPress and onMonthPress props [#176](https://github.com/hoangnm/react-native-week-view/pull/176)
+- Add support for React 17 [#173](https://github.com/hoangnm/react-native-week-view/pull/173)
 ## 0.9.0 - 2022-01-18
 - Add gridRowStyle and gridColumnStyle props [#158](https://github.com/hoangnm/react-native-week-view/pull/158)
 ## 0.8.1 - 2021-12-30

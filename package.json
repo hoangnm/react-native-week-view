@@ -1,6 +1,6 @@
 {
   "name": "react-native-week-view",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Week View Calendar for React Native",
   "main": "index.js",
   "author": "Hoang Nguyen (https://github.com/hoangnm)",
