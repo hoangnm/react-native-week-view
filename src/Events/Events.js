@@ -31,12 +31,14 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   return endDate.isSameOrAfter(event2StartDate);
 };
 
-const getStyleForEvent = (event, regularItemWidth, hoursInDisplay) => {
+const getStyleForEvent = (event, regularItemWidth, hoursInDisplay, beginAgendaAt) => {
   const startDate = moment(event.startDate);
   const startHours = startDate.hours();
   const startMinutes = startDate.minutes();
   const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
-  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes);
+  const verticalOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes) - verticalOffset;
+
   const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
   const height = minutesToYDimension(hoursInDisplay, deltaMinutes);
 
@@ -115,12 +117,14 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
   });
 };
 
-const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) => {
+const getEventsWithPosition = (
+  totalEvents, regularItemWidth, hoursInDisplay, beginAgendaAt,
+) => {
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
     const eventsWithStyle = events.reduce((eventsAcc, event) => {
-      const style = getStyleForEvent(event, regularItemWidth, hoursInDisplay);
+      const style = getStyleForEvent(event, regularItemWidth, hoursInDisplay, beginAgendaAt);
       const eventWithStyle = {
         data: event,
         style,
@@ -152,9 +156,10 @@ const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) =>
 
 class Events extends PureComponent {
   yToHour = (y) => {
-    const { hoursInDisplay } = this.props;
-    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT;
-    return hour;
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT; // yDimensionToHours()
+    const agendaOffset = beginAgendaAt / 60; // in hours
+    return hour + agendaOffset;
   };
 
   getEventItemWidth = (padded = true) => {
@@ -164,7 +169,9 @@ class Events extends PureComponent {
   };
 
   processEvents = memoizeOne(
-    (eventsByDate, initialDate, numberOfDays, hoursInDisplay, rightToLeft) => {
+    (eventsByDate, initialDate, numberOfDays, hoursInDisplay, rightToLeft,
+      beginAgendaAt,
+    ) => {
       // totalEvents stores events in each day of numberOfDays
       // example: [[event1, event2], [event3, event4], [event5]], each child array
       // is events for specific day in range
@@ -180,6 +187,7 @@ class Events extends PureComponent {
         totalEvents,
         regularItemWidth,
         hoursInDisplay,
+        beginAgendaAt,
       );
       return totalEventsWithPosition;
     },
@@ -256,6 +264,7 @@ class Events extends PureComponent {
       rightToLeft,
       hoursInDisplay,
       timeStep,
+      beginAgendaAt,
       showNowLine,
       nowLineColor,
       onDragEvent,
@@ -266,6 +275,7 @@ class Events extends PureComponent {
       numberOfDays,
       hoursInDisplay,
       rightToLeft,
+      beginAgendaAt,
     );
     const timeSlotHeight = getTimeLabelHeight(hoursInDisplay, timeStep);
 
@@ -294,6 +304,7 @@ class Events extends PureComponent {
                     color={nowLineColor}
                     hoursInDisplay={hoursInDisplay}
                     width={this.getEventItemWidth(false)}
+                    beginAgendaAt={beginAgendaAt}
                   />
                 )}
                 {eventsInSection.map((item) => (

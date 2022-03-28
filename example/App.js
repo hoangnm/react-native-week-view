@@ -145,6 +145,8 @@ class App extends React.Component {
             formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
+            beginAgendaAt={5 * 60}
+            endAgendaAt={23 * 60}
             startHour={8}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
