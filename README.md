@@ -78,7 +78,8 @@ const MyComponent = () => (
 | `formatDateHeader` | _String_ | `"MMM D"` (e.g. "Apr 3") | Formatter for dates in the header. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
 | `formatTimeLabel` | _String_ | `"H:mm"` (24 hours) | Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or `"h:mm a"` for lowercase. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
 | `EventComponent` | _ReactComponent_ | `Text` | Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component. |
-| `TodayHeaderComponent` | _ReactComponent_ | `null` | Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-todaycomponent) |
+| `TodayHeaderComponent` | _ReactComponent_ | `null` | Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-day-components) |
+| `DayHeaderComponent` | _ReactComponent_ | `null` | Custom component to show each day in the header. If provided, overrides `TodayHeaderComponent`. See details in [sub-section below](#custom-day-components) |
 | `showNowLine` | _Boolean_ | `false` | If `true`, displays a line indicating the time right now. |
 | `nowLineColor` | _String_ | `red (#E53935)` | Color used for the now-line. |
 | `fixedHorizontally` | _Boolean_ | `false` | If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week). |
@@ -147,21 +148,35 @@ const MyEventComponent = ({ event, position }) => (
 ```
 
 
-### Custom TodayComponent
-Use this prop to highlight today in the header, by rendering it differently from the other days. The component `TodayHeaderComponent` receives these props:
+### Custom day components
+(Note: first you should check if the props `headerStyle`, `headerTextStyle` and/or `formatDateHeader` are enough for your use case).
+
+Use these props to fully customize the days in the header.
+* `TodayHeaderComponent`: to highlight today in the header, by rendering it differently from the other days.
+* `DayHeaderComponent`: to render every day in the header. Overrides the prop `TodayHeaderComponent`.
+
+Both components would receive these props:
 * `date` _(moment Date)_ - moment date object containing today's date.
 * `formattedDate` _(String)_ - day formatted according to `formatDateHeader`, e.g. `"Mon 3"`.
 * `textStyle` _(Object)_ - text style used for every day.
+* `isToday` _(Bool)_ - indicate if the `date` is today or not.
 
-For example, to highlight today with a bold font:
+Examples:
 ```js
+// Highlight today with a bold font
 const MyTodayComponent = ({ formattedDate, textStyle }) => (
   <Text style={[textStyle, { fontWeight: 'bold' }]}>{formattedDate}</Text>
 );
 
+// Add text to the header
+const MyDayComponent = ({ formattedDate, textStyle, isToday }) => (
+  <Text style={textStyle}>Some text - {formattedDate}</Text>
+);
+
 <WeekView
-  // ... other props
   TodayHeaderComponent={MyTodayComponent}
+  // or:
+  DayHeaderComponent={MyDayComponent}
 />
 ```
 

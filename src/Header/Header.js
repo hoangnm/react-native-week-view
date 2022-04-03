@@ -17,18 +17,25 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
+const DefaultDayComponent = ({ textStyle, formattedDate }) => (
+  <Text style={textStyle}>{formattedDate}</Text>
+);
+
 const Column = ({
   column,
   numberOfDays,
   format,
   style,
   textStyle,
+  DayComponent,
   TodayComponent,
   onDayPress,
 }) => {
   const formattedDate = getFormattedDate(column, format);
-  const useTodayComponent = TodayComponent && moment().isSame(column, 'days');
+  const isToday = moment().isSame(column, 'days');
   const fullTextStyle = [getDayTextStyles(numberOfDays), textStyle];
+
+  const ComponentChosen = DayComponent || (isToday && TodayComponent) || DefaultDayComponent;
 
   return (
     <TouchableOpacity
@@ -36,15 +43,12 @@ const Column = ({
       onPress={() => onDayPress && onDayPress(column, formattedDate)}
       disabled={!onDayPress}
     >
-      {useTodayComponent ? (
-        <TodayComponent
-          date={column}
-          formattedDate={formattedDate}
-          textStyle={fullTextStyle}
-        />
-      ) : (
-        <Text style={fullTextStyle}>{formattedDate}</Text>
-      )}
+      <ComponentChosen
+        date={column}
+        formattedDate={formattedDate}
+        textStyle={fullTextStyle}
+        isToday={isToday}
+      />
     </TouchableOpacity>
   );
 };
@@ -55,6 +59,7 @@ const Columns = ({
   format,
   style,
   textStyle,
+  DayComponent,
   TodayComponent,
   onDayPress,
 }) => {
@@ -69,6 +74,7 @@ const Columns = ({
             column={column}
             numberOfDays={numberOfDays}
             format={format}
+            DayComponent={DayComponent}
             TodayComponent={TodayComponent}
             onDayPress={onDayPress}
           />
@@ -85,6 +91,7 @@ const WeekViewHeader = ({
   style,
   textStyle,
   TodayComponent,
+  DayComponent,
   rightToLeft,
   onDayPress,
 }) => {
@@ -98,6 +105,7 @@ const WeekViewHeader = ({
           numberOfDays={numberOfDays}
           style={style}
           textStyle={textStyle}
+          DayComponent={DayComponent}
           TodayComponent={TodayComponent}
           onDayPress={onDayPress}
         />
@@ -113,6 +121,7 @@ WeekViewHeader.propTypes = {
   style: PropTypes.object,
   textStyle: PropTypes.object,
   rightToLeft: PropTypes.bool,
+  DayComponent: PropTypes.elementType,
   TodayComponent: PropTypes.elementType,
   onDayPress: PropTypes.func,
 };
