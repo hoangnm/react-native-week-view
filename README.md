@@ -71,6 +71,8 @@ const MyComponent = () => (
 | `onMonthPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when the month at the top left (title) is pressed. |
 |**_Week-view <br> customizations_**|
 | `startHour` | _Number_ | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
+| `initialHour` | _Number_ | `3600` (6 am) in minutes | Send the time in minutes so it can start as per the sent. For example, if you send 3600 it will show 6 hours. Vertical position of the week-view in the first render (vertically in the agenda). |
+| `finalHour` | _Number_ | `23` (23 am) in hour | Vertical position of the week-view in the first render (vertically in the agenda). |
 | `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |
 | `showTitle` | _Boolean_ | `true` | Show or hide the selected month and year in the top-left corner (a.k.a the title). |
 | `hoursInDisplay` | _Number_ | `6` | Amount of hours to display vertically in the agenda. Increasing this number will make the events look smaller. |
@@ -95,7 +97,7 @@ const MyComponent = () => (
 | `gridRowStyle` | _Object_ | `width: 1`, `color: grey (#E9EDF0)` | Prop to customize width and color of horizontal lines, provide: `{ borderTopWidth: <width>, borderColor: <color> }` |
 | `gridColumnStyle` | _Object_ | same as above | Prop to customize width and color of vertical lines, provide: `{ borderLeftWidth: <width>, borderColor: <color> }` |
 |**_Other props <br> (patch RN bugs)_**|
-| `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-schedule-week-view/issues/39) for more details. |
+| `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling.|
 
 ### Event Item
 ```js
@@ -119,7 +121,7 @@ To use the component methods save a reference to it:
 />
 ```
 
-* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-schedule-week-view/issues/54) for details.
+* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. 
 * **`goToNextPage(animated = true)`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
 * **`goToPrevPage(animated = true)`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
 
