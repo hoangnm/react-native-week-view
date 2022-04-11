@@ -5111,7 +5111,7 @@ react-native-codegen@^0.0.6:
     jscodeshift "^0.11.0"
     nullthrows "^1.1.1"
 
-"react-native-week-view@file:..":
+"react-native-schedule-week-view@file:..":
   version "0.10.0"
   dependencies:
     memoize-one "^5.1.1"

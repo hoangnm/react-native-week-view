@@ -1,5 +1,5 @@
 {
-  "name": "react-native-week-view",
+  "name": "react-native-schedule-week-view",
   "version": "0.10.0",
   "description": "Week View Calendar for React Native",
   "main": "index.js",
@@ -7,10 +7,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/otaviollneto/react-native-week-view.git"
+    "url": "git+https://github.com/otaviollneto/react-native-schedule-week-view.git"
   },
   "bugs": {
-    "url": "https://github.com/otaviollneto/react-native-week-view/issues"
+    "url": "https://github.com/otaviollneto/react-native-schedule-week-view/issues"
   },
   "keywords": [
     "android",
@@ -21,7 +21,7 @@
     "weekview",
     "calendar"
   ],
-  "homepage": "https://github.com/otaviollneto/react-native-week-view#readme",
+  "homepage": "https://github.com/otaviollneto/react-native-schedule-week-view#readme",
   "scripts": {
     "lint": "eslint ./src *.js",
     "test": "jest ./src"
@@ -58,5 +58,9 @@
     "setupFilesAfterEnv": [
       "jest-extended"
     ]
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "example"
   }
 }

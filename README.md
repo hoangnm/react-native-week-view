@@ -1,4 +1,4 @@
-# react-native-week-view
+# react-native-schedule-week-view
 The week view component for react-native.
 
 ![weekView](images/gif.gif)
@@ -13,20 +13,20 @@ The week view component for react-native.
 
 ## Installation
 
-> `npm install --save react-native-week-view`
+> `npm install --save react-native-schedule-week-view`
 
 or
 
-> `yarn add react-native-week-view`
+> `yarn add react-native-schedule-week-view`
 
-Requires react-native 0.59 or above (from `react-native-week-view >= 0.7.0`)
+Requires react-native 0.59 or above (from `react-native-schedule-week-view >= 0.7.0`)
 
 
 
 ## Basic usage
 
 ```js
-import WeekView from 'react-native-week-view';
+import WeekView from 'react-native-schedule-week-view';
 
 const myEvents = [
   {
@@ -95,7 +95,7 @@ const MyComponent = () => (
 | `gridRowStyle` | _Object_ | `width: 1`, `color: grey (#E9EDF0)` | Prop to customize width and color of horizontal lines, provide: `{ borderTopWidth: <width>, borderColor: <color> }` |
 | `gridColumnStyle` | _Object_ | same as above | Prop to customize width and color of vertical lines, provide: `{ borderLeftWidth: <width>, borderColor: <color> }` |
 |**_Other props <br> (patch RN bugs)_**|
-| `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details. |
+| `prependMostRecent` | _Boolean_ | `false` | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-schedule-week-view/issues/39) for more details. |
 
 ### Event Item
 ```js
@@ -119,7 +119,7 @@ To use the component methods save a reference to it:
 />
 ```
 
-* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-schedule-week-view/issues/54) for details.
 * **`goToNextPage(animated = true)`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
 * **`goToPrevPage(animated = true)`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
 
@@ -171,7 +171,7 @@ There's a `addLocale` function to add customized locale for the component. The c
 
 Example:
 ```js
-export WeekView, { addLocale } from 'react-native-week-view';
+export WeekView, { addLocale } from 'react-native-schedule-week-view';
 // add customized localed before using locale prop.
 addLocale('fr', {
   months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'),
@@ -219,7 +219,7 @@ The `WeekView` component can be used to display a fixed week (as a timetable):
 
 
 ```js
-import WeekView, { createFixedWeekDate } from 'react-native-week-view';
+import WeekView, { createFixedWeekDate } from 'react-native-schedule-week-view';
 
 const myEvents = [
   {

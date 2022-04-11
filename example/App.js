@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import WeekView, {createFixedWeekDate} from 'react-native-week-view';
+import WeekView, {createFixedWeekDate} from 'react-native-schedule-week-view';
 
 const generateDates = (hours, minutes) => {
   const date = new Date();

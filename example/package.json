@@ -8,12 +8,12 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/"
+    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-schedule-week-view/"
   },
   "dependencies": {
     "react": "17.0.1",
     "react-native": "0.64.2",
-    "react-native-week-view": "file:../"
+    "react-native-schedule-week-view": "file:../"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
