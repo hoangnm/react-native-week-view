@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { getCurrentMonth, availableNumberOfDays } from '../utils';
@@ -12,31 +12,24 @@ const getFontSizeHeader = (numberOfDays) => {
   return 16;
 };
 
-const Title = ({
-  style, showTitle, numberOfDays, selectedDate, textStyle, onMonthPress,
-}) => {
-  if (!showTitle) {
-    return <View style={[styles.title, style]}></View>
-  }
-  const formattedMonth = getCurrentMonth(selectedDate);
+const Title = ({ style, showTitle, numberOfDays, selectedDate, textStyle }) => {
+  //console.log(numberOfDays, selectedDate)
   return (
-    <TouchableOpacity
-      style={[styles.title, style]}
-      onPress={() => onMonthPress && onMonthPress(selectedDate, formattedMonth)}
-      disabled={!onMonthPress}
-    >
-      <Text
-        style={[
-          {
-            fontSize: getFontSizeHeader(numberOfDays),
-            textAlign: 'center',
-          },
-          textStyle,
-        ]}
-      >
-        {formattedMonth}
-      </Text>
-    </TouchableOpacity>
+    <View style={[styles.title, style]}>
+      {showTitle ? (
+        <Text
+          style={[
+            {
+              fontSize: getFontSizeHeader(numberOfDays),
+              textAlign: 'center',
+            },
+            textStyle,
+          ]}
+        >
+          {getCurrentMonth(selectedDate)}
+        </Text>
+      ) : null}
+    </View>
   );
 };
 
@@ -46,7 +39,6 @@ Title.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
   textStyle: PropTypes.object,
-  onMonthPress: PropTypes.func,
 };
 
 export default React.memo(Title);

@@ -7,6 +7,7 @@ import {
   VirtualizedList,
   InteractionManager,
   ActivityIndicator,
+  Alert
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -24,8 +25,6 @@ import {
   setLocale,
   CONTAINER_WIDTH,
 } from '../utils';
-
-const MINUTES_IN_DAY = 60 * 24;
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -94,9 +93,11 @@ export default class WeekView extends Component {
   }
 
   calculateTimes = memoizeOne((minutesStep, formatTimeLabel) => {
+    const { initialHour, finalHour } = this.props;
     const times = [];
     const startOfDay = moment().startOf('day');
-    for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
+    // calcula em minutos a quantidade de horas
+    for (let timer = initialHour; timer < ((finalHour+1) * 60); timer += minutesStep) {
       const time = startOfDay.clone().minutes(timer);
       times.push(time.format(formatTimeLabel));
     }
@@ -125,6 +126,7 @@ export default class WeekView extends Component {
     const first = initialDates[0];
     const daySignToThePast = daySignToTheFuture * -1;
     const addDays = numberOfDays * daySignToThePast;
+    
     for (let i = 1; i <= nPages; i += 1) {
       const initialDate = moment(first).add(addDays * i, 'd');
       initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
@@ -144,6 +146,7 @@ export default class WeekView extends Component {
   };
 
   goToDate = (targetDate, animated = true) => {
+
     const { initialDates } = this.state;
     const { numberOfDays } = this.props;
 
@@ -298,13 +301,14 @@ export default class WeekView extends Component {
   ) => {
     const initialDates = [];
     const centralDate = moment(currentMoment);
-    if (numberOfDays === 7 || fixedHorizontally) {
+    if (!fixedHorizontally) {
       centralDate.subtract(
         // Ensure centralDate is before currentMoment
-        (centralDate.day() + 7 - weekStartsOn) % 7,
+        (centralDate.day() + numberOfDays - weekStartsOn) % numberOfDays,
         'days',
       );
     }
+
     for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
       const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
       initialDates.push(initialDate.format(DATE_STR_FORMAT));
@@ -390,8 +394,6 @@ export default class WeekView extends Component {
       showNowLine,
       nowLineColor,
       onDragEvent,
-      onMonthPress,
-      onDayPress,
       isRefreshing,
       RefreshComponent,
     } = this.props;
@@ -411,7 +413,6 @@ export default class WeekView extends Component {
             textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
-            onMonthPress={onMonthPress}
           />
           <VirtualizedList
             horizontal
@@ -437,7 +438,6 @@ export default class WeekView extends Component {
                     initialDate={item}
                     numberOfDays={numberOfDays}
                     rightToLeft={rightToLeft}
-                    onDayPress={onDayPress}
                   />
                 </View>
               );
@@ -544,6 +544,8 @@ WeekView.propTypes = {
   timeStep: PropTypes.number,
   formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
+  initialHour: PropTypes.number,
+  finalHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
   TodayHeaderComponent: PropTypes.elementType,
   showTitle: PropTypes.bool,
@@ -553,8 +555,6 @@ WeekView.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
-  onMonthPress: PropTypes.func,
-  onDayPress: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
 };
@@ -567,6 +567,8 @@ WeekView.defaultProps = {
   timeStep: 60,
   formatTimeLabel: 'H:mm',
   startHour: 8,
+  initialHour: 0,
+  finalHour: 24,
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,

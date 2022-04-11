@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback, Text } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -18,6 +18,7 @@ import {
 } from '../utils';
 
 import styles from './Events.styles';
+
 
 const MINUTES_IN_HOUR = 60;
 const EVENT_HORIZONTAL_PADDING = 15;
@@ -185,7 +186,7 @@ class Events extends PureComponent {
     },
   );
 
-  onGridTouch = (event, dayIndex, longPress) => {
+  onGridTouch = (event, dayIndex, longPress, eventsInSection) => {
     const { initialDate, onGridClick, onGridLongPress } = this.props;
     const callback = longPress ? onGridLongPress : onGridClick;
     if (!callback) {
@@ -208,7 +209,7 @@ class Events extends PureComponent {
       .seconds(seconds)
       .toDate();
 
-    callback(event, hour, date);
+    callback(event, hoursWDec, minutesWDec, date, eventsInSection);
   };
 
   onDragEvent = (event, newX, newY) => {
@@ -241,6 +242,11 @@ class Events extends PureComponent {
     return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
   };
 
+  // isGridClicked = (time,dayindex, timeSelected, dayIndexSelected) => {
+    
+  //   return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
+  // };
+
   render() {
     const {
       eventsByDate,
@@ -271,46 +277,61 @@ class Events extends PureComponent {
 
     return (
       <View style={styles.container}>
-        {times.map((time) => (
-          <View
+        {times.map((time) => {
+          return(<View
             key={time}
             style={[
               styles.timeRow,
-              { height: timeSlotHeight },
+              { height: timeSlotHeight},
               gridRowStyle,
             ]}
-          />
-        ))}
+          />)
+        })}
         <View style={styles.eventsContainer}>
-          {totalEvents.map((eventsInSection, dayIndex) => (
-            <TouchableWithoutFeedback
-              onPress={(e) => this.onGridTouch(e, dayIndex, false)}
-              onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
-              key={dayIndex}
-            >
-              <View style={[styles.eventsColumn, gridColumnStyle]}>
-                {showNowLine && this.isToday(dayIndex) && (
-                  <NowLine
-                    color={nowLineColor}
-                    hoursInDisplay={hoursInDisplay}
-                    width={this.getEventItemWidth(false)}
-                  />
-                )}
-                {eventsInSection.map((item) => (
-                  <Event
-                    key={item.data.id}
-                    event={item.data}
-                    position={item.style}
-                    onPress={onEventPress}
-                    onLongPress={onEventLongPress}
-                    EventComponent={EventComponent}
-                    containerStyle={eventContainerStyle}
-                    onDrag={onDragEvent && this.onDragEvent}
-                  />
-                ))}
-              </View>
-            </TouchableWithoutFeedback>
-          ))}
+          {totalEvents.map((eventsInSection,dayIndex) => {
+            return (
+              <>
+                {times.map((time) => {
+                  return(<View
+                    key={time}
+                    style={[
+                      styles.timeRow,
+                      { height: timeSlotHeight, backgroundColor: '#ff0'},
+                      gridRowStyle,
+                    ]}
+                  />)
+                })}
+                <TouchableWithoutFeedback
+                  onPress={(e) => this.onGridTouch(e, dayIndex, false, eventsInSection)}
+                  onLongPress={(e) => this.onGridTouch(e, dayIndex, true, eventsInSection)}
+                  key={dayIndex}
+                >
+                  <View style={[styles.eventsColumn, gridColumnStyle]}>
+                    {showNowLine && this.isToday(dayIndex) && (
+                      <NowLine
+                        color={nowLineColor}
+                        hoursInDisplay={hoursInDisplay}
+                        width={this.getEventItemWidth(false)}
+                      />
+                    )}
+                    
+                    {eventsInSection.map((item) => (
+                      <Event
+                        key={item.data.id}
+                        event={item.data}
+                        position={item.style}
+                        onPress={onEventPress}
+                        onLongPress={onEventLongPress}
+                        EventComponent={EventComponent}
+                        containerStyle={eventContainerStyle}
+                        onDrag={onDragEvent && this.onDragEvent}
+                      />
+                    ))}
+                  </View>
+                </TouchableWithoutFeedback>
+              </>
+            )
+          })}
         </View>
       </View>
     );
