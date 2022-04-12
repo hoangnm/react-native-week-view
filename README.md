@@ -121,11 +121,20 @@ To use the component methods save a reference to it:
 />
 ```
 
+Navigate to dates:
+
 * **`goToDate(date, { animated: true, left: false })`**: the component navigates to a custom date.
   * if `left` is `true`, the indicated date is displayed at the left (as initial date)
-  * Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
-* **`goToNextPage({ animated: true })`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
-* **`goToPrevPage({ animated: true })`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
+* **`goToNextPage({ animated: true })`**: navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
+* **`goToPrevPage({ animated: true })`**: navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
+* **`goToPrevDay({ animated: true })`**: navigates to the previous day.
+* **`goToNextDay({ animated: true })`**: navigates to the next day.
+
+Notes on these method:
+* if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+* Flicker issue: (https://github.com/hoangnm/react-native-week-view/issues/39)
+  * if `prependMostRecent` is `false` (the default), and the component is near the most-to-the-past page rendered, there may be a glitch on the animation.
+  * if `prependMostRecent` is `true`, and the component is near the most-to-the-future page rendered, there may be a glitch on the animation.
 
 
 ### Custom `EventComponent`
