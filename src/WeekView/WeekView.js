@@ -224,8 +224,12 @@ export default class WeekView extends Component {
 
     const { initialDates } = this.state;
 
-    // The final target may change, if pages are added
-    let finalTarget = target;
+    // The previous dayOffset must be computed before any prepend/append in-place operation
+    const { currentMoment: previousMoment } = this.state;
+    const previousInitialDate = initialDates[this.currentPageIndex];
+    const previousDayOffset = moment(previousMoment).diff(moment(previousInitialDate), 'd');
+
+    let finalTarget = target; // The final target may change, if pages are added
 
     const newState = {};
 
@@ -249,12 +253,12 @@ export default class WeekView extends Component {
     const newMomentWithoutOffset = moment(initialDates[finalTarget]);
 
     let dayOffset = 0;
-    if (keepDayOffset && this.props.allowMoveByOneDay) {
-      const { currentMoment: previousMoment } = this.state;
-      const previousInitialDate = initialDates[this.currentPageIndex];
-      dayOffset = moment(previousMoment).diff(moment(previousInitialDate), 'd');
-    } else if (useDateOffset) {
-      dayOffset = moment(useDateOffset).diff(newMomentWithoutOffset, 'd');
+    if (this.props.allowMoveByOneDay) {
+      if (keepDayOffset) {
+        dayOffset = previousDayOffset;
+      } else if (useDateOffset) {
+        dayOffset = moment(useDateOffset).diff(newMomentWithoutOffset, 'd');
+      }
     }
 
     newState.currentMoment = newMomentWithoutOffset.add(dayOffset, 'd').toDate();
