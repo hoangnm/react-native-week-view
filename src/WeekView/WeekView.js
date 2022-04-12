@@ -173,19 +173,22 @@ export default class WeekView extends Component {
   };
 
   goToPageIndex = (target, animated = true) => {
-    console.log('GO TO PAGE INDEX');
-    // FIXME
-    return;
     if (target === this.currentPageIndex) {
       return;
     }
 
     const { initialDates } = this.state;
 
+    const previousMoment = this.currentMoment;
+    const previousInitialDate = initialDates[this.currentPageIndex];
+    const dayOffset = moment(previousMoment).diff(moment(previousInitialDate), 'd');
+
     const scrollTo = (moveToIndex) => {
+      const signToTheRight = this.isHorizontalInverted() ? 1 : -1;
       this.eventsGrid.scrollToIndex({
         index: moveToIndex,
         animated,
+        viewOffset: signToTheRight * dayOffset * this.dimensions.dayWidth,
       });
       this.currentPageIndex = moveToIndex;
     };
@@ -216,7 +219,7 @@ export default class WeekView extends Component {
       scrollTo(targetIndex);
     }
 
-    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
+    this.currentMoment = moment(initialDates[targetIndex]).add(dayOffset, 'd').toDate();
     this.setState(newState, newStateCallback);
   };
 
@@ -620,6 +623,6 @@ WeekView.defaultProps = {
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
-  allowMoveByOneDay: true,
+  allowMoveByOneDay: false,
   RefreshComponent: ActivityIndicator,
 };
