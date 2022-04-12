@@ -159,29 +159,34 @@ export default class WeekView extends Component {
     const signToTheFuture = this.getSignToTheFuture();
     const targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
 
-    this.goToPageIndex(targetIndex, animated);
+    this.goToPageIndex(targetIndex, { animated, keepDayOffset: false });
   };
 
   goToNextPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
+    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, { animated });
   };
 
   goToPrevPage = (animated = true) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
+    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, { animated });
   };
 
-  goToPageIndex = (target, animated = true) => {
+  goToPageIndex = (target, options = {}) => {
     if (target === this.currentPageIndex) {
       return;
     }
 
+    const { animated = true, keepDayOffset = true } = options;
+
     const { initialDates } = this.state;
 
-    const previousMoment = this.currentMoment;
-    const previousInitialDate = initialDates[this.currentPageIndex];
-    const dayOffset = moment(previousMoment).diff(moment(previousInitialDate), 'd');
+    let dayOffset = 0;
+    if (keepDayOffset && this.props.allowMoveByOneDay) {
+      const previousMoment = this.currentMoment;
+      const previousInitialDate = initialDates[this.currentPageIndex];
+      dayOffset = moment(previousMoment).diff(moment(previousInitialDate), 'd');
+    }
 
     const scrollTo = (moveToIndex) => {
       const signToTheRight = this.isHorizontalInverted() ? 1 : -1;
