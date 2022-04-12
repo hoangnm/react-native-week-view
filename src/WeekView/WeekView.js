@@ -45,10 +45,11 @@ export default class WeekView extends Component {
       props.fixedHorizontally,
     );
     this.state = {
-      // currentMoment should always be the first date of the current page
-      currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
     };
+
+    // currentMoment always points to the date shown in the top-left
+    this.currentMoment = moment(initialDates[this.currentPageIndex]).toDate();
 
     setLocale(props.locale);
   }
@@ -68,17 +69,15 @@ export default class WeekView extends Component {
     }
     if (this.props.numberOfDays !== prevProps.numberOfDays) {
       const initialDates = this.calculatePagesDates(
-        this.state.currentMoment,
+        this.currentMoment,
         this.props.numberOfDays,
         this.props.prependMostRecent,
         this.props.fixedHorizontally,
       );
 
       this.currentPageIndex = this.pageOffset;
-      this.setState({
-          currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
-          initialDates,
-        },
+      this.currentMoment = moment(initialDates[this.currentPageIndex]).toDate();
+      this.setState({ initialDates },
         () => {
           this.eventsGrid.scrollToIndex({
             index: this.pageOffset,
@@ -117,6 +116,11 @@ export default class WeekView extends Component {
     const daySignToTheFuture = prependMostRecent ? -1 : 1;
     return daySignToTheFuture;
   };
+
+  isHorizontalInverted = () => {
+    const { prependMostRecent, rightToLeft } = this.props;
+    return (prependMostRecent && !rightToLeft) || (!prependMostRecent && rightToLeft);
+  }
 
   prependPagesInPlace = (initialDates, nPages) => {
     const { numberOfDays } = this.props;
@@ -169,6 +173,9 @@ export default class WeekView extends Component {
   };
 
   goToPageIndex = (target, animated = true) => {
+    console.log('GO TO PAGE INDEX');
+    // FIXME
+    return;
     if (target === this.currentPageIndex) {
       return;
     }
@@ -224,55 +231,70 @@ export default class WeekView extends Component {
     }
     this.isScrollingHorizontal = false;
 
-    const {
-      nativeEvent: { contentOffset, contentSize },
-    } = event;
+    const { nativeEvent: { contentOffset } } = event;
     const { x: position } = contentOffset;
-    const { width: innerWidth } = contentSize;
     const { onSwipePrev, onSwipeNext } = this.props;
     const { initialDates } = this.state;
 
-    const newPage = Math.round((position / innerWidth) * initialDates.length);
-    const movedPages = newPage - this.currentPageIndex;
-    this.currentPageIndex = newPage;
+    const previousMoment = this.currentMoment;
 
-    if (movedPages === 0) {
+    const {
+      pageWidth, // can also be calculated as = nativeEvent.contentSize.width / initialDates.length
+      dayWidth,
+    } = this.dimensions;
+
+    const newPageIndex = Math.floor(position / pageWidth);
+    const dayOffset = Math.round((position % pageWidth) / dayWidth);
+
+    const movedPages = newPageIndex - this.currentPageIndex;
+    this.currentPageIndex = newPageIndex;
+
+    const newMoment = moment(
+      initialDates[this.currentPageIndex],
+    ).add(dayOffset, 'd').toDate();
+    this.currentMoment = newMoment;
+
+    const movedDays = moment(newMoment).diff(previousMoment, 'd');
+
+    if (movedDays === 0) {
       return;
     }
 
     InteractionManager.runAfterInteractions(() => {
-      const newMoment = moment(initialDates[this.currentPageIndex]).toDate();
-      const newState = {
-        currentMoment: newMoment,
-      };
-      let newStateCallback = () => {};
-
-      if (movedPages < 0 && newPage < this.pageOffset) {
+      // Step 1: update pages internally
+      if (movedPages < 0 && newPageIndex < this.pageOffset) {
         this.prependPagesInPlace(initialDates, 1);
         this.currentPageIndex += 1;
 
-        newState.initialDates = [...initialDates];
-        const scrollToCurrentIndex = () =>
+        const scrollToCurrentIndex = () => {
+          const signToTheRight = this.isHorizontalInverted() ? 1 : -1;
           this.eventsGrid.scrollToIndex({
             index: this.currentPageIndex,
+            viewOffset: signToTheRight * dayOffset * dayWidth,
             animated: false,
           });
-        newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
+        };
+
+        this.setState({
+          initialDates: [...initialDates],
+        }, () => setTimeout(scrollToCurrentIndex, 0));
+        // setTimeout is a hacky way to ensure the callback is called after interactions
       } else if (
         movedPages > 0 &&
-        newPage >= this.state.initialDates.length - this.pageOffset
+        newPageIndex >= this.state.initialDates.length - this.pageOffset
       ) {
         this.appendPagesInPlace(initialDates, 1);
 
-        newState.initialDates = [...initialDates];
+        this.setState({
+          initialDates: [...initialDates],
+        });
       }
 
-      this.setState(newState, newStateCallback);
-
-      if (movedPages < 0) {
-        onSwipePrev && onSwipePrev(newMoment);
-      } else {
-        onSwipeNext && onSwipeNext(newMoment);
+      // Step 2: execute callbacks
+      if (onSwipePrev && movedDays < 0) {
+        onSwipePrev(newMoment);
+      } else if (onSwipeNext && movedDays > 0) {
+        onSwipeNext(newMoment);
       }
     });
   };
@@ -390,9 +412,9 @@ export default class WeekView extends Component {
       onGridClick,
       onGridLongPress,
       EventComponent,
-      prependMostRecent,
       rightToLeft,
       fixedHorizontally,
+      allowMoveByOneDay,
       showNowLine,
       nowLineColor,
       onDragEvent,
@@ -401,12 +423,10 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates } = this.state;
+    const { initialDates } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel);
     const eventsByDate = this.sortEventsByDate(events);
-    const horizontalInverted =
-      (prependMostRecent && !rightToLeft) ||
-      (!prependMostRecent && rightToLeft);
+    const horizontalInverted = this.isHorizontalInverted();
 
     // Update dimensions
     this.dimensions = this.updateDimensions(numberOfDays);
@@ -416,6 +436,13 @@ export default class WeekView extends Component {
       timeLabelsWidth,
     } = this.dimensions;
 
+    const moveProps = allowMoveByOneDay ? {
+      decelerationRate: 'fast',
+      snapToInterval: dayWidth,
+    } : {
+      pagingEnabled: true,
+    };
+
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -424,7 +451,7 @@ export default class WeekView extends Component {
             style={headerStyle}
             textStyle={headerTextStyle}
             numberOfDays={numberOfDays}
-            selectedDate={currentMoment}
+            selectedDate={this.currentMoment}
             onMonthPress={onMonthPress}
             width={timeLabelsWidth}
           />
@@ -516,7 +543,6 @@ export default class WeekView extends Component {
                 );
               }}
               horizontal
-              pagingEnabled
               inverted={horizontalInverted}
               onMomentumScrollBegin={this.scrollBegun}
               onMomentumScrollEnd={this.scrollEnded}
@@ -534,6 +560,7 @@ export default class WeekView extends Component {
                 { useNativeDriver: false },
               )}
               ref={this.eventsGridRef}
+              {...moveProps}
             />
           </View>
         </ScrollView>
@@ -571,6 +598,7 @@ WeekView.propTypes = {
   showTitle: PropTypes.bool,
   rightToLeft: PropTypes.bool,
   fixedHorizontally: PropTypes.bool,
+  allowMoveByOneDay: PropTypes.bool,
   prependMostRecent: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
@@ -592,5 +620,6 @@ WeekView.defaultProps = {
   showTitle: true,
   rightToLeft: false,
   prependMostRecent: false,
+  allowMoveByOneDay: true,
   RefreshComponent: ActivityIndicator,
 };
