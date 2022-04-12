@@ -23,6 +23,7 @@ import {
   availableNumberOfDays,
   setLocale,
   CONTAINER_WIDTH,
+  TIMES_WIDTH,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -403,6 +404,10 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
+    const pageWidth = CONTAINER_WIDTH;
+    const timeLabelsWidth = TIMES_WIDTH;
+    const dayWidth = pageWidth / numberOfDays;
+
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -460,6 +465,7 @@ export default class WeekView extends Component {
               textStyle={hourTextStyle}
               hoursInDisplay={hoursInDisplay}
               timeStep={timeStep}
+              width={timeLabelsWidth}
             />
             <VirtualizedList
               data={initialDates}
@@ -493,6 +499,8 @@ export default class WeekView extends Component {
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
                     onDragEvent={onDragEvent}
+                    pageWidth={pageWidth}
+                    dayWidth={dayWidth}
                   />
                 );
               }}
