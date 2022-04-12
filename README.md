@@ -82,6 +82,7 @@ const MyComponent = () => (
 | `DayHeaderComponent` | _ReactComponent_ | `null` | Custom component to show each day in the header. If provided, overrides `TodayHeaderComponent`. See details in [sub-section below](#custom-day-components) |
 | `showNowLine` | _Boolean_ | `false` | If `true`, displays a line indicating the time right now. |
 | `nowLineColor` | _String_ | `red (#E53935)` | Color used for the now-line. |
+| `allowMoveByOneDay` | _Boolean_ | `false` | If `true`, the component can be scrolled by any number of days at the time (instaead of scrolling by `numberOfDays`).
 | `fixedHorizontally` | _Boolean_ | `false` | If `true`, the component can be used to display a single fixed week. See example in [sub-section below](#fixed-week). |
 | `isRefreshing` | _Boolean_ | `false` | When `true`, the week-view will show an `<ActivityIndicator />` in the middle of the grid. |
 | `RefreshComponent` | _ReactComponent_ | `ActivityIndicator` | Custom component used when `isRefreshing` is `true`. See [example below](#custom-refreshcomponent). |
