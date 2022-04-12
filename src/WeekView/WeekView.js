@@ -183,15 +183,53 @@ export default class WeekView extends Component {
     });
   };
 
-  goToNextPage = (animated = true) => {
+  goToNextPage = (options = {}) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, { animated });
+    this.goToPageIndex(
+      this.currentPageIndex + 1 * signToTheFuture,
+      parseOptionsBackwardCompat(options),
+    );
   };
 
-  goToPrevPage = (animated = true) => {
+  goToPrevPage = (options = {}) => {
     const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, { animated });
+    this.goToPageIndex(
+      this.currentPageIndex - 1 * signToTheFuture,
+      parseOptionsBackwardCompat(options),
+    );
   };
+
+  buildGoToDayMethod = ({ nDays, defaultToPageMethod }) => (options = {}) => {
+    const { allowMoveByOneDay, numberOfDays } = this.props;
+    if (numberOfDays === 1) return defaultToPageMethod(options);
+    if (!allowMoveByOneDay) return;
+
+    const { animated = true } = options;
+
+    const { currentMoment, initialDates } = this.state;
+    const initialDate = initialDates[this.currentPageIndex];
+    const currentDayOffset = moment(currentMoment).diff(moment(initialDate), 'd');
+
+    let dayOffset = currentDayOffset + nDays;
+    let pageIndex = this.currentPageIndex;
+
+    if (dayOffset < 0) {
+      pageIndex -= this.getSignToTheFuture();
+      dayOffset = numberOfDays - 1;
+    } else if (dayOffset > numberOfDays - 1) {
+      pageIndex += this.getSignToTheFuture();
+      dayOffset = 0;
+    }
+
+    this.goToPageIndex(pageIndex, {
+      dayOffset,
+      animated,
+      disableAnimationWhenPrepending: true,
+    });
+  };
+
+  goToNextDay = this.buildGoToDayMethod({ nDays: 1, defaultToPageMethod: this.goToNextPage });
+  goToPrevDay = this.buildGoToDayMethod({ nDays: -1, defaultToPageMethod: this.goToPrevPage });
 
   scrollToHorizontalAndUpdateIndex = (pageIndex, dayOffset = 0, options) => {
     // Reminder: when calling this method, also update this.state.currentMoment
@@ -218,9 +256,12 @@ export default class WeekView extends Component {
 
     const {
       animated = true,
+      dayOffset: forceDayOffset = null,
       keepDayOffset = true,
       useDateOffset = null,
+      disableAnimationWhenPrepending = false,
     } = options;
+    let allowAnimationDueToPrepending = true;
 
     const { initialDates } = this.state;
 
@@ -240,6 +281,11 @@ export default class WeekView extends Component {
 
       finalTarget = this.pageOffset;
 
+      if (disableAnimationWhenPrepending) {
+        // HACK: Due to bug #39, prepending to the list looks awful --> force to disable animation
+        allowAnimationDueToPrepending = false;
+      }
+
       newState.initialDates = [...initialDates];
     } else if (finalTarget > lastViewablePage) {
       const nPages = finalTarget - lastViewablePage;
@@ -254,7 +300,9 @@ export default class WeekView extends Component {
 
     let dayOffset = 0;
     if (this.props.allowMoveByOneDay) {
-      if (keepDayOffset) {
+      if (forceDayOffset != null) {
+        dayOffset = forceDayOffset;
+      } else if (keepDayOffset) {
         dayOffset = previousDayOffset;
       } else if (useDateOffset) {
         dayOffset = moment(useDateOffset).diff(newMomentWithoutOffset, 'd');
@@ -266,7 +314,7 @@ export default class WeekView extends Component {
     // setTimeout is a hacky way to ensure the callback is called after interactions
     this.setState(newState, () => setTimeout(
       () => this.scrollToHorizontalAndUpdateIndex(
-        finalTarget, dayOffset, { animated },
+        finalTarget, dayOffset, { animated: animated && allowAnimationDueToPrepending },
       ),
     0));
   };
