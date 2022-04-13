@@ -78,7 +78,7 @@ export default class WeekView extends Component {
 
       this.currentPageIndex = this.pageOffset;
       this.setState({
-        currentMoment: initialDates[this.currentPageIndex].toDate(),
+        currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
         initialDates,
       },
         () => {
