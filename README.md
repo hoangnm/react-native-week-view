@@ -70,11 +70,13 @@ const MyComponent = () => (
 | `onDayPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when a day from the header is pressed. |
 | `onMonthPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when the month at the top left (title) is pressed. |
 |**_Week-view <br> customizations_**|
-| `startHour` | _Number_ | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
+| `startHour` | _Number_, in hours | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
 | `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |
 | `showTitle` | _Boolean_ | `true` | Show or hide the selected month and year in the top-left corner (a.k.a the title). |
-| `hoursInDisplay` | _Number_ | `6` | Amount of hours to display vertically in the agenda. Increasing this number will make the events look smaller. |
-| `timeStep` | _Number_ | `60` (minutes) | Number of minutes to use as step in the time labels at the left. Increasing this number will increase the vertical space between grid lines. |
+| `hoursInDisplay` | _Number_, in hours | `6` | Amount of hours to display vertically in the agenda. Increasing this number will make the events look smaller. |
+| `beginAgendaAt` | _Number_, in minutes | `0` (0h) | Time of day to start the agenda at the top (grid above is left out). For example, for 8 am set `beginAgendaAt={8*60}`. |
+| `endAgendaAt` | _Number_, in minutes | `24 * 60` (24h) | Time of day to end the agenda at the bottom (grid below is left out). For example, for 10pm set `engAgendaAt={22*60}`. |
+| `timeStep` | _Number_, in minutes | `60` | Number of minutes to use as step in the time labels at the left. Increasing this number will increase the vertical space between grid lines. |
 | `formatDateHeader` | _String_ | `"MMM D"` (e.g. "Apr 3") | Formatter for dates in the header. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
 | `formatTimeLabel` | _String_ | `"H:mm"` (24 hours) | Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or `"h:mm a"` for lowercase. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/). |
 | `EventComponent` | _ReactComponent_ | `Text` | Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component. |
