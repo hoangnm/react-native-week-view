@@ -156,6 +156,7 @@ class App extends React.Component {
             RefreshComponent={MyRefreshComponent}
             onDayPress={this.onDayPress}
             onMonthPress={this.onMonthPress}
+            allowMoveByOneDay
           />
         </SafeAreaView>
       </>
