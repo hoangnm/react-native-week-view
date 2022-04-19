@@ -18,14 +18,30 @@ import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
 import {
-  CONTAINER_HEIGHT,
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
+  minutesToYDimension,
   computeWeekViewDimensions,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
+const calculateTimesArray = (
+  minutesStep, formatTimeLabel, beginAt = 0, endAt = MINUTES_IN_DAY,
+) => {
+  const times = [];
+  const startOfDay = moment().startOf('day');
+  for (
+    let timer = (0 <= beginAt && beginAt < MINUTES_IN_DAY) ? beginAt : 0;
+    timer < endAt && timer < MINUTES_IN_DAY;
+    timer += minutesStep
+  ) {
+    const time = startOfDay.clone().minutes(timer);
+    times.push(time.format(formatTimeLabel));
+  }
+
+  return times;
+};
 
 export default class WeekView extends Component {
   constructor(props) {
@@ -95,21 +111,14 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.removeAllListeners();
   }
 
-  calculateTimes = memoizeOne((minutesStep, formatTimeLabel) => {
-    const times = [];
-    const startOfDay = moment().startOf('day');
-    for (let timer = 0; timer < MINUTES_IN_DAY; timer += minutesStep) {
-      const time = startOfDay.clone().minutes(timer);
-      times.push(time.format(formatTimeLabel));
-    }
-    return times;
-  });
+  calculateTimes = memoizeOne(calculateTimesArray);
 
   scrollToVerticalStart = () => {
     if (this.verticalAgenda) {
-      const { startHour, hoursInDisplay } = this.props;
-      const startHeight = (startHour * CONTAINER_HEIGHT) / hoursInDisplay;
-      this.verticalAgenda.scrollTo({ y: startHeight, x: 0, animated: false });
+      const { startHour, hoursInDisplay, beginAgendaAt } = this.props;
+      const startHeight = minutesToYDimension(hoursInDisplay, startHour * 60);
+      const agendaOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+      this.verticalAgenda.scrollTo({ y: startHeight - agendaOffset, x: 0, animated: false });
     }
   };
 
@@ -412,6 +421,8 @@ export default class WeekView extends Component {
       events,
       hoursInDisplay,
       timeStep,
+      beginAgendaAt,
+      endAgendaAt,
       formatTimeLabel,
       onGridClick,
       onGridLongPress,
@@ -429,13 +440,12 @@ export default class WeekView extends Component {
       RefreshComponent,
     } = this.props;
     const { currentMoment, initialDates } = this.state;
-    const times = this.calculateTimes(timeStep, formatTimeLabel);
+    const times = this.calculateTimes(timeStep, formatTimeLabel, beginAgendaAt, endAgendaAt);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    // Update dimensions
     this.dimensions = this.updateDimensions(numberOfDays);
     const {
       pageWidth,
@@ -536,6 +546,7 @@ export default class WeekView extends Component {
                     onGridLongPress={onGridLongPress}
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
+                    beginAgendaAt={beginAgendaAt}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     gridRowStyle={gridRowStyle}
@@ -597,6 +608,8 @@ WeekView.propTypes = {
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
   timeStep: PropTypes.number,
+  beginAgendaAt: PropTypes.number,
+  endAgendaAt: PropTypes.number,
   formatTimeLabel: PropTypes.string,
   startHour: PropTypes.number,
   EventComponent: PropTypes.elementType,
@@ -622,6 +635,8 @@ WeekView.defaultProps = {
   hoursInDisplay: 6,
   weekStartsOn: 1,
   timeStep: 60,
+  beginAgendaAt: 0,
+  endAgendaAt: MINUTES_IN_DAY,
   formatTimeLabel: 'H:mm',
   startHour: 8,
   showTitle: true,
