@@ -156,8 +156,8 @@ const getEventsWithPosition = (
 };
 
 const processEvents = (
-  eventsByDate, initialDate, numberOfDays, dayWidth, hoursInDisplay, rightToLeft,
-  beginAgendaAt,
+  eventsByDate, initialDate, numberOfDays, dayWidth, hoursInDisplay,
+  rightToLeft, beginAgendaAt,
 ) => {
   // totalEvents stores events in each day of numberOfDays
   // example: [[event1, event2], [event3, event4], [event5]], each child array
@@ -191,27 +191,7 @@ class Events extends PureComponent {
     return fullWidth / numberOfDays;
   };
 
-  processEvents = memoizeOne(
-    (eventsByDate, initialDate, numberOfDays, hoursInDisplay, rightToLeft) => {
-      // totalEvents stores events in each day of numberOfDays
-      // example: [[event1, event2], [event3, event4], [event5]], each child array
-      // is events for specific day in range
-      const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
-      const totalEvents = dates.map((date) => {
-        const dateStr = date.format(DATE_STR_FORMAT);
-        return eventsByDate[dateStr] || [];
-      });
-
-      const regularItemWidth = this.getEventItemWidth();
-
-      const totalEventsWithPosition = getEventsWithPosition(
-        totalEvents,
-        regularItemWidth,
-        hoursInDisplay,
-      );
-      return totalEventsWithPosition;
-    },
-  );
+  processEvents = memoizeOne(processEvents);
 
   onGridTouch = (event, dayIndex, longPress) => {
     const { initialDate, onGridClick, onGridLongPress } = this.props;

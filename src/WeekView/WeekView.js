@@ -419,7 +419,6 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    // Update dimensions
     this.dimensions = this.updateDimensions(numberOfDays);
     const {
       pageWidth,
