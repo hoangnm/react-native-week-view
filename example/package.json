@@ -29,7 +29,7 @@
   "jest": {
     "preset": "react-native",
     "setupFiles": [
-      "../src/__tests__/config.js"
+      "./__tests__/config.js"
     ],
     "testMatch": [
       "<rootDir>/__tests__/**/*.test.js"
