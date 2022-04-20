@@ -52,6 +52,7 @@ jobs:
 
     - run: yarn install --frozen-lockfile
 
+    # Follow developing instructions (step by step):
     - run: yarn install --frozen-lockfile
       working-directory: example
     - run: yarn install:buildlink
@@ -60,5 +61,7 @@ jobs:
       working-directory: example
     - run: yarn install:local
       working-directory: example
+
+    # Run one simple test
     - run: yarn test App.test.js
       working-directory: example
