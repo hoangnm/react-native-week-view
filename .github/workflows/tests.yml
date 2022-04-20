@@ -51,7 +51,14 @@ jobs:
         node-version: 14.x
 
     - run: yarn install --frozen-lockfile
-    - run: yarn install --frozen-lockfile && yarn install:local && yarn sync
+
+    - run: yarn install --frozen-lockfile
+      working-directory: example
+    - run: yarn install:buildlink
+      working-directory: example
+    - run: yarn install:rmlink
+      working-directory: example
+    - run: yarn install:local
       working-directory: example
     - run: yarn test App.test.js
       working-directory: example

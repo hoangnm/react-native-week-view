@@ -7,13 +7,14 @@
 ### Installation
 
 ```sh
-# 1. Install dependencies:
+# 1. Install dependencies
+yarn install # For tests, lint, etc
 cd example/
 yarn install
 
 # 2. Install from local
-yarn install:local # removes symlink folder, which does not work with the react-native metro-bundler
-yarn sync # copies using rsync
+yarn install:local
+# removes "file:../" (does not work with RN-metro)
 ```
 
 ### Running app in android
