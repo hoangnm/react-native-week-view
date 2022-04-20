@@ -12,7 +12,7 @@
     "install:buildlink": "cd .. && yarn link",
     "install:rmlink": "yarn link react-native-week-view && rm ./node_modules/react-native-week-view",
     "install:rmfile": "yarn install:buildlink && yarn install:rmlink",
-    "install:local": "install:rmfile && yarn sync"
+    "install:local": "yarn install:rmfile && yarn sync"
   },
   "dependencies": {
     "react": "17.0.1",
