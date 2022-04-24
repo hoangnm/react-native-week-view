@@ -13,7 +13,7 @@ const getFontSizeHeader = (numberOfDays) => {
 };
 
 const Title = ({
-  style, showTitle, numberOfDays, selectedDate, textStyle, onMonthPress,
+  style, showTitle, numberOfDays, selectedDate, textStyle, onMonthPress, width,
 }) => {
   if (!showTitle) {
     return <View style={[styles.title, style]}></View>
@@ -21,7 +21,7 @@ const Title = ({
   const formattedMonth = getCurrentMonth(selectedDate);
   return (
     <TouchableOpacity
-      style={[styles.title, style]}
+      style={[styles.title, { width }, style]}
       onPress={() => onMonthPress && onMonthPress(selectedDate, formattedMonth)}
       disabled={!onMonthPress}
     >
@@ -47,6 +47,7 @@ Title.propTypes = {
   style: PropTypes.object,
   textStyle: PropTypes.object,
   onMonthPress: PropTypes.func,
+  width: PropTypes.number.isRequired,
 };
 
 export default React.memo(Title);

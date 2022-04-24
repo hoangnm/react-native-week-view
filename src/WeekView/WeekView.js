@@ -21,8 +21,8 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  CONTAINER_WIDTH,
   minutesToYDimension,
+  computeWeekViewDimensions,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -366,11 +366,16 @@ export default class WeekView extends Component {
     return sortedEvents;
   });
 
-  getListItemLayout = (index) => ({
-    length: CONTAINER_WIDTH,
-    offset: CONTAINER_WIDTH * index,
-    index,
-  });
+  updateDimensions = memoizeOne(computeWeekViewDimensions);
+
+  getListItemLayout = (item, index) => {
+    const pageWidth = this.dimensions.pageWidth || 0;
+    return {
+      length: pageWidth,
+      offset: pageWidth * index,
+      index,
+    };
+  };
 
   render() {
     const {
@@ -414,6 +419,13 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
+    this.dimensions = this.updateDimensions(numberOfDays);
+    const {
+      pageWidth,
+      dayWidth,
+      timeLabelsWidth,
+    } = this.dimensions;
+
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -424,6 +436,7 @@ export default class WeekView extends Component {
             numberOfDays={numberOfDays}
             selectedDate={currentMoment}
             onMonthPress={onMonthPress}
+            width={timeLabelsWidth}
           />
           <VirtualizedList
             horizontal
@@ -435,12 +448,12 @@ export default class WeekView extends Component {
             data={initialDates}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            getItemLayout={(_, index) => this.getListItemLayout(index)}
+            getItemLayout={this.getListItemLayout}
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
               return (
-                <View key={item} style={styles.header}>
+                <View key={item} style={[styles.header, { width: pageWidth }]}>
                   <Header
                     style={headerStyle}
                     textStyle={headerTextStyle}
@@ -458,7 +471,9 @@ export default class WeekView extends Component {
           />
         </View>
         {isRefreshing && RefreshComponent && (
-          <RefreshComponent style={styles.loadingSpinner} />
+          <RefreshComponent
+            style={[styles.loadingSpinner, { right: pageWidth / 2 }]}
+          />
         )}
         <ScrollView
           onStartShouldSetResponderCapture={() => false}
@@ -471,12 +486,13 @@ export default class WeekView extends Component {
               textStyle={hourTextStyle}
               hoursInDisplay={hoursInDisplay}
               timeStep={timeStep}
+              width={timeLabelsWidth}
             />
             <VirtualizedList
               data={initialDates}
               getItem={(data, index) => data[index]}
               getItemCount={(data) => data.length}
-              getItemLayout={(_, index) => this.getListItemLayout(index)}
+              getItemLayout={this.getListItemLayout}
               keyExtractor={(item) => item}
               initialScrollIndex={this.pageOffset}
               scrollEnabled={!fixedHorizontally}
@@ -505,6 +521,8 @@ export default class WeekView extends Component {
                     showNowLine={showNowLine}
                     nowLineColor={nowLineColor}
                     onDragEvent={onDragEvent}
+                    pageWidth={pageWidth}
+                    dayWidth={dayWidth}
                   />
                 );
               }}
