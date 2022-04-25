@@ -7,6 +7,7 @@ import {
   getFormattedDate,
   calculateDaysArray,
   availableNumberOfDays,
+  stylePropType,
 } from '../utils';
 import styles from './Header.styles';
 
@@ -118,8 +119,8 @@ WeekViewHeader.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   initialDate: PropTypes.string.isRequired,
   formatDate: PropTypes.string,
-  style: PropTypes.object,
-  textStyle: PropTypes.object,
+  style: stylePropType,
+  textStyle: stylePropType,
   rightToLeft: PropTypes.bool,
   DayComponent: PropTypes.elementType,
   TodayComponent: PropTypes.elementType,

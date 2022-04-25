@@ -1,4 +1,5 @@
 import { Dimensions } from 'react-native';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -73,3 +74,8 @@ export const createFixedWeekDate = (day, hours, minutes = 0, seconds = 0) => {
   date.seconds(seconds);
   return date.toDate();
 };
+
+export const stylePropType = PropTypes.oneOfType([
+  PropTypes.object,
+  PropTypes.array,
+]);

@@ -2,7 +2,11 @@ import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { getCurrentMonth, availableNumberOfDays } from '../utils';
+import {
+  getCurrentMonth,
+  availableNumberOfDays,
+  stylePropType,
+} from '../utils';
 import styles from './Title.styles';
 
 const getFontSizeHeader = (numberOfDays) => {
@@ -44,8 +48,8 @@ Title.propTypes = {
   showTitle: PropTypes.bool,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
-  style: PropTypes.object,
-  textStyle: PropTypes.object,
+  style: stylePropType,
+  textStyle: stylePropType,
   onMonthPress: PropTypes.func,
   width: PropTypes.number.isRequired,
 };

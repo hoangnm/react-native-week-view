@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text } from 'react-native';
 import styles from './Times.styles';
-import { getTimeLabelHeight } from '../utils';
+import { getTimeLabelHeight, stylePropType } from '../utils';
 
 const Times = ({
   times, hoursInDisplay, timeStep, textStyle, width,
@@ -28,7 +28,7 @@ Times.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
   timeStep: PropTypes.number.isRequired,
-  textStyle: Text.propTypes.style,
+  textStyle: stylePropType,
   width: PropTypes.number.isRequired,
 };
 

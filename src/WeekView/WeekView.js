@@ -23,6 +23,7 @@ import {
   setLocale,
   minutesToYDimension,
   computeWeekViewDimensions,
+  stylePropType,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -564,10 +565,10 @@ WeekView.propTypes = {
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
-  headerStyle: PropTypes.object,
-  headerTextStyle: PropTypes.object,
-  hourTextStyle: PropTypes.object,
-  eventContainerStyle: PropTypes.object,
+  headerStyle: stylePropType,
+  headerTextStyle: stylePropType,
+  hourTextStyle: stylePropType,
+  eventContainerStyle: stylePropType,
   gridRowStyle: Events.propTypes.gridRowStyle,
   gridColumnStyle: Events.propTypes.gridColumnStyle,
   selectedDate: PropTypes.instanceOf(Date).isRequired,

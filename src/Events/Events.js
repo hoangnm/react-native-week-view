@@ -14,6 +14,7 @@ import {
   minutesToYDimension,
   CONTENT_OFFSET,
   getTimeLabelHeight,
+  stylePropType,
 } from '../utils';
 
 import styles from './Events.styles';
@@ -355,7 +356,7 @@ Events.propTypes = {
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
-  eventContainerStyle: PropTypes.object,
+  eventContainerStyle: stylePropType,
   gridRowStyle: GridRowPropType,
   gridColumnStyle: GridColumnPropType,
   EventComponent: PropTypes.elementType,

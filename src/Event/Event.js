@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
 import styles from './Event.styles';
+import { stylePropType } from '../utils';
 
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
 
@@ -143,7 +144,7 @@ Event.propTypes = {
   position: positionPropType.isRequired,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
-  containerStyle: PropTypes.object,
+  containerStyle: stylePropType,
   EventComponent: PropTypes.elementType,
   onDrag: PropTypes.func,
 };
