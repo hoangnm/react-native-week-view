@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
 import {
@@ -17,30 +17,39 @@ const getDayTextStyles = (numberOfDays) => {
   };
 };
 
+const DefaultDayComponent = ({ textStyle, formattedDate }) => (
+  <Text style={textStyle}>{formattedDate}</Text>
+);
+
 const Column = ({
   column,
   numberOfDays,
   format,
   style,
   textStyle,
+  DayComponent,
   TodayComponent,
+  onDayPress,
 }) => {
   const formattedDate = getFormattedDate(column, format);
-  const useTodayComponent = TodayComponent && moment().isSame(column, 'days');
+  const isToday = moment().isSame(column, 'days');
   const fullTextStyle = [getDayTextStyles(numberOfDays), textStyle];
 
+  const ComponentChosen = DayComponent || (isToday && TodayComponent) || DefaultDayComponent;
+
   return (
-    <View style={[styles.column, style]}>
-      {useTodayComponent ? (
-        <TodayComponent
-          date={column}
-          formattedDate={formattedDate}
-          textStyle={fullTextStyle}
-        />
-      ) : (
-        <Text style={fullTextStyle}>{formattedDate}</Text>
-      )}
-    </View>
+    <TouchableOpacity
+      style={[styles.column, style]}
+      onPress={() => onDayPress && onDayPress(column, formattedDate)}
+      disabled={!onDayPress}
+    >
+      <ComponentChosen
+        date={column}
+        formattedDate={formattedDate}
+        textStyle={fullTextStyle}
+        isToday={isToday}
+      />
+    </TouchableOpacity>
   );
 };
 
@@ -50,7 +59,9 @@ const Columns = ({
   format,
   style,
   textStyle,
+  DayComponent,
   TodayComponent,
+  onDayPress,
 }) => {
   return (
     <View style={styles.columns}>
@@ -63,7 +74,9 @@ const Columns = ({
             column={column}
             numberOfDays={numberOfDays}
             format={format}
+            DayComponent={DayComponent}
             TodayComponent={TodayComponent}
+            onDayPress={onDayPress}
           />
         );
       })}
@@ -78,7 +91,9 @@ const WeekViewHeader = ({
   style,
   textStyle,
   TodayComponent,
+  DayComponent,
   rightToLeft,
+  onDayPress,
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
   return (
@@ -90,7 +105,9 @@ const WeekViewHeader = ({
           numberOfDays={numberOfDays}
           style={style}
           textStyle={textStyle}
+          DayComponent={DayComponent}
           TodayComponent={TodayComponent}
+          onDayPress={onDayPress}
         />
       )}
     </View>
@@ -104,7 +121,9 @@ WeekViewHeader.propTypes = {
   style: PropTypes.object,
   textStyle: PropTypes.object,
   rightToLeft: PropTypes.bool,
+  DayComponent: PropTypes.elementType,
   TodayComponent: PropTypes.elementType,
+  onDayPress: PropTypes.func,
 };
 
 WeekViewHeader.defaultProps = {

@@ -4,10 +4,17 @@ import { View, Text } from 'react-native';
 import styles from './Times.styles';
 import { getTimeLabelHeight } from '../utils';
 
-const Times = ({ times, hoursInDisplay, timeStep, textStyle }) => {
+const Times = ({
+  times, hoursInDisplay, timeStep, textStyle, width,
+}) => {
   const height = getTimeLabelHeight(hoursInDisplay, timeStep);
   return (
-    <View style={styles.columnContainer}>
+    <View
+      style={[
+        styles.columnContainer,
+        { width },
+      ]}
+    >
       {times.map((time) => (
         <View key={time} style={[styles.label, { height }]}>
           <Text style={[styles.text, textStyle]}>{time}</Text>
@@ -22,6 +29,7 @@ Times.propTypes = {
   hoursInDisplay: PropTypes.number.isRequired,
   timeStep: PropTypes.number.isRequired,
   textStyle: Text.propTypes.style,
+  width: PropTypes.number.isRequired,
 };
 
 export default React.memo(Times);

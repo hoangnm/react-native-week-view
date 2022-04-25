@@ -7,17 +7,21 @@ import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
 
-const getCurrentTop = (hoursInDisplay) => {
+const getCurrentTop = (hoursInDisplay, beginAgendaAt) => {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
-  return minutesToYDimension(hoursInDisplay, minutes) + CONTENT_OFFSET;
+  const position = minutesToYDimension(hoursInDisplay, minutes);
+  const agendaOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+  return position - agendaOffset + CONTENT_OFFSET;
 };
 
 class NowLine extends React.Component {
   constructor(props) {
     super(props);
 
-    this.initialTop = getCurrentTop(this.props.hoursInDisplay);
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+
+    this.initialTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
 
     this.state = {
       currentTranslateY: new Animated.Value(0),
@@ -45,7 +49,9 @@ class NowLine extends React.Component {
   }
 
   updateLinePosition = (animationDuration) => {
-    const newTop = getCurrentTop(this.props.hoursInDisplay);
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+
+    const newTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
     Animated.timing(this.state.currentTranslateY, {
       toValue: newTop - this.initialTop,
       duration: animationDuration,

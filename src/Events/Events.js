@@ -8,7 +8,6 @@ import NowLine from '../NowLine/NowLine';
 import Event from '../Event/Event';
 import {
   CONTAINER_HEIGHT,
-  CONTAINER_WIDTH,
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
@@ -21,10 +20,14 @@ import { ViewWithTouchable } from '../utils-gestures';
 import styles from './Events.styles';
 
 const MINUTES_IN_HOUR = 60;
-const EVENT_HORIZONTAL_PADDING = 15;
-const EVENTS_CONTAINER_WIDTH = CONTAINER_WIDTH - EVENT_HORIZONTAL_PADDING;
+const EVENT_HORIZONTAL_PADDING = 8; // percentage
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
+
+const padItemWidth = (
+  width,
+  paddingPercentage = EVENT_HORIZONTAL_PADDING,
+) => paddingPercentage > 0 ? width - Math.max(2, width * paddingPercentage / 100) : width;
 
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   const endDate = moment(event1EndDate);
@@ -32,12 +35,14 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   return endDate.isSameOrAfter(event2StartDate);
 };
 
-const getStyleForEvent = (event, regularItemWidth, hoursInDisplay) => {
+const getStyleForEvent = (event, regularItemWidth, hoursInDisplay, beginAgendaAt) => {
   const startDate = moment(event.startDate);
   const startHours = startDate.hours();
   const startMinutes = startDate.minutes();
   const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
-  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes);
+  const verticalOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes) - verticalOffset;
+
   const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
   const height = minutesToYDimension(hoursInDisplay, deltaMinutes);
 
@@ -64,11 +69,9 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
   }
 
   let nLanes;
-  let horizontalPadding;
   let indexToLane;
   if (nOverlapped === 2) {
     nLanes = nOverlapped;
-    horizontalPadding = 3;
     indexToLane = (index) => index;
   } else {
     // Distribute events in multiple lanes
@@ -97,11 +100,10 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
     });
 
     nLanes = Object.keys(latestByLane).length;
-    horizontalPadding = 2;
     indexToLane = (index) => laneByEvent[index];
   }
   const dividedWidth = itemWidth / nLanes;
-  const width = Math.max(dividedWidth - horizontalPadding, MIN_ITEM_WIDTH);
+  const width = Math.max(padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes), MIN_ITEM_WIDTH);
 
   overlappedArr.forEach((eventWithStyle, index) => {
     const { data, style } = eventWithStyle;
@@ -116,12 +118,15 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
   });
 };
 
-const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) => {
+const getEventsWithPosition = (
+  totalEvents, dayWidth, hoursInDisplay, beginAgendaAt,
+) => {
+  const paddedDayWidth = padItemWidth(dayWidth);
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
     const eventsWithStyle = events.reduce((eventsAcc, event) => {
-      const style = getStyleForEvent(event, regularItemWidth, hoursInDisplay);
+      const style = getStyleForEvent(event, paddedDayWidth, hoursInDisplay, beginAgendaAt);
       const eventWithStyle = {
         data: event,
         style,
@@ -135,7 +140,7 @@ const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) =>
         addOverlappedToArray(
           eventsAcc,
           overlappedSoFar,
-          regularItemWidth,
+          dayWidth,
         );
         overlappedSoFar = [eventWithStyle];
         lastDate = moment(event.endDate);
@@ -145,53 +150,50 @@ const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) =>
     addOverlappedToArray(
       eventsWithStyle,
       overlappedSoFar,
-      regularItemWidth,
+      dayWidth,
     );
     return eventsWithStyle;
   });
 };
 
+const processEvents = (
+  eventsByDate, initialDate, numberOfDays, dayWidth, hoursInDisplay,
+  rightToLeft, beginAgendaAt,
+) => {
+  // totalEvents stores events in each day of numberOfDays
+  // example: [[event1, event2], [event3, event4], [event5]], each child array
+  // is events for specific day in range
+  const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
+  const totalEvents = dates.map((date) => {
+    const dateStr = date.format(DATE_STR_FORMAT);
+    return eventsByDate[dateStr] || [];
+  });
+
+  const totalEventsWithPosition = getEventsWithPosition(
+    totalEvents,
+    dayWidth,
+    hoursInDisplay,
+    beginAgendaAt,
+  );
+  return totalEventsWithPosition;
+};
+
 class Events extends PureComponent {
   yToHour = (y) => {
-    const { hoursInDisplay } = this.props;
-    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT;
-    return hour;
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT; // yDimensionToHours()
+    const agendaOffset = beginAgendaAt / 60; // in hours
+    return hour + agendaOffset;
   };
 
-  getEventItemWidth = (padded = true) => {
-    const { numberOfDays } = this.props;
-    const fullWidth = padded ? EVENTS_CONTAINER_WIDTH : CONTAINER_WIDTH;
-    return fullWidth / numberOfDays;
-  };
-
-  processEvents = memoizeOne(
-    (eventsByDate, initialDate, numberOfDays, hoursInDisplay, rightToLeft) => {
-      // totalEvents stores events in each day of numberOfDays
-      // example: [[event1, event2], [event3, event4], [event5]], each child array
-      // is events for specific day in range
-      const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
-      const totalEvents = dates.map((date) => {
-        const dateStr = date.format(DATE_STR_FORMAT);
-        return eventsByDate[dateStr] || [];
-      });
-
-      const regularItemWidth = this.getEventItemWidth();
-
-      const totalEventsWithPosition = getEventsWithPosition(
-        totalEvents,
-        regularItemWidth,
-        hoursInDisplay,
-      );
-      return totalEventsWithPosition;
-    },
-  );
+  processEvents = memoizeOne(processEvents);
 
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
     const locationY = pressEvt.y;
-    const dayIndex = Math.floor(pressEvt.x / this.getEventItemWidth(false));
+    const dayIndex = Math.floor(pressEvt.x / this.props.dayWidth);
 
     // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
     const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
@@ -220,12 +222,13 @@ class Events extends PureComponent {
   }
 
   handleDragEvent = (event, newX, newY) => {
-    const { onDragEvent } = this.props;
+    const { onDragEvent, dayWidth } = this.props;
     if (!onDragEvent) {
       return;
     }
 
-    const movedDays = Math.floor(newX / this.getEventItemWidth());
+    // NOTE: newX is in the eventsColumn coordinates
+    const movedDays = Math.floor(newX / dayWidth);
 
     const startTime = event.startDate.getTime();
     const newStartDate = new Date(startTime);
@@ -264,23 +267,28 @@ class Events extends PureComponent {
       rightToLeft,
       hoursInDisplay,
       timeStep,
+      beginAgendaAt,
       showNowLine,
       nowLineColor,
       onDragEvent,
       onGridClick,
       onGridLongPress,
+      dayWidth,
+      pageWidth,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
       initialDate,
       numberOfDays,
+      dayWidth,
       hoursInDisplay,
       rightToLeft,
+      beginAgendaAt,
     );
     const timeSlotHeight = getTimeLabelHeight(hoursInDisplay, timeStep);
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { width: pageWidth }]}>
         {times.map((time) => (
           <View
             key={`${initialDate}-${time}`}
@@ -306,7 +314,8 @@ class Events extends PureComponent {
                 <NowLine
                   color={nowLineColor}
                   hoursInDisplay={hoursInDisplay}
-                  width={this.getEventItemWidth(false)}
+                  width={dayWidth}
+                  beginAgendaAt={beginAgendaAt}
                 />
               )}
               {eventsInSection.map((item) => (
@@ -360,6 +369,8 @@ Events.propTypes = {
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
   onDragEvent: PropTypes.func,
+  pageWidth: PropTypes.number.isRequired,
+  dayWidth: PropTypes.number.isRequired,
 };
 
 export default Events;

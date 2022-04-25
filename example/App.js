@@ -113,6 +113,14 @@ class App extends React.Component {
     });
   };
 
+  onDayPress = (date, formattedDate) => {
+    console.log('Day: ', date, formattedDate);
+  };
+
+  onMonthPress = (date, formattedDate) => {
+    console.log('Month: ', date, formattedDate);
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -137,6 +145,8 @@ class App extends React.Component {
             formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
+            beginAgendaAt={5 * 60}
+            endAgendaAt={23 * 60}
             startHour={8}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
@@ -144,6 +154,8 @@ class App extends React.Component {
             onDragEvent={this.onDragEvent}
             isRefreshing={false}
             RefreshComponent={MyRefreshComponent}
+            onDayPress={this.onDayPress}
+            onMonthPress={this.onMonthPress}
           />
         </SafeAreaView>
       </>
