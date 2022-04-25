@@ -185,12 +185,6 @@ class Events extends PureComponent {
     return hour + agendaOffset;
   };
 
-  getEventItemWidth = (padded = true) => {
-    const { numberOfDays } = this.props;
-    const fullWidth = padded ? EVENTS_CONTAINER_WIDTH : CONTAINER_WIDTH;
-    return fullWidth / numberOfDays;
-  };
-
   processEvents = memoizeOne(processEvents);
 
   onGridTouch = (event, dayIndex, longPress) => {
