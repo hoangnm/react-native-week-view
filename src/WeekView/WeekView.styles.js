@@ -16,6 +16,9 @@ const styles = StyleSheet.create({
     top: CONTAINER_HEIGHT / 2,
     zIndex: 2,
   },
+  webScrollView: {
+    height: '100vh',
+  },
 });
 
 export default styles;

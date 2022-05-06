@@ -7,6 +7,7 @@ import {
   VirtualizedList,
   InteractionManager,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -480,6 +481,7 @@ export default class WeekView extends Component {
           onStartShouldSetResponderCapture={() => false}
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
+          contentContainerStyle={Platform.OS === 'web' && styles.webScrollView}
           ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times
