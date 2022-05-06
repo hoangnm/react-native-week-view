@@ -451,21 +451,22 @@ export default class WeekView extends Component {
             getItemLayout={this.getListItemLayout}
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
+            extraData={dayWidth}
             renderItem={({ item }) => {
               return (
-                <View key={item} style={[styles.header, { width: pageWidth }]}>
-                  <Header
-                    style={headerStyle}
-                    textStyle={headerTextStyle}
-                    TodayComponent={TodayHeaderComponent}
-                    DayComponent={DayHeaderComponent}
-                    formatDate={formatDateHeader}
-                    initialDate={item}
-                    numberOfDays={numberOfDays}
-                    rightToLeft={rightToLeft}
-                    onDayPress={onDayPress}
-                  />
-                </View>
+                <Header
+                  key={item}
+                  style={headerStyle}
+                  textStyle={headerTextStyle}
+                  TodayComponent={TodayHeaderComponent}
+                  DayComponent={DayHeaderComponent}
+                  formatDate={formatDateHeader}
+                  initialDate={item}
+                  numberOfDays={numberOfDays}
+                  rightToLeft={rightToLeft}
+                  onDayPress={onDayPress}
+                  dayWidth={dayWidth}
+                />
               );
             }}
           />

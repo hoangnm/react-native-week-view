@@ -30,6 +30,7 @@ const Column = ({
   DayComponent,
   TodayComponent,
   onDayPress,
+  width,
 }) => {
   const formattedDate = getFormattedDate(column, format);
   const isToday = moment().isSame(column, 'days');
@@ -39,7 +40,7 @@ const Column = ({
 
   return (
     <TouchableOpacity
-      style={[styles.column, style]}
+      style={[styles.column, style, { width }]}
       onPress={() => onDayPress && onDayPress(column, formattedDate)}
       disabled={!onDayPress}
     >
@@ -53,37 +54,6 @@ const Column = ({
   );
 };
 
-const Columns = ({
-  columns,
-  numberOfDays,
-  format,
-  style,
-  textStyle,
-  DayComponent,
-  TodayComponent,
-  onDayPress,
-}) => {
-  return (
-    <View style={styles.columns}>
-      {columns.map((column) => {
-        return (
-          <Column
-            style={style}
-            textStyle={textStyle}
-            key={column}
-            column={column}
-            numberOfDays={numberOfDays}
-            format={format}
-            DayComponent={DayComponent}
-            TodayComponent={TodayComponent}
-            onDayPress={onDayPress}
-          />
-        );
-      })}
-    </View>
-  );
-};
-
 const WeekViewHeader = ({
   numberOfDays,
   initialDate,
@@ -94,22 +64,26 @@ const WeekViewHeader = ({
   DayComponent,
   rightToLeft,
   onDayPress,
+  dayWidth,
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
   return (
     <View style={styles.container}>
-      {columns && (
-        <Columns
-          format={formatDate}
-          columns={columns}
-          numberOfDays={numberOfDays}
-          style={style}
-          textStyle={textStyle}
-          DayComponent={DayComponent}
-          TodayComponent={TodayComponent}
-          onDayPress={onDayPress}
-        />
-      )}
+      {columns &&
+        columns.map((column) => (
+          <Column
+            style={style}
+            textStyle={textStyle}
+            key={column}
+            column={column}
+            numberOfDays={numberOfDays}
+            format={formatDate}
+            DayComponent={DayComponent}
+            TodayComponent={TodayComponent}
+            onDayPress={onDayPress}
+            width={dayWidth}
+          />
+        ))}
     </View>
   );
 };
@@ -124,6 +98,7 @@ WeekViewHeader.propTypes = {
   DayComponent: PropTypes.elementType,
   TodayComponent: PropTypes.elementType,
   onDayPress: PropTypes.func,
+  dayWidth: PropTypes.number.isRequired,
 };
 
 WeekViewHeader.defaultProps = {

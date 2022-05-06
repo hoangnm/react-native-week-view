@@ -2,13 +2,10 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  columns: {
     flex: 1,
     flexDirection: 'row',
+    height: 50,
+    alignItems: 'stretch',
   },
   column: {
     flex: 1,
