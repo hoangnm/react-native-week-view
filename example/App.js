@@ -26,28 +26,40 @@ const generateDates = (hours, minutes) => {
   return date;
 };
 
+const makeBuilder = () => {
+  let index = 0;
+
+  return (start, duration, color) => {
+    index += 1;
+    return {
+      id: index,
+      description: `Event ${index}`,
+      startDate: generateDates(start),
+      endDate: generateDates(start + duration),
+      color,
+    };
+  };
+};
+const buildEvent = makeBuilder();
+
 const sampleEvents = [
-  {
-    id: 1,
-    description: 'Event 1',
-    startDate: generateDates(0),
-    endDate: generateDates(2),
-    color: 'blue',
-  },
-  {
-    id: 2,
-    description: 'Event 2',
-    startDate: generateDates(1),
-    endDate: generateDates(4),
-    color: 'red',
-  },
-  {
-    id: 3,
-    description: 'Event 3',
-    startDate: generateDates(-5),
-    endDate: generateDates(-3),
-    color: 'green',
-  },
+  // Previous week
+  buildEvent(-24 * 7 - 5, 2, 'pink'),
+  buildEvent(-24 * 7 - 14, 3, 'lightblue'),
+
+  // This week
+  buildEvent(0, 2, 'blue'),
+  buildEvent(1, 3, 'red'),
+  buildEvent(-18, 4, 'green'),
+
+  // Next week
+  buildEvent(24 * 7, 2, 'magenta'),
+  buildEvent(24 * 7 - 48, 3, 'lightblue'),
+  buildEvent(24 * 7 + 6, 6, 'brown'),
+
+  // Two more weeks
+  buildEvent(48 * 7, 2, 'pink'),
+  buildEvent(48 * 7 - 54, 4, 'green'),
 ];
 
 const sampleFixedEvents = [
@@ -79,6 +91,7 @@ class App extends React.Component {
   state = {
     events: showFixedComponent ? sampleFixedEvents : sampleEvents,
     selectedDate: new Date(),
+    numberOfDays: 7,
   };
 
   onEventPress = ({id, color, startDate, endDate}) => {
@@ -122,7 +135,7 @@ class App extends React.Component {
   };
 
   render() {
-    const {events, selectedDate} = this.state;
+    const {events, selectedDate, numberOfDays} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" />
@@ -133,7 +146,7 @@ class App extends React.Component {
             }}
             events={events}
             selectedDate={selectedDate}
-            numberOfDays={7}
+            numberOfDays={numberOfDays}
             onEventPress={this.onEventPress}
             onGridClick={this.onGridClick}
             headerStyle={styles.header}
@@ -145,8 +158,6 @@ class App extends React.Component {
             formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
-            beginAgendaAt={5 * 60}
-            endAgendaAt={23 * 60}
             startHour={8}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
