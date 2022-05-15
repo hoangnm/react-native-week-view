@@ -10,15 +10,15 @@ export const availableNumberOfDays = [1, 3, 5, 7];
 const TIMES_WIDTH_PERCENTAGE = 18;
 const PAGE_WIDTH_PERCENTAGE = (100 - TIMES_WIDTH_PERCENTAGE) / 100;
 
-export const computeWeekViewDimensions = (numberOfDays) => {
-  const { width: screenWidth } = Dimensions.get('window');
-
+export const computeWeekViewDimensions = (totalWidth, numberOfDays) => {
   // Each day must have an equal width (integer pixels)
-  const dayWidth = Math.floor(screenWidth * PAGE_WIDTH_PERCENTAGE / numberOfDays);
+  const dayWidth = Math.floor(
+    (totalWidth * PAGE_WIDTH_PERCENTAGE) / numberOfDays,
+  );
   const pageWidth = numberOfDays * dayWidth;
 
   // Fill the full screen
-  const timeLabelsWidth = screenWidth - pageWidth;
+  const timeLabelsWidth = totalWidth - pageWidth;
 
   const dimensions = {
     pageWidth,
@@ -26,7 +26,7 @@ export const computeWeekViewDimensions = (numberOfDays) => {
     dayWidth,
   };
   return dimensions;
-}
+};
 
 export const minutesToYDimension = (hoursInDisplay, minutes) => {
   const minutesInDisplay = 60 * hoursInDisplay;

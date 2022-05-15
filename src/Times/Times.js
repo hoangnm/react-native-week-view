@@ -28,7 +28,10 @@ Times.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
   timeStep: PropTypes.number.isRequired,
-  textStyle: Text.propTypes.style,
+  textStyle: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.array,
+  ]),
   width: PropTypes.number.isRequired,
 };
 
