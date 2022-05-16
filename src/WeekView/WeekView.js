@@ -7,6 +7,8 @@ import {
   VirtualizedList,
   InteractionManager,
   ActivityIndicator,
+  Platform,
+  Dimensions,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
@@ -65,6 +67,7 @@ export default class WeekView extends Component {
       // currentMoment should always be the first date of the current page
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
+      windowWidth: Dimensions.get('window').width,
     };
 
     setLocale(props.locale);
@@ -77,9 +80,13 @@ export default class WeekView extends Component {
     this.eventsGridScrollX.addListener((position) => {
       this.header.scrollToOffset({ offset: position.value, animated: false });
     });
+
+    this.windowListener = Dimensions.addEventListener('change', ({ window }) =>
+      this.setState({ windowWidth: window.width }),
+    );
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.locale !== prevProps.locale) {
       setLocale(this.props.locale);
     }
@@ -104,10 +111,20 @@ export default class WeekView extends Component {
         },
       );
     }
+    if (this.state.windowWidth !== prevState.windowWidth) {
+      // NOTE: after a width change, the position may be off by a few days
+      this.eventsGrid.scrollToIndex({
+        index: this.currentPageIndex,
+        animated: false,
+      });
+    }
   }
 
   componentWillUnmount() {
     this.eventsGridScrollX.removeAllListeners();
+    if (this.windowListener) {
+      this.windowListener.remove();
+    }
   }
 
   calculateTimes = memoizeOne(calculateTimesArray);
@@ -413,14 +430,14 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates } = this.state;
+    const { currentMoment, initialDates, windowWidth } = this.state;
     const times = this.calculateTimes(timeStep, formatTimeLabel, beginAgendaAt, endAgendaAt);
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    this.dimensions = this.updateDimensions(numberOfDays);
+    this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const {
       pageWidth,
       dayWidth,
@@ -452,21 +469,22 @@ export default class WeekView extends Component {
             getItemLayout={this.getListItemLayout}
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
+            extraData={dayWidth}
             renderItem={({ item }) => {
               return (
-                <View key={item} style={[styles.header, { width: pageWidth }]}>
-                  <Header
-                    style={headerStyle}
-                    textStyle={headerTextStyle}
-                    TodayComponent={TodayHeaderComponent}
-                    DayComponent={DayHeaderComponent}
-                    formatDate={formatDateHeader}
-                    initialDate={item}
-                    numberOfDays={numberOfDays}
-                    rightToLeft={rightToLeft}
-                    onDayPress={onDayPress}
-                  />
-                </View>
+                <Header
+                  key={item}
+                  style={headerStyle}
+                  textStyle={headerTextStyle}
+                  TodayComponent={TodayHeaderComponent}
+                  DayComponent={DayHeaderComponent}
+                  formatDate={formatDateHeader}
+                  initialDate={item}
+                  numberOfDays={numberOfDays}
+                  rightToLeft={rightToLeft}
+                  onDayPress={onDayPress}
+                  dayWidth={dayWidth}
+                />
               );
             }}
           />
@@ -480,6 +498,7 @@ export default class WeekView extends Component {
           onStartShouldSetResponderCapture={() => false}
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
+          contentContainerStyle={Platform.OS === 'web' && styles.webScrollView}
           ref={this.verticalAgendaRef}>
           <View style={styles.scrollViewContent}>
             <Times

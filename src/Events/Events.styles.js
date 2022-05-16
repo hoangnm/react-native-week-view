@@ -9,7 +9,6 @@ const styles = StyleSheet.create({
     paddingTop: CONTENT_OFFSET,
   },
   timeRow: {
-    flex: 0,
     borderTopWidth: 1,
     borderColor: GREY_COLOR,
     backgroundColor: 'transparent',
