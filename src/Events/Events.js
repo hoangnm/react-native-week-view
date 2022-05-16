@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableWithoutFeedback, Text } from 'react-native';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -18,7 +18,6 @@ import {
 } from '../utils';
 
 import styles from './Events.styles';
-
 
 const MINUTES_IN_HOUR = 60;
 const EVENT_HORIZONTAL_PADDING = 15;
@@ -83,10 +82,7 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
           overlappedArr[lastEvtInLaneIndex];
         if (
           !lastEvtInLane ||
-          !areEventsOverlapped(
-            lastEvtInLane.data.endDate,
-            event.data.startDate,
-          )
+          !areEventsOverlapped(lastEvtInLane.data.endDate, event.data.startDate)
         ) {
           // Place in this lane
           latestByLane[lane] = index;
@@ -116,7 +112,11 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
   });
 };
 
-const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) => {
+const getEventsWithPosition = (
+  totalEvents,
+  regularItemWidth,
+  hoursInDisplay,
+) => {
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
@@ -132,21 +132,13 @@ const getEventsWithPosition = (totalEvents, regularItemWidth, hoursInDisplay) =>
         const endDate = moment(event.endDate);
         lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
       } else {
-        addOverlappedToArray(
-          eventsAcc,
-          overlappedSoFar,
-          regularItemWidth,
-        );
+        addOverlappedToArray(eventsAcc, overlappedSoFar, regularItemWidth);
         overlappedSoFar = [eventWithStyle];
         lastDate = moment(event.endDate);
       }
       return eventsAcc;
     }, []);
-    addOverlappedToArray(
-      eventsWithStyle,
-      overlappedSoFar,
-      regularItemWidth,
-    );
+    addOverlappedToArray(eventsWithStyle, overlappedSoFar, regularItemWidth);
     return eventsWithStyle;
   });
 };
@@ -196,8 +188,8 @@ class Events extends PureComponent {
 
     // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
     const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
-    const minutesWDec = (hoursWDec - parseInt(hoursWDec)) * 60;
-    const seconds = Math.floor((minutesWDec - parseInt(minutesWDec)) * 60);
+    const minutesWDec = (hoursWDec - parseInt(hoursWDec, 10)) * 60;
+    const seconds = Math.floor((minutesWDec - parseInt(minutesWDec, 10)) * 60);
 
     const hour = Math.floor(hoursWDec);
     const minutes = Math.floor(minutesWDec);
@@ -209,7 +201,7 @@ class Events extends PureComponent {
       .seconds(seconds)
       .toDate();
 
-    callback(event, hoursWDec, minutesWDec, date, eventsInSection);
+    callback(event, hour, minutes, date, eventsInSection);
   };
 
   onDragEvent = (event, newX, newY) => {
@@ -243,7 +235,7 @@ class Events extends PureComponent {
   };
 
   // isGridClicked = (time,dayindex, timeSelected, dayIndexSelected) => {
-    
+
   //   return moment(initialDate).add(dayIndex, 'days').isSame(today, 'day');
   // };
 
@@ -278,32 +270,36 @@ class Events extends PureComponent {
     return (
       <View style={styles.container}>
         {times.map((time) => {
-          return(<View
-            key={time}
-            style={[
-              styles.timeRow,
-              { height: timeSlotHeight},
-              gridRowStyle,
-            ]}
-          />)
+          return (
+            <View
+              key={time}
+              style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
+            />
+          );
         })}
         <View style={styles.eventsContainer}>
-          {totalEvents.map((eventsInSection,dayIndex) => {
+          {totalEvents.map((eventsInSection, dayIndex) => {
             return (
               <>
                 {times.map((time) => {
-                  return(<View
-                    key={time}
-                    style={[
-                      styles.timeRow,
-                      { height: timeSlotHeight, backgroundColor: '#ff0'},
-                      gridRowStyle,
-                    ]}
-                  />)
+                  return (
+                    <View
+                      key={time}
+                      style={[
+                        styles.timeRow,
+                        { height: timeSlotHeight, backgroundColor: '#ff0' },
+                        gridRowStyle,
+                      ]}
+                    />
+                  );
                 })}
                 <TouchableWithoutFeedback
-                  onPress={(e) => this.onGridTouch(e, dayIndex, false, eventsInSection)}
-                  onLongPress={(e) => this.onGridTouch(e, dayIndex, true, eventsInSection)}
+                  onPress={(e) =>
+                    this.onGridTouch(e, dayIndex, false, eventsInSection)
+                  }
+                  onLongPress={(e) =>
+                    this.onGridTouch(e, dayIndex, true, eventsInSection)
+                  }
                   key={dayIndex}
                 >
                   <View style={[styles.eventsColumn, gridColumnStyle]}>
@@ -314,7 +310,7 @@ class Events extends PureComponent {
                         width={this.getEventItemWidth(false)}
                       />
                     )}
-                    
+
                     {eventsInSection.map((item) => (
                       <Event
                         key={item.data.id}
@@ -330,7 +326,7 @@ class Events extends PureComponent {
                   </View>
                 </TouchableWithoutFeedback>
               </>
-            )
+            );
           })}
         </View>
       </View>
@@ -347,7 +343,6 @@ const GridColumnPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderLeftWidth: PropTypes.number,
 });
-
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
