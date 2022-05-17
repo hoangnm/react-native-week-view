@@ -109,6 +109,7 @@ const Event = ({
 
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
+    .withTestId('dragGesture')
     .onTouchesDown(() => {
       isDragging.value = true;
     })

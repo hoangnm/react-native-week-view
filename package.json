@@ -24,7 +24,7 @@
   "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
   "scripts": {
     "lint": "eslint ./src *.js",
-    "test": "jest ./src"
+    "test": "jest"
   },
   "dependencies": {
     "memoize-one": "^5.1.1",
