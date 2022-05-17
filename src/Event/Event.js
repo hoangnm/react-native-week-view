@@ -1,15 +1,19 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'react-native';
-import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedStyle, useAnimatedReaction, useSharedValue,
-  withTiming, withSpring, runOnJS, useDerivedValue,
+  useAnimatedStyle,
+  useAnimatedReaction,
+  useSharedValue,
+  withTiming,
+  withSpring,
+  runOnJS,
+  useDerivedValue,
 } from 'react-native-reanimated';
 import styles from './Event.styles';
 
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
-
 
 const Event = ({
   event,
@@ -24,8 +28,14 @@ const Event = ({
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
-  const onPressWrapper = useCallback(() => onPress && onPress(event), [event]);
-  const onLongPressWrapper = useCallback(() => onLongPress && onLongPress(event), [event]);
+  const onPressWrapper = useCallback(() => onPress && onPress(event), [
+    event,
+    onPress,
+  ]);
+  const onLongPressWrapper = useCallback(
+    () => onLongPress && onLongPress(event),
+    [event, onLongPress],
+  );
 
   const onDragRelease = useCallback(
     (dx, dy) => {
@@ -75,16 +85,24 @@ const Event = ({
     () => position,
     ({ top, left, height, width }) => {
       if (currentTop.value !== top) {
-        currentTop.value = withTiming(top, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+        currentTop.value = withTiming(top, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
       }
       if (currentLeft.value !== left) {
-        currentLeft.value = withTiming(left, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+        currentLeft.value = withTiming(left, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
       }
       if (currentHeight.value !== height) {
-        currentHeight.value = withTiming(height, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+        currentHeight.value = withTiming(height, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
       }
       if (currentWidth.value !== width) {
-        currentWidth.value = withTiming(width, {duration: UPDATE_EVENT_ANIMATION_DURATION});
+        currentWidth.value = withTiming(width, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
       }
     },
   );
@@ -94,7 +112,7 @@ const Event = ({
     .onTouchesDown(() => {
       isDragging.value = true;
     })
-    .onUpdate(e => {
+    .onUpdate((e) => {
       translatedByDrag.value = {
         x: e.translationX,
         y: e.translationY,
@@ -107,8 +125,8 @@ const Event = ({
       }
       const { translationX, translationY } = evt;
 
-      currentTop.value = currentTop.value + translationY;
-      currentLeft.value = currentLeft.value + translationX;
+      currentTop.value += translationY;
+      currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
       runOnJS(onDragRelease)(translationX, translationY);
@@ -147,7 +165,9 @@ const Event = ({
     });
 
   const composedGesture = Gesture.Race(
-    dragGesture, longPressGesture, pressGesture,
+    dragGesture,
+    longPressGesture,
+    pressGesture,
   );
 
   return (
@@ -162,11 +182,11 @@ const Event = ({
           animatedStyles,
         ]}
       >
-          {EventComponent ? (
-            <EventComponent event={event} position={position} />
-          ) : (
-            <Text style={styles.description}>{event.description}</Text>
-          )}
+        {EventComponent ? (
+          <EventComponent event={event} position={position} />
+        ) : (
+          <Text style={styles.description}>{event.description}</Text>
+        )}
       </Animated.View>
     </GestureDetector>
   );

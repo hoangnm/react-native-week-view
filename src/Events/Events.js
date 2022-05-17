@@ -197,8 +197,8 @@ class Events extends PureComponent {
 
     // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
     const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
-    const minutesWDec = (hoursWDec - parseInt(hoursWDec)) * 60;
-    const seconds = Math.floor((minutesWDec - parseInt(minutesWDec)) * 60);
+    const minutesWDec = (hoursWDec - Math.parseInt(hoursWDec)) * 60;
+    const seconds = Math.floor((minutesWDec - Math.parseInt(minutesWDec)) * 60);
 
     const hour = Math.floor(hoursWDec);
     const minutes = Math.floor(minutesWDec);
@@ -215,11 +215,11 @@ class Events extends PureComponent {
 
   handleGridPress = (pressEvt) => {
     this.handleGridTouch(pressEvt, this.props.onGridClick);
-  }
+  };
 
   handleGridLongPress = (pressEvt) => {
     this.handleGridTouch(pressEvt, this.props.onGridLongPress);
-  }
+  };
 
   handleDragEvent = (event, newX, newY) => {
     const { onDragEvent, dayWidth } = this.props;
@@ -347,7 +347,6 @@ const GridColumnPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderLeftWidth: PropTypes.number,
 });
-
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
