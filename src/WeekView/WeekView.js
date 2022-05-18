@@ -97,7 +97,7 @@ export default class WeekView extends Component {
     const times = [];
     const startOfDay = moment().startOf('day');
     // calcula em minutos a quantidade de horas
-    for (let timer = initialHour; timer < ((finalHour+1) * 60); timer += minutesStep) {
+    for (let timer = initialHour; timer < ((finalHour) * 60); timer += minutesStep) {
       const time = startOfDay.clone().minutes(timer);
       times.push(time.format(formatTimeLabel));
     }
