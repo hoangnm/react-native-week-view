@@ -7,7 +7,6 @@ import {
   VirtualizedList,
   InteractionManager,
   ActivityIndicator,
-  Alert
 } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
@@ -74,7 +73,8 @@ export default class WeekView extends Component {
       );
 
       this.currentPageIndex = this.pageOffset;
-      this.setState({
+      this.setState(
+        {
           currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
           initialDates,
         },
@@ -97,7 +97,11 @@ export default class WeekView extends Component {
     const times = [];
     const startOfDay = moment().startOf('day');
     // calcula em minutos a quantidade de horas
-    for (let timer = initialHour; timer < ((finalHour) * 60); timer += minutesStep) {
+    for (
+      let timer = initialHour;
+      timer < finalHour * 60;
+      timer += minutesStep
+    ) {
       const time = startOfDay.clone().minutes(timer);
       times.push(time.format(formatTimeLabel));
     }
@@ -126,7 +130,7 @@ export default class WeekView extends Component {
     const first = initialDates[0];
     const daySignToThePast = daySignToTheFuture * -1;
     const addDays = numberOfDays * daySignToThePast;
-    
+
     for (let i = 1; i <= nPages; i += 1) {
       const initialDate = moment(first).add(addDays * i, 'd');
       initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
@@ -146,7 +150,6 @@ export default class WeekView extends Component {
   };
 
   goToDate = (targetDate, animated = true) => {
-
     const { initialDates } = this.state;
     const { numberOfDays } = this.props;
 
@@ -451,7 +454,8 @@ export default class WeekView extends Component {
           onStartShouldSetResponderCapture={() => false}
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
-          ref={this.verticalAgendaRef}>
+          ref={this.verticalAgendaRef}
+        >
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
