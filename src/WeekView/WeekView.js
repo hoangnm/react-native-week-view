@@ -129,10 +129,10 @@ export default class WeekView extends Component {
   calculateTimes = memoizeOne(calculateTimesArray);
 
   scrollToVerticalStart = () => {
-    this.scrollTimeTo(this.props.startHour * 60, { animated: false });
+    this.scrollToTime(this.props.startHour * 60, { animated: false });
   };
 
-  scrollTimeTo = (minutes, options = {}) => {
+  scrollToTime = (minutes, options = {}) => {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
       const { hoursInDisplay, beginAgendaAt } = this.props;
