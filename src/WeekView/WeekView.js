@@ -356,9 +356,6 @@ export default class WeekView extends Component {
     // If an event spans through multiple days, adds the event multiple times
     const sortedEvents = {};
     events.forEach((event) => {
-      // in milliseconds
-      const originalDuration =
-        event.endDate.getTime() - event.startDate.getTime();
       const startDate = moment(event.startDate);
       const endDate = moment(event.endDate);
 
@@ -370,8 +367,10 @@ export default class WeekView extends Component {
         // Calculate actual start and end dates
         const startOfDay = moment(date).startOf('day');
         const endOfDay = moment(date).endOf('day');
-        const actualStartDate = moment.max(startDate, startOfDay);
-        const actualEndDate = moment.min(endDate, endOfDay);
+
+        // The event box is limited to the start and end of the day
+        const boxStartDate = moment.max(startDate, startOfDay).toDate();
+        const boxEndDate = moment.min(endDate, endOfDay).toDate();
 
         // Add to object
         const dateStr = date.format(DATE_STR_FORMAT);
@@ -379,17 +378,18 @@ export default class WeekView extends Component {
           sortedEvents[dateStr] = [];
         }
         sortedEvents[dateStr].push({
-          ...event,
-          startDate: actualStartDate.toDate(),
-          endDate: actualEndDate.toDate(),
-          originalDuration,
+          ref: event,
+          box: {
+            startDate: boxStartDate,
+            endDate: boxEndDate,
+          },
         });
       }
     });
     // For each day, sort the events by the minute (in-place)
     Object.keys(sortedEvents).forEach((date) => {
       sortedEvents[date].sort((a, b) => {
-        return moment(a.startDate).diff(b.startDate, 'minutes');
+        return moment(a.box.startDate).diff(b.box.startDate, 'minutes');
       });
     });
     return sortedEvents;

@@ -85,10 +85,7 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
           overlappedArr[lastEvtInLaneIndex];
         if (
           !lastEvtInLane ||
-          !areEventsOverlapped(
-            lastEvtInLane.data.endDate,
-            event.data.startDate,
-          )
+          !areEventsOverlapped(lastEvtInLane.box.endDate, event.box.startDate)
         ) {
           // Place in this lane
           latestByLane[lane] = index;
@@ -102,12 +99,16 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
     indexToLane = (index) => laneByEvent[index];
   }
   const dividedWidth = itemWidth / nLanes;
-  const width = Math.max(padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes), MIN_ITEM_WIDTH);
+  const width = Math.max(
+    padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes),
+    MIN_ITEM_WIDTH,
+  );
 
   overlappedArr.forEach((eventWithStyle, index) => {
-    const { data, style } = eventWithStyle;
+    const { ref, box, style } = eventWithStyle;
     baseArr.push({
-      data,
+      ref,
+      box,
       style: {
         ...style,
         width,
@@ -118,39 +119,40 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
 };
 
 const getEventsWithPosition = (
-  totalEvents, dayWidth, hoursInDisplay, beginAgendaAt,
+  totalEvents,
+  dayWidth,
+  hoursInDisplay,
+  beginAgendaAt,
 ) => {
   const paddedDayWidth = padItemWidth(dayWidth);
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
-    const eventsWithStyle = events.reduce((eventsAcc, event) => {
-      const style = getStyleForEvent(event, paddedDayWidth, hoursInDisplay, beginAgendaAt);
+    const eventsWithStyle = events.reduce((accumulated, { ref, box }) => {
+      const style = getStyleForEvent(
+        box,
+        paddedDayWidth,
+        hoursInDisplay,
+        beginAgendaAt,
+      );
       const eventWithStyle = {
-        data: event,
+        ref,
+        box,
         style,
       };
 
-      if (!lastDate || areEventsOverlapped(lastDate, event.startDate)) {
+      if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
         overlappedSoFar.push(eventWithStyle);
-        const endDate = moment(event.endDate);
+        const endDate = moment(box.endDate);
         lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
       } else {
-        addOverlappedToArray(
-          eventsAcc,
-          overlappedSoFar,
-          dayWidth,
-        );
+        addOverlappedToArray(accumulated, overlappedSoFar, dayWidth);
         overlappedSoFar = [eventWithStyle];
-        lastDate = moment(event.endDate);
+        lastDate = moment(box.endDate);
       }
-      return eventsAcc;
+      return accumulated;
     }, []);
-    addOverlappedToArray(
-      eventsWithStyle,
-      overlappedSoFar,
-      dayWidth,
-    );
+    addOverlappedToArray(eventsWithStyle, overlappedSoFar, dayWidth);
     return eventsWithStyle;
   });
 };
@@ -231,9 +233,8 @@ class Events extends PureComponent {
     newMinutes %= 60;
     newStartDate.setHours(newHour, newMinutes);
 
-    const newEndDate = new Date(
-      newStartDate.getTime() + event.originalDuration,
-    );
+    const eventDuration = event.endDate.getTime() - startTime;
+    const newEndDate = new Date(newStartDate.getTime() + eventDuration);
 
     onDragEvent(event, newStartDate, newEndDate);
   };
@@ -307,8 +308,8 @@ class Events extends PureComponent {
                 )}
                 {eventsInSection.map((item) => (
                   <Event
-                    key={item.data.id}
-                    event={item.data}
+                    key={item.ref.id}
+                    event={item.ref}
                     position={item.style}
                     onPress={onEventPress}
                     onLongPress={onEventLongPress}
@@ -336,11 +337,19 @@ const GridColumnPropType = PropTypes.shape({
   borderLeftWidth: PropTypes.number,
 });
 
-
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
-  eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(Event.propTypes.event))
-    .isRequired,
+  eventsByDate: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        ref: Event.propTypes.event.isRequired,
+        box: PropTypes.shape({
+          startDate: PropTypes.instanceOf(Date).isRequired,
+          endDate: PropTypes.instanceOf(Date).isRequired,
+        }),
+      }),
+    ),
+  ).isRequired,
   initialDate: PropTypes.string.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
   timeStep: PropTypes.number.isRequired,
