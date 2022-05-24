@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Animated } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { minutesToYDimension, CONTENT_OFFSET } from '../utils';
+import { minutesToY, CONTENT_OFFSET } from '../utils';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
@@ -10,9 +10,7 @@ const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
 const getCurrentTop = (hoursInDisplay, beginAgendaAt) => {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
-  const position = minutesToYDimension(hoursInDisplay, minutes);
-  const agendaOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
-  return position - agendaOffset + CONTENT_OFFSET;
+  return minutesToY(minutes, hoursInDisplay, beginAgendaAt) + CONTENT_OFFSET;
 };
 
 class NowLine extends React.Component {
@@ -58,7 +56,7 @@ class NowLine extends React.Component {
       useNativeDriver: true,
       isInteraction: false,
     }).start();
-  }
+  };
 
   render() {
     const { color, width } = this.props;

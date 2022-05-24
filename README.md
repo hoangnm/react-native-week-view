@@ -69,6 +69,7 @@ const MyComponent = () => (
 | `onDragEvent` | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null` | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** |
 | `onDayPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when a day from the header is pressed. |
 | `onMonthPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when the month at the top left (title) is pressed. |
+| `onTimeScrolled` | _Function:_ `(dateWithTime) => {}` | `null` | Callback when the agenda is scrolled vertically. |
 |**_Week-view <br> customizations_**|
 | `startHour` | _Number_, in hours | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
 | `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |

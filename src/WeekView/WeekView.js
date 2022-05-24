@@ -23,8 +23,10 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  minutesToYDimension,
+  minutesToY,
+  yToSeconds,
   computeWeekViewDimensions,
+  CONTENT_OFFSET,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -136,14 +138,49 @@ export default class WeekView extends Component {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
       const { hoursInDisplay, beginAgendaAt } = this.props;
-      const height = minutesToYDimension(hoursInDisplay, minutes);
-      const agendaOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+      const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
       this.verticalAgenda.scrollTo({
-        y: height - agendaOffset,
+        y: top,
         x: 0,
         animated,
       });
     }
+  };
+
+  verticalScrollBegun = () => {
+    this.isScrollingVertical = true;
+  };
+
+  verticalScrollEnded = (scrollEvent) => {
+    if (!this.isScrollingVertical) {
+      // Ensure the callback is called only once, same as with horizontal case
+      return;
+    }
+    this.isScrollingVertical = false;
+
+    const { onTimeScrolled, hoursInDisplay, beginAgendaAt } = this.props;
+
+    if (!onTimeScrolled) {
+      return;
+    }
+
+    const {
+      nativeEvent: { contentOffset },
+    } = scrollEvent;
+    const { y: position } = contentOffset;
+
+    const seconds = yToSeconds(
+      position - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
+    );
+
+    const date = moment(this.state.currentMoment)
+      .startOf('day')
+      .seconds(seconds)
+      .toDate();
+
+    onTimeScrolled(date);
   };
 
   getSignToTheFuture = () => {
@@ -507,7 +544,10 @@ export default class WeekView extends Component {
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
           contentContainerStyle={Platform.OS === 'web' && styles.webScrollView}
-          ref={this.verticalAgendaRef}>
+          onMomentumScrollBegin={this.verticalScrollBegun}
+          onMomentumScrollEnd={this.verticalScrollEnded}
+          ref={this.verticalAgendaRef}
+        >
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
@@ -588,6 +628,7 @@ WeekView.propTypes = {
   weekStartsOn: PropTypes.number,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
+  onTimeScrolled: PropTypes.func,
   onEventPress: PropTypes.func,
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,

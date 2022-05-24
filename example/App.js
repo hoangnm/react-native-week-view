@@ -121,6 +121,10 @@ class App extends React.Component {
     console.log('Month: ', date, formattedDate);
   };
 
+  onTimeScrolled = date => {
+    console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
+  };
+
   render() {
     const {events, selectedDate} = this.state;
     return (
@@ -156,6 +160,7 @@ class App extends React.Component {
             RefreshComponent={MyRefreshComponent}
             onDayPress={this.onDayPress}
             onMonthPress={this.onMonthPress}
+            onTimeScrolled={this.onTimeScrolled}
           />
         </SafeAreaView>
       </>
