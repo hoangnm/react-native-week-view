@@ -70,6 +70,9 @@ export default class WeekView extends Component {
     };
 
     setLocale(props.locale);
+
+    // FlatList optimization
+    this.windowSize = this.pageOffset * 2 + 1;
   }
 
   componentDidMount() {
@@ -478,6 +481,9 @@ export default class WeekView extends Component {
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
             extraData={dayWidth}
+            windowSize={this.windowSize}
+            initialNumToRender={this.windowSize}
+            maxToRenderPerBatch={this.pageOffset}
             renderItem={({ item }) => {
               return (
                 <Header
@@ -573,6 +579,9 @@ export default class WeekView extends Component {
                 { useNativeDriver: false },
               )}
               ref={this.eventsGridRef}
+              windowSize={this.windowSize}
+              initialNumToRender={this.windowSize}
+              maxToRenderPerBatch={this.pageOffset}
             />
           </View>
         </ScrollView>
