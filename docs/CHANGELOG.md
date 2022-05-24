@@ -1,4 +1,6 @@
 # Changelog
+## 0.14.0 - 2022-04-03
+- Add scrollToTime method [#205](https://github.com/hoangnm/react-native-week-view/pull/205)
 ## 0.13.0 - 2022-04-03
 - Support orientation changes [#201](https://github.com/hoangnm/react-native-week-view/pull/201)
 ## 0.12.0 - 2022-04-03
