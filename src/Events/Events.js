@@ -7,13 +7,13 @@ import memoizeOne from 'memoize-one';
 import NowLine from '../NowLine/NowLine';
 import Event from '../Event/Event';
 import {
-  CONTAINER_HEIGHT,
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
-  minutesToYDimension,
   CONTENT_OFFSET,
   getTimeLabelHeight,
+  yToSeconds,
+  minutesToY,
 } from '../utils';
 
 import styles from './Events.styles';
@@ -34,16 +34,18 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   return endDate.isSameOrAfter(event2StartDate);
 };
 
-const getStyleForEvent = (event, regularItemWidth, hoursInDisplay, beginAgendaAt) => {
+const getStyleForEvent = (
+  event,
+  regularItemWidth,
+  hoursInDisplay,
+  beginAgendaAt,
+) => {
   const startDate = moment(event.startDate);
-  const startHours = startDate.hours();
-  const startMinutes = startDate.minutes();
-  const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
-  const verticalOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
-  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes) - verticalOffset;
+  const minutes = startDate.hours() * MINUTES_IN_HOUR + startDate.minutes();
+  const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
 
   const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
-  const height = minutesToYDimension(hoursInDisplay, deltaMinutes);
+  const height = minutesToY(deltaMinutes, hoursInDisplay);
 
   return {
     top: top + CONTENT_OFFSET,
@@ -178,58 +180,52 @@ const processEvents = (
 };
 
 class Events extends PureComponent {
-  yToHour = (y) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT; // yDimensionToHours()
-    const agendaOffset = beginAgendaAt / 60; // in hours
-    return hour + agendaOffset;
-  };
-
   processEvents = memoizeOne(processEvents);
 
   onGridTouch = (event, dayIndex, longPress) => {
-    const { initialDate, onGridClick, onGridLongPress } = this.props;
+    const { onGridClick, onGridLongPress } = this.props;
     const callback = longPress ? onGridLongPress : onGridClick;
     if (!callback) {
       return;
     }
-    const { locationY } = event.nativeEvent;
+    const { initialDate, hoursInDisplay, beginAgendaAt } = this.props;
 
-    // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
-    const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
-    const minutesWDec = (hoursWDec - parseInt(hoursWDec)) * 60;
-    const seconds = Math.floor((minutesWDec - parseInt(minutesWDec)) * 60);
+    const seconds = yToSeconds(
+      event.nativeEvent.locationY - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
+    );
 
-    const hour = Math.floor(hoursWDec);
-    const minutes = Math.floor(minutesWDec);
-
-    const date = moment(initialDate)
+    const dateWithTime = moment(initialDate)
       .add(dayIndex, 'day')
-      .hours(hour)
-      .minutes(minutes)
+      .startOf('day')
       .seconds(seconds)
       .toDate();
 
-    callback(event, hour, date);
+    callback(event, dateWithTime.getHours(), dateWithTime);
   };
 
   onDragEvent = (event, newX, newY) => {
-    const { onDragEvent, dayWidth } = this.props;
+    const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
     }
 
-    // NOTE: newX is in the eventsColumn coordinates
+    const { dayWidth, hoursInDisplay, beginAgendaAt } = this.props;
+
+    // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = Math.floor(newX / dayWidth);
+    const seconds = yToSeconds(
+      newY - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
+    );
 
-    const startTime = event.startDate.getTime();
-    const newStartDate = new Date(startTime);
-    newStartDate.setDate(newStartDate.getDate() + movedDays);
-
-    let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
-    const newHour = Math.floor(newMinutes / 60);
-    newMinutes %= 60;
-    newStartDate.setHours(newHour, newMinutes);
+    const newStartDate = moment(event.startDate)
+      .add(movedDays, 'days')
+      .startOf('day')
+      .seconds(seconds)
+      .toDate();
 
     const newEndDate = new Date(
       newStartDate.getTime() + event.originalDuration,
@@ -335,7 +331,6 @@ const GridColumnPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderLeftWidth: PropTypes.number,
 });
-
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,

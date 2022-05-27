@@ -28,9 +28,46 @@ export const computeWeekViewDimensions = (totalWidth, numberOfDays) => {
   return dimensions;
 };
 
-export const minutesToYDimension = (hoursInDisplay, minutes) => {
+/**
+ * Transform time in the day (expressed in minutes) to y dimension (pixels).
+ *
+ * Usage:
+ * - to get a top position, consider the agenda offset:
+ *   `top = minutesToY(minutesInDay, hoursInDisplay, beginAgendaAt)`
+ * - to get a delta-y (e.g. height dimension), the offset must be 0:
+ *   `height = minutesToY(minutesDelta, hoursInDisplay)`
+ *
+ * The precision is up to minutes (arbitrary choice).
+ *
+ * @param {Number} minutes Minutes to transform
+ * @param {Number} hoursInDisplay component prop
+ * @param {Number} minutesOffset offset, see docstring
+ * @returns amount of pixels
+ */
+export const minutesToY = (minutes, hoursInDisplay, minutesOffset = 0) => {
   const minutesInDisplay = 60 * hoursInDisplay;
-  return (minutes * CONTAINER_HEIGHT) / minutesInDisplay;
+  return ((minutes - minutesOffset) * CONTAINER_HEIGHT) / minutesInDisplay;
+};
+
+/**
+ * Transform a y-dimension value (in pixels) to time in the day (in seconds).
+ *
+ * Usage:
+ * - if a top position is provided, also provide the agenda offset:
+ *   `secondsInDay = yToSeconds(top, hoursInDisplay, beginAgendaAt)`
+ * - if a delta-y is provided (e.g. height dimension), the offset must be 0:
+ *   `secondsDuration = yToSeconds(height, hoursInDisplay)`
+ *
+ * The output precision is up to seconds (arbitrary choice).
+ *
+ * @param {Number} yValue pixels
+ * @param {Number} hoursInDisplay component prop
+ * @param {Number} minutesOffset offset, see docstring
+ * @returns amount of seconds
+ */
+export const yToSeconds = (yValue, hoursInDisplay, minutesOffset = 0) => {
+  const hour = (yValue * hoursInDisplay) / CONTAINER_HEIGHT;
+  return (hour * 60 + minutesOffset) * 60;
 };
 
 export const getTimeLabelHeight = (hoursInDisplay, minutesStep) => {
