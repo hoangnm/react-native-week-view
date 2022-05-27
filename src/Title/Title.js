@@ -16,7 +16,7 @@ const Title = ({
   style, showTitle, numberOfDays, selectedDate, textStyle, onMonthPress, width,
 }) => {
   if (!showTitle) {
-    return <View style={[styles.title, style]}></View>
+    return <View style={[styles.title, { width }, style]}></View>
   }
   const formattedMonth = getCurrentMonth(selectedDate);
   return (
