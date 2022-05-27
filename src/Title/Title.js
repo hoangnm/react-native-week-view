@@ -22,7 +22,7 @@ const Title = ({
   width,
 }) => {
   if (!showTitle) {
-    return <View style={[styles.title, style]} />;
+    return <View style={[styles.title, { width }, style]}></View>
   }
   const formattedMonth = getCurrentMonth(selectedDate);
   return (
