@@ -29,7 +29,8 @@
   "dependencies": {
     "memoize-one": "^5.1.1",
     "moment": "^2.19.3",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "semver": "^7.3.7"
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",
