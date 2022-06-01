@@ -31,12 +31,15 @@ import {
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
-  minutesStep, formatTimeLabel, beginAt = 0, endAt = MINUTES_IN_DAY,
+  minutesStep,
+  formatTimeLabel,
+  beginAt = 0,
+  endAt = MINUTES_IN_DAY,
 ) => {
   const times = [];
   const startOfDay = moment().startOf('day');
   for (
-    let timer = (0 <= beginAt && beginAt < MINUTES_IN_DAY) ? beginAt : 0;
+    let timer = beginAt >= 0 && beginAt < MINUTES_IN_DAY ? beginAt : 0;
     timer < endAt && timer < MINUTES_IN_DAY;
     timer += minutesStep
   ) {
@@ -95,7 +98,14 @@ export default class WeekView extends Component {
       setLocale(this.props.locale);
     }
     if (this.props.numberOfDays !== prevProps.numberOfDays) {
+      /**
+       * HOTFIX: linter rules no-access-state-in-setstate and no-did-update-set-state
+       * are disabled here for now.
+       * TODO: apply a better solution for the `currentMoment` and `initialDates` logic,
+       * without using componentDidUpdate()
+       */
       const initialDates = this.calculatePagesDates(
+        // eslint-disable-next-line react/no-access-state-in-setstate
         this.state.currentMoment,
         this.props.numberOfDays,
         this.props.prependMostRecent,
@@ -103,7 +113,9 @@ export default class WeekView extends Component {
       );
 
       this.currentPageIndex = this.pageOffset;
-      this.setState({
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState(
+        {
           currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
           initialDates,
         },
@@ -479,18 +491,19 @@ export default class WeekView extends Component {
       RefreshComponent,
     } = this.props;
     const { currentMoment, initialDates, windowWidth } = this.state;
-    const times = this.calculateTimes(timeStep, formatTimeLabel, beginAgendaAt, endAgendaAt);
+    const times = this.calculateTimes(
+      timeStep,
+      formatTimeLabel,
+      beginAgendaAt,
+      endAgendaAt,
+    );
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
-    const {
-      pageWidth,
-      dayWidth,
-      timeLabelsWidth,
-    } = this.dimensions;
+    const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
     return (
       <View style={styles.container}>
