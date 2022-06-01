@@ -78,6 +78,7 @@ const MyComponent = () => (
 | `onDragEvent` | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null` | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** |
 | `onDayPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when a day from the header is pressed. |
 | `onMonthPress` | _Function:_ `(date, formattedDate) => {}` | `null` | Callback when the month at the top left (title) is pressed. |
+| `onTimeScrolled` | _Function:_ `(dateWithTime) => {}` | `null` | Callback when the agenda is scrolled vertically. |
 |**_Week-view <br> customizations_**|
 | `startHour` | _Number_, in hours | `8` (8 am) | Vertical position of the week-view in the first render (vertically in the agenda). |
 | `weekStartsOn` | _Number_ | `1` (Monday) | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true. |
@@ -134,6 +135,7 @@ To use the component methods save a reference to it:
 * **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
 * **`goToNextPage(animated = true)`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
 * **`goToPrevPage(animated = true)`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
+* **`scrollToTime(minutes, options = { animated = false })`**: scroll vertically to a time in the day, provided in minutes. For example, to scroll to 13:00 hrs: `ref.scrollToTime(13 * 60)`.
 
 
 ### Custom `EventComponent`

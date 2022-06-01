@@ -1,19 +1,19 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View } from 'react-native';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
 import NowLine from '../NowLine/NowLine';
 import Event from '../Event/Event';
 import {
-  CONTAINER_HEIGHT,
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
-  minutesToYDimension,
   CONTENT_OFFSET,
   getTimeLabelHeight,
+  yToSeconds,
+  minutesToY,
 } from '../utils';
 import { ViewWithTouchable } from '../utils-gestures';
 
@@ -24,10 +24,10 @@ const EVENT_HORIZONTAL_PADDING = 8; // percentage
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
 
-const padItemWidth = (
-  width,
-  paddingPercentage = EVENT_HORIZONTAL_PADDING,
-) => paddingPercentage > 0 ? width - Math.max(2, width * paddingPercentage / 100) : width;
+const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
+  paddingPercentage > 0
+    ? width - Math.max(2, (width * paddingPercentage) / 100)
+    : width;
 
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   const endDate = moment(event1EndDate);
@@ -35,16 +35,18 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   return endDate.isSameOrAfter(event2StartDate);
 };
 
-const getStyleForEvent = (event, regularItemWidth, hoursInDisplay, beginAgendaAt) => {
+const getStyleForEvent = (
+  event,
+  regularItemWidth,
+  hoursInDisplay,
+  beginAgendaAt,
+) => {
   const startDate = moment(event.startDate);
-  const startHours = startDate.hours();
-  const startMinutes = startDate.minutes();
-  const totalStartMinutes = startHours * MINUTES_IN_HOUR + startMinutes;
-  const verticalOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
-  const top = minutesToYDimension(hoursInDisplay, totalStartMinutes) - verticalOffset;
+  const minutes = startDate.hours() * MINUTES_IN_HOUR + startDate.minutes();
+  const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
 
   const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
-  const height = minutesToYDimension(hoursInDisplay, deltaMinutes);
+  const height = minutesToY(deltaMinutes, hoursInDisplay);
 
   return {
     top: top + CONTENT_OFFSET,
@@ -86,10 +88,7 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
           overlappedArr[lastEvtInLaneIndex];
         if (
           !lastEvtInLane ||
-          !areEventsOverlapped(
-            lastEvtInLane.data.endDate,
-            event.data.startDate,
-          )
+          !areEventsOverlapped(lastEvtInLane.box.endDate, event.box.startDate)
         ) {
           // Place in this lane
           latestByLane[lane] = index;
@@ -103,12 +102,16 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
     indexToLane = (index) => laneByEvent[index];
   }
   const dividedWidth = itemWidth / nLanes;
-  const width = Math.max(padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes), MIN_ITEM_WIDTH);
+  const width = Math.max(
+    padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes),
+    MIN_ITEM_WIDTH,
+  );
 
   overlappedArr.forEach((eventWithStyle, index) => {
-    const { data, style } = eventWithStyle;
+    const { ref, box, style } = eventWithStyle;
     baseArr.push({
-      data,
+      ref,
+      box,
       style: {
         ...style,
         width,
@@ -119,46 +122,52 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
 };
 
 const getEventsWithPosition = (
-  totalEvents, dayWidth, hoursInDisplay, beginAgendaAt,
+  totalEvents,
+  dayWidth,
+  hoursInDisplay,
+  beginAgendaAt,
 ) => {
   const paddedDayWidth = padItemWidth(dayWidth);
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
-    const eventsWithStyle = events.reduce((eventsAcc, event) => {
-      const style = getStyleForEvent(event, paddedDayWidth, hoursInDisplay, beginAgendaAt);
+    const eventsWithStyle = events.reduce((accumulated, { ref, box }) => {
+      const style = getStyleForEvent(
+        box,
+        paddedDayWidth,
+        hoursInDisplay,
+        beginAgendaAt,
+      );
       const eventWithStyle = {
-        data: event,
+        ref,
+        box,
         style,
       };
 
-      if (!lastDate || areEventsOverlapped(lastDate, event.startDate)) {
+      if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
         overlappedSoFar.push(eventWithStyle);
-        const endDate = moment(event.endDate);
+        const endDate = moment(box.endDate);
         lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
       } else {
-        addOverlappedToArray(
-          eventsAcc,
-          overlappedSoFar,
-          dayWidth,
-        );
+        addOverlappedToArray(accumulated, overlappedSoFar, dayWidth);
         overlappedSoFar = [eventWithStyle];
-        lastDate = moment(event.endDate);
+        lastDate = moment(box.endDate);
       }
-      return eventsAcc;
+      return accumulated;
     }, []);
-    addOverlappedToArray(
-      eventsWithStyle,
-      overlappedSoFar,
-      dayWidth,
-    );
+    addOverlappedToArray(eventsWithStyle, overlappedSoFar, dayWidth);
     return eventsWithStyle;
   });
 };
 
 const processEvents = (
-  eventsByDate, initialDate, numberOfDays, dayWidth, hoursInDisplay,
-  rightToLeft, beginAgendaAt,
+  eventsByDate,
+  initialDate,
+  numberOfDays,
+  dayWidth,
+  hoursInDisplay,
+  rightToLeft,
+  beginAgendaAt,
 ) => {
   // totalEvents stores events in each day of numberOfDays
   // example: [[event1, event2], [event3, event4], [event5]], each child array
@@ -179,38 +188,28 @@ const processEvents = (
 };
 
 class Events extends PureComponent {
-  yToHour = (y) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-    const hour = (y * hoursInDisplay) / CONTAINER_HEIGHT; // yDimensionToHours()
-    const agendaOffset = beginAgendaAt / 60; // in hours
-    return hour + agendaOffset;
-  };
-
   processEvents = memoizeOne(processEvents);
 
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
-    const locationY = pressEvt.y;
+    const { initialDate, hoursInDisplay, beginAgendaAt } = this.props;
     const dayIndex = Math.floor(pressEvt.x / this.props.dayWidth);
 
-    // WithDec === with decimals. // e.g. hours 10.5 === 10:30am
-    const hoursWDec = this.yToHour(locationY - CONTENT_OFFSET);
-    const minutesWDec = (hoursWDec - Math.parseInt(hoursWDec)) * 60;
-    const seconds = Math.floor((minutesWDec - Math.parseInt(minutesWDec)) * 60);
+    const seconds = yToSeconds(
+      pressEvt.nativeEvent.locationY - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
+    );
 
-    const hour = Math.floor(hoursWDec);
-    const minutes = Math.floor(minutesWDec);
-
-    const date = moment(this.props.initialDate)
+    const dateWithTime = moment(initialDate)
       .add(dayIndex, 'day')
-      .hours(hour)
-      .minutes(minutes)
+      .startOf('day')
       .seconds(seconds)
       .toDate();
 
-    callback(pressEvt, hour, date);
+    callback(pressEvt, dateWithTime.getHours(), dateWithTime);
   };
 
   handleGridPress = (pressEvt) => {
@@ -222,26 +221,29 @@ class Events extends PureComponent {
   };
 
   handleDragEvent = (event, newX, newY) => {
-    const { onDragEvent, dayWidth } = this.props;
+    const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
     }
 
-    // NOTE: newX is in the eventsColumn coordinates
+    const { dayWidth, hoursInDisplay, beginAgendaAt } = this.props;
+
+    // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = Math.floor(newX / dayWidth);
-
-    const startTime = event.startDate.getTime();
-    const newStartDate = new Date(startTime);
-    newStartDate.setDate(newStartDate.getDate() + movedDays);
-
-    let newMinutes = this.yToHour(newY - CONTENT_OFFSET) * 60;
-    const newHour = Math.floor(newMinutes / 60);
-    newMinutes %= 60;
-    newStartDate.setHours(newHour, newMinutes);
-
-    const newEndDate = new Date(
-      newStartDate.getTime() + event.originalDuration,
+    const seconds = yToSeconds(
+      newY - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
     );
+
+    const newStartDate = moment(event.startDate)
+      .add(movedDays, 'days')
+      .startOf('day')
+      .seconds(seconds)
+      .toDate();
+
+    const eventDuration = event.endDate.getTime() - event.startDate.getTime();
+    const newEndDate = new Date(newStartDate.getTime() + eventDuration);
 
     onDragEvent(event, newStartDate, newEndDate);
   };
@@ -292,11 +294,7 @@ class Events extends PureComponent {
         {times.map((time) => (
           <View
             key={`${initialDate}-${time}`}
-            style={[
-              styles.timeRow,
-              { height: timeSlotHeight },
-              gridRowStyle,
-            ]}
+            style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
           />
         ))}
         <ViewWithTouchable
@@ -306,31 +304,34 @@ class Events extends PureComponent {
           onLongPress={onGridLongPress && this.handleGridLongPress}
         >
           {totalEvents.map((eventsInSection, dayIndex) => (
-            <View
-              style={[styles.eventsColumn, gridColumnStyle]}
-              key={`${initialDate}-${dayIndex}`}
+            <TouchableWithoutFeedback
+              onPress={(e) => this.onGridTouch(e, dayIndex, false)}
+              onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
+              key={dayIndex}
             >
-              {showNowLine && this.isToday(dayIndex) && (
-                <NowLine
-                  color={nowLineColor}
-                  hoursInDisplay={hoursInDisplay}
-                  width={dayWidth}
-                  beginAgendaAt={beginAgendaAt}
-                />
-              )}
-              {eventsInSection.map((item) => (
-                <Event
-                  key={item.data.id}
-                  event={item.data}
-                  position={item.style}
-                  onPress={onEventPress}
-                  onLongPress={onEventLongPress}
-                  EventComponent={EventComponent}
-                  containerStyle={eventContainerStyle}
-                  onDrag={onDragEvent && this.handleDragEvent}
-                />
-              ))}
-            </View>
+              <View style={[styles.eventsColumn, gridColumnStyle]}>
+                {showNowLine && this.isToday(dayIndex) && (
+                  <NowLine
+                    color={nowLineColor}
+                    hoursInDisplay={hoursInDisplay}
+                    width={dayWidth}
+                    beginAgendaAt={beginAgendaAt}
+                  />
+                )}
+                {eventsInSection.map((item) => (
+                  <Event
+                    key={item.ref.id}
+                    event={item.ref}
+                    position={item.style}
+                    onPress={onEventPress}
+                    onLongPress={onEventLongPress}
+                    EventComponent={EventComponent}
+                    containerStyle={eventContainerStyle}
+                    onDrag={onDragEvent && this.handleDragEvent}
+                  />
+                ))}
+              </View>
+            </TouchableWithoutFeedback>
           ))}
         </ViewWithTouchable>
       </View>
@@ -350,8 +351,17 @@ const GridColumnPropType = PropTypes.shape({
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
-  eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(Event.propTypes.event))
-    .isRequired,
+  eventsByDate: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        ref: Event.propTypes.event.isRequired,
+        box: PropTypes.shape({
+          startDate: PropTypes.instanceOf(Date).isRequired,
+          endDate: PropTypes.instanceOf(Date).isRequired,
+        }),
+      }),
+    ),
+  ).isRequired,
   initialDate: PropTypes.string.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
   timeStep: PropTypes.number.isRequired,
