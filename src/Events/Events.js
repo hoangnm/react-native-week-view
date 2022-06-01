@@ -23,10 +23,10 @@ const EVENT_HORIZONTAL_PADDING = 8; // percentage
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
 
-const padItemWidth = (
-  width,
-  paddingPercentage = EVENT_HORIZONTAL_PADDING,
-) => paddingPercentage > 0 ? width - Math.max(2, width * paddingPercentage / 100) : width;
+const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
+  paddingPercentage > 0
+    ? width - Math.max(2, (width * paddingPercentage) / 100)
+    : width;
 
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   const endDate = moment(event1EndDate);
@@ -160,8 +160,13 @@ const getEventsWithPosition = (
 };
 
 const processEvents = (
-  eventsByDate, initialDate, numberOfDays, dayWidth, hoursInDisplay,
-  rightToLeft, beginAgendaAt,
+  eventsByDate,
+  initialDate,
+  numberOfDays,
+  dayWidth,
+  hoursInDisplay,
+  rightToLeft,
+  beginAgendaAt,
 ) => {
   // totalEvents stores events in each day of numberOfDays
   // example: [[event1, event2], [event3, event4], [event5]], each child array
@@ -229,7 +234,7 @@ class Events extends PureComponent {
       .seconds(seconds)
       .toDate();
 
-    const eventDuration = event.endDate.getTime() - startTime;
+    const eventDuration = event.endDate.getTime() - event.startDate.getTime();
     const newEndDate = new Date(newStartDate.getTime() + eventDuration);
 
     onDragEvent(event, newStartDate, newEndDate);
@@ -279,11 +284,7 @@ class Events extends PureComponent {
         {times.map((time) => (
           <View
             key={time}
-            style={[
-              styles.timeRow,
-              { height: timeSlotHeight },
-              gridRowStyle,
-            ]}
+            style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
           />
         ))}
         <View style={styles.eventsContainer}>

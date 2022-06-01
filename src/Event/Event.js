@@ -56,7 +56,7 @@ const Event = ({
       }),
     ];
     Animated.parallel(animations).start();
-  }, [position]);
+  }, [position, currentLeft, currentWidth, translatedByDrag]);
 
   const panResponder = useMemo(() => {
     return PanResponder.create({
@@ -88,7 +88,7 @@ const Event = ({
         translatedByDrag.setValue({ x: 0, y: 0 });
       },
     });
-  }, [onDragRelease, isDragEnabled, isPressDisabled]);
+  }, [onDragRelease, isDragEnabled, isPressDisabled, translatedByDrag]);
 
   return (
     <Animated.View
