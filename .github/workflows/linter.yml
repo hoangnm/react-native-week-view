@@ -15,9 +15,12 @@ jobs:
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'yarn'
 
-      - name: install deps
-        run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
 
       - name: Lint Code Base
         uses: github/super-linter@v4
