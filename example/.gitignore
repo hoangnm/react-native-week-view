@@ -28,13 +28,13 @@ build/
 .gradle
 local.properties
 *.iml
+*.hprof
 
 # node.js
 #
 node_modules/
 npm-debug.log
 yarn-error.log
-package-lock.json
 
 # BUCK
 buck-out/
@@ -56,5 +56,6 @@ buck-out/
 # Bundle artifact
 *.jsbundle
 
-# CocoaPods
+# Ruby / CocoaPods
 /ios/Pods/
+/vendor/bundle/
