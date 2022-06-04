@@ -1,4 +1,6 @@
 # Changelog
+# 0.16.0 - 2022-06-04
+- Improve performance [#210](https://github.com/hoangnm/react-native-week-view/pull/210)
 ## 0.15.0 - 2022-05-27
 - Add scrollToTimeScrolled callback [#208](https://github.com/hoangnm/react-native-week-view/pull/208)
 ## 0.14.0 - 2022-05-24
