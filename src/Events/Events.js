@@ -5,7 +5,7 @@ import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
 import NowLine from '../NowLine/NowLine';
-import Event from '../Event/Event';
+import Event, { eventPropType } from '../Event/Event';
 import {
   calculateDaysArray,
   DATE_STR_FORMAT,
@@ -350,7 +350,7 @@ Events.propTypes = {
   eventsByDate: PropTypes.objectOf(
     PropTypes.arrayOf(
       PropTypes.shape({
-        ref: Event.propTypes.event.isRequired,
+        ref: eventPropType.isRequired,
         box: PropTypes.shape({
           startDate: PropTypes.instanceOf(Date).isRequired,
           endDate: PropTypes.instanceOf(Date).isRequired,
