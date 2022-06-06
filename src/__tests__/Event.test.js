@@ -8,11 +8,20 @@ import { render } from '@testing-library/react-native';
 import Event from '../Event/Event';
 
 describe('onDrag handler', () => {
+  // Any values as constants:
+  const INITIAL_TOP = 10;
+  const INITIAL_LEFT = 0;
+  const TRANSLATION_X = 7;
+  const TRANSLATION_Y = 52;
+  const EVT_MIDDLE_ANCHOR = 20; // top-middle anchor
+
+  const EVT_WIDTH = EVT_MIDDLE_ANCHOR * 2;
+
   const buildDragGesture = () => [
     // {}, // implicit BEGIN state
     { translationX: 3, translationY: 21 }, // ACTIVE state
     { translationX: 20, translationY: -3 }, // ACTIVE state
-    { translationX: 7, translationY: 52 }, // --> last ACTIVE position
+    { translationX: TRANSLATION_X, translationY: TRANSLATION_Y }, // --> last ACTIVE position
     // {}, // implicit END state
   ];
 
@@ -25,7 +34,12 @@ describe('onDrag handler', () => {
       endDate: new Date(2021, 1, 3, 12, 2),
     };
     const onDragMock = jest.fn(() => null);
-    const position = { top: 10, left: 0, width: 40, height: 50 };
+    const position = {
+      top: INITIAL_TOP,
+      left: INITIAL_LEFT,
+      width: EVT_WIDTH,
+      height: 50,
+    };
 
     render(<Event event={mockEvent} onDrag={onDragMock} position={position} />);
     fireGestureHandler(getByGestureTestId('dragGesture'), buildDragGesture());
@@ -33,8 +47,8 @@ describe('onDrag handler', () => {
     expect(onDragMock).toHaveBeenCalledTimes(1);
     expect(onDragMock).toHaveBeenCalledWith(
       mockEvent,
-      position.left + position.width / 2 + 7,
-      position.top + 52,
+      INITIAL_LEFT + TRANSLATION_X + EVT_MIDDLE_ANCHOR, // final_left grab the evt by the anchor
+      INITIAL_TOP + TRANSLATION_Y,
     );
   });
 });

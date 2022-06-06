@@ -298,7 +298,6 @@ class Events extends PureComponent {
           />
         ))}
         <ViewWithTouchable
-          key={initialDate}
           style={styles.eventsContainer}
           onPress={onGridClick && this.handleGridPress}
           onLongPress={onGridLongPress && this.handleGridLongPress}

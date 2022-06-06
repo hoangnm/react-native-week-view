@@ -4,18 +4,46 @@
  * Goal: using a <TouchableWithoutFeedback/> that behaves correctly
  *   with the other gestures from RNGH (dragging, pressing, etc).
  *
- * RNGH provides replacements, e.g.:
+ * RNGH provides component replacements:
  *   import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
- *   (see here:
- *   https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/touchables)
- *   But they do not work well some times with flexbox, see these issues:
- *   https://github.com/software-mansion/react-native-gesture-handler/issues/1163
- *   https://github.com/software-mansion/react-native-gesture-handler/issues/864
- *   (I'm using RNGH version 2.3.2 at this moment)
+ *   https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/touchables
+ *
+ * But are not enough for our use case:
+ *     (1) the onPress and onLongPress callbacks do not provide pressEvent information
+ *     (2) components have issues when using 'position: absolute' and flexbox
  *
  * This utils-gestures.js file provides the <ViewWithTouchable/> component:
  *   a simple View plus onPress and onLongPress callbacks for receiving touches.
  *   The view provides no visual feedback, but uses gestures of RNGH, so it fits our goal.
+ *
+ * ---
+ *
+ *
+ * __Problem details:__
+ *
+ * (1) Press callbacks
+ *   * We need pressEvent information to get the press location, but pressEvent is not provided.
+ *   * See here: https://github.com/software-mansion/react-native-gesture-handler/discussions/2093
+ *
+ * (2) Position absolute and flexbox problems: the component does not show in the screen.
+ *     For example:
+ *     https://github.com/software-mansion/react-native-gesture-handler/issues/1163
+ *     https://github.com/software-mansion/react-native-gesture-handler/issues/864
+ *
+ * I'm using RNGH version 2.4.1 at this moment.
+ * Though I was able to make it work with absolute and flexbox:
+ * ```js
+ *   import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+ *
+ *   // ...
+ *   <TouchableWithoutFeedback
+ *     containerStyle={StyleSheet.absoluteFill} // outer button
+ *     style={{ flex: 1, flexDirection: 'row' }} // inner Animated.View
+ *     shouldActivateOnStart // was needed for some reason
+ *
+ *     // (but the callbacks problem persists)
+ *   >
+ * ```
  */
 import React from 'react';
 import { View } from 'react-native';
