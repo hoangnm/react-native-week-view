@@ -153,6 +153,7 @@ const Event = ({
 
   const pressGesture = Gesture.Tap()
     .enabled(!!onPress)
+    .withTestId('pressGesture')
     .onTouchesDown(() => {
       isPressing.value = true;
     })
@@ -174,6 +175,7 @@ const Event = ({
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
+        testID="WeekViewEvent"
         style={[
           styles.container,
           {

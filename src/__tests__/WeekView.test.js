@@ -19,6 +19,57 @@ describe('WeekView', () => {
     );
   });
 
+  it('Renders 5 events', async () => {
+    const events = Array.from({ length: 5 }, (_, index) => ({
+      id: index,
+      startDate: new Date(2021, 4, index + 2, 12),
+      endDate: new Date(2021, 4, index + 2, 15),
+    }));
+    // TODO: comment about selectedDate used
+    const { findAllByTestId } = render(
+      <WeekView
+        events={events}
+        numberOfDays={5}
+        selectedDate={new Date(2021, 4, 2)}
+        startHour={10}
+      />,
+    );
+    const renderedEvents = await findAllByTestId('WeekViewEvent');
+    expect(renderedEvents).toBeArrayOfSize(5);
+    // TODO: check more stuff about the rendered events?, e.g.
+    // correct descriptions, colors, etc
+  });
+
+  describe('onEventPress', () => {
+    // TODO: better to test with multiple rendered events
+    const someEvent = {
+      id: 34,
+      startDate: new Date(2021, 4, 2, 12),
+      endDate: new Date(2021, 4, 2, 15),
+    };
+    let mockOnEventPress;
+
+    beforeEach(() => {
+      mockOnEventPress = jest.fn();
+
+      render(
+        <WeekView
+          events={[someEvent]}
+          numberOfDays={5}
+          selectedDate={new Date(2021, 4, 1)}
+          startHour={10}
+          onEventPress={mockOnEventPress}
+        />,
+      );
+    });
+    it('calls with correct arguments', () => {
+      fireGestureHandler(getByGestureTestId('pressGesture'), []);
+      expect(mockOnEventPress).toHaveBeenCalledOnce();
+      const [eventArg] = mockOnEventPress.mock.calls[0];
+      expect(eventArg.id).toEqual(someEvent.id);
+    });
+  });
+
   describe('onDragEvent callback', () => {
     /**
      * NOTES: This test maybe somewhat fragile regarding:
