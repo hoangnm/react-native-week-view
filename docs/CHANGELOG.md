@@ -1,4 +1,6 @@
 # Changelog
+## Unreleased
+- Breaking change: add [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) v2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) v2 as peer dependencies.
 # 0.16.0 - 2022-06-04
 - Improve performance [#210](https://github.com/hoangnm/react-native-week-view/pull/210)
 ## 0.15.0 - 2022-05-27
@@ -24,7 +26,7 @@
 ## 0.7.0 - 2021-11-11
 - Add isRefreshing and RefreshComponent props [#112](https://github.com/hoangnm/react-native-week-view/pull/112)
 - Fix events break when changing hoursInDisplay [#133](https://github.com/hoangnm/react-native-week-view/pull/133)
-- Allow to drag-drop event [#143](https://github.com/hoangnm/react-native-week-view/pull/143) 
+- Allow to drag-drop event [#143](https://github.com/hoangnm/react-native-week-view/pull/143)
 - Support react-native above v0.59.0 only
 ## 0.6.1 - 2021-08-22
 

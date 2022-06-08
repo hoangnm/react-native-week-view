@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { View } from 'react-native';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -15,6 +15,7 @@ import {
   yToSeconds,
   minutesToY,
 } from '../utils';
+import { ViewWithTouchable } from '../utils-gestures';
 
 import styles from './Events.styles';
 
@@ -189,16 +190,15 @@ const processEvents = (
 class Events extends PureComponent {
   processEvents = memoizeOne(processEvents);
 
-  onGridTouch = (event, dayIndex, longPress) => {
-    const { onGridClick, onGridLongPress } = this.props;
-    const callback = longPress ? onGridLongPress : onGridClick;
+  handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
     const { initialDate, hoursInDisplay, beginAgendaAt } = this.props;
+    const dayIndex = Math.floor(pressEvt.x / this.props.dayWidth);
 
     const seconds = yToSeconds(
-      event.nativeEvent.locationY - CONTENT_OFFSET,
+      pressEvt.y - CONTENT_OFFSET,
       hoursInDisplay,
       beginAgendaAt,
     );
@@ -209,10 +209,18 @@ class Events extends PureComponent {
       .seconds(seconds)
       .toDate();
 
-    callback(event, dateWithTime.getHours(), dateWithTime);
+    callback(pressEvt, dateWithTime.getHours(), dateWithTime);
   };
 
-  onDragEvent = (event, newX, newY) => {
+  handleGridPress = (pressEvt) => {
+    this.handleGridTouch(pressEvt, this.props.onGridClick);
+  };
+
+  handleGridLongPress = (pressEvt) => {
+    this.handleGridTouch(pressEvt, this.props.onGridLongPress);
+  };
+
+  handleDragEvent = (event, newX, newY) => {
     const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
@@ -265,6 +273,8 @@ class Events extends PureComponent {
       showNowLine,
       nowLineColor,
       onDragEvent,
+      onGridClick,
+      onGridLongPress,
       dayWidth,
       pageWidth,
     } = this.props;
@@ -283,42 +293,43 @@ class Events extends PureComponent {
       <View style={[styles.container, { width: pageWidth }]}>
         {times.map((time) => (
           <View
-            key={time}
+            key={`${initialDate}-${time}`}
             style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
           />
         ))}
-        <View style={styles.eventsContainer}>
+        <ViewWithTouchable
+          style={styles.eventsContainer}
+          onPress={onGridClick && this.handleGridPress}
+          onLongPress={onGridLongPress && this.handleGridLongPress}
+        >
           {totalEvents.map((eventsInSection, dayIndex) => (
-            <TouchableWithoutFeedback
-              onPress={(e) => this.onGridTouch(e, dayIndex, false)}
-              onLongPress={(e) => this.onGridTouch(e, dayIndex, true)}
-              key={dayIndex}
+            <View
+              style={[styles.eventsColumn, gridColumnStyle]}
+              key={`${initialDate}-${dayIndex}`}
             >
-              <View style={[styles.eventsColumn, gridColumnStyle]}>
-                {showNowLine && this.isToday(dayIndex) && (
-                  <NowLine
-                    color={nowLineColor}
-                    hoursInDisplay={hoursInDisplay}
-                    width={dayWidth}
-                    beginAgendaAt={beginAgendaAt}
-                  />
-                )}
-                {eventsInSection.map((item) => (
-                  <Event
-                    key={item.ref.id}
-                    event={item.ref}
-                    position={item.style}
-                    onPress={onEventPress}
-                    onLongPress={onEventLongPress}
-                    EventComponent={EventComponent}
-                    containerStyle={eventContainerStyle}
-                    onDrag={onDragEvent && this.onDragEvent}
-                  />
-                ))}
-              </View>
-            </TouchableWithoutFeedback>
+              {showNowLine && this.isToday(dayIndex) && (
+                <NowLine
+                  color={nowLineColor}
+                  hoursInDisplay={hoursInDisplay}
+                  width={dayWidth}
+                  beginAgendaAt={beginAgendaAt}
+                />
+              )}
+              {eventsInSection.map((item) => (
+                <Event
+                  key={item.ref.id}
+                  event={item.ref}
+                  position={item.style}
+                  onPress={onEventPress}
+                  onLongPress={onEventLongPress}
+                  EventComponent={EventComponent}
+                  containerStyle={eventContainerStyle}
+                  onDrag={onDragEvent && this.handleDragEvent}
+                />
+              ))}
+            </View>
           ))}
-        </View>
+        </ViewWithTouchable>
       </View>
     );
   }
