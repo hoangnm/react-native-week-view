@@ -1,7 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-const DEFAULT_COLOR = 'red';
-
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
@@ -9,7 +7,6 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: DEFAULT_COLOR,
   },
   description: {
     marginVertical: 8,

@@ -26,8 +26,9 @@ describe('onDrag handler', () => {
   ];
 
   it('Calls onDrag with new position', () => {
+    const targetId = 1;
     const mockEvent = {
-      id: 1,
+      id: targetId,
       description: 'some description',
       color: 'red',
       startDate: new Date(2021, 1, 3, 12, 0),
@@ -42,7 +43,10 @@ describe('onDrag handler', () => {
     };
 
     render(<Event event={mockEvent} onDrag={onDragMock} position={position} />);
-    fireGestureHandler(getByGestureTestId('dragGesture'), buildDragGesture());
+    fireGestureHandler(
+      getByGestureTestId(`dragGesture-${targetId}`),
+      buildDragGesture(),
+    );
 
     expect(onDragMock).toHaveBeenCalledTimes(1);
     expect(onDragMock).toHaveBeenCalledWith(

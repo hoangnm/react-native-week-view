@@ -8,45 +8,194 @@ import {
 } from 'react-native-gesture-handler/jest-utils';
 import WeekView from '../WeekView/WeekView';
 
-describe('WeekView', () => {
-  it('renders with basic props', () => {
+const extractEventIdFromTestID = (testID) => {
+  const found = testID.match(/WeekViewEvent-(?<eventId>\d+)/);
+  const eventId = found && found.groups && found.groups.eventId;
+  if (!eventId) {
+    throw Error(`Could not find the event id in testID: ${testID}`);
+  }
+  return eventId;
+};
+
+describe('Basic render functionality', () => {
+  it('Renders with no events', () => {
+    // does not throw exception
     render(
       <WeekView
         events={[]}
         numberOfDays={3}
-        selectedDate={new Date(2021, 3, 24)}
+        selectedDate={new Date(2020, 3, 24)}
       />,
     );
   });
 
-  it('Renders 5 events', async () => {
-    const events = Array.from({ length: 5 }, (_, index) => ({
-      id: index,
-      startDate: new Date(2021, 4, index + 2, 12),
-      endDate: new Date(2021, 4, index + 2, 15),
+  const runTestShowsAll = (baseEvents, baseProps) => {
+    const events = baseEvents;
+    const { queryAllByHintText } = render(
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      <WeekView events={events} {...baseProps} />,
+    );
+    expect(queryAllByHintText('Show event')).toBeArrayOfSize(events.length);
+  };
+
+  const runTestShowDescription = (baseEvents, baseProps) => {
+    const events = baseEvents.map((evt) => ({
+      ...evt,
+      description: `event ${evt.id}`,
     }));
-    // TODO: comment about selectedDate used
-    const { findAllByTestId } = render(
-      <WeekView
-        events={events}
-        numberOfDays={5}
-        selectedDate={new Date(2021, 4, 2)}
-        startHour={10}
-      />,
+    const { queryAllByHintText } = render(
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      <WeekView events={events} {...baseProps} />,
     );
-    const renderedEvents = await findAllByTestId('WeekViewEvent');
-    expect(renderedEvents).toBeArrayOfSize(5);
-    // TODO: check more stuff about the rendered events?, e.g.
-    // correct descriptions, colors, etc
+    queryAllByHintText('Show event').forEach((renderedEvent) => {
+      expect(renderedEvent).toHaveTextContent(/event \d+/g);
+    });
+  };
+
+  const runTestShowColor = (baseEvents, baseProps, colors) => {
+    const events = baseEvents.map((evt, index) => ({
+      ...evt,
+      color: colors[index],
+    }));
+    const { queryAllByHintText } = render(
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      <WeekView events={events} {...baseProps} />,
+    );
+    queryAllByHintText('Show event').forEach((renderedEvent) => {
+      const eventId = Number(
+        extractEventIdFromTestID(renderedEvent.props.testID),
+      );
+      const expectedColor = events.find((evt) => evt.id === eventId).color;
+      expect(renderedEvent).toHaveStyle({ backgroundColor: expectedColor });
+    });
+  };
+
+  describe('with events with no overlap', () => {
+    const baseEventsNoOverlap = [
+      {
+        id: 1,
+        startDate: new Date(2021, 4, 2, 12, 0),
+        endDate: new Date(2021, 4, 2, 12, 30),
+      },
+      {
+        id: 2,
+        startDate: new Date(2021, 4, 2, 13, 0),
+        endDate: new Date(2021, 4, 2, 13, 45),
+      },
+      {
+        id: 7,
+        startDate: new Date(2021, 4, 3, 11),
+        endDate: new Date(2021, 4, 3, 11, 30),
+      },
+      {
+        id: 19,
+        startDate: new Date(2021, 4, 4, 13),
+        endDate: new Date(2021, 4, 4, 14, 35),
+      },
+      {
+        id: 52,
+        startDate: new Date(2021, 4, 5, 18),
+        endDate: new Date(2021, 4, 5, 21, 57),
+      },
+    ];
+    const baseProps = {
+      // these props must allow showing the events in the screen:
+      numberOfDays: 5,
+      selectedDate: new Date(2021, 4, 1),
+      hoursInDisplay: 24,
+      startHour: 0,
+    };
+
+    it('shows all events', () =>
+      runTestShowsAll(baseEventsNoOverlap, baseProps));
+
+    it('shows each event with its description', () =>
+      runTestShowDescription(baseEventsNoOverlap, baseProps));
+
+    it('shows each event with its color', () => {
+      const colors = ['blue', 'lightblue', 'purple', 'yellow', 'pink'];
+      runTestShowColor(baseEventsNoOverlap, baseProps, colors);
+    });
   });
 
-  describe('onEventPress', () => {
-    // TODO: better to test with multiple rendered events
-    const someEvent = {
-      id: 34,
-      startDate: new Date(2021, 4, 2, 12),
-      endDate: new Date(2021, 4, 2, 15),
+  describe('with events with some overlap', () => {
+    const baseEventsOverlap = [
+      {
+        id: 11,
+        startDate: new Date(2020, 7, 25, 12, 0),
+        endDate: new Date(2020, 7, 25, 14, 30),
+      },
+      {
+        id: 2,
+        startDate: new Date(2020, 7, 25, 13, 0),
+        endDate: new Date(2020, 7, 25, 13, 45),
+      },
+      {
+        id: 9,
+        startDate: new Date(2020, 7, 24, 17),
+        endDate: new Date(2020, 7, 24, 18),
+      },
+      {
+        id: 43,
+        startDate: new Date(2020, 7, 24, 17),
+        endDate: new Date(2020, 7, 24, 18),
+      },
+      {
+        id: 3,
+        startDate: new Date(2020, 7, 24, 17),
+        endDate: new Date(2020, 7, 24, 18),
+      },
+      {
+        id: 1,
+        startDate: new Date(2020, 7, 26, 11),
+        endDate: new Date(2020, 7, 26, 20),
+      },
+    ];
+    const baseProps = {
+      // these props must allow showing the events in the screen:
+      numberOfDays: 3,
+      selectedDate: new Date(2020, 7, 24),
+      hoursInDisplay: 24,
+      startHour: 0,
     };
+
+    it('shows all events', () => runTestShowsAll(baseEventsOverlap, baseProps));
+
+    it('shows each event with its description', () =>
+      runTestShowDescription(baseEventsOverlap, baseProps));
+
+    it('shows each event with its color', () => {
+      const colors = [
+        'purple',
+        'red',
+        'pink',
+        'yellow',
+        'lightblue',
+        'lightblue',
+      ];
+      runTestShowColor(baseEventsOverlap, baseProps, colors);
+    });
+  });
+});
+
+describe('User interactions', () => {
+  describe('Pressing events', () => {
+    const targetId = 34;
+    const events = [
+      {
+        id: targetId,
+        startDate: new Date(2020, 7, 24, 12),
+        endDate: new Date(2020, 7, 24, 18),
+        description: 'target event',
+      },
+      {
+        id: 91,
+        startDate: new Date(2020, 7, 23, 20),
+        endDate: new Date(2020, 7, 23, 21, 15),
+        description: 'other',
+      },
+    ];
+
     let mockOnEventPress;
 
     beforeEach(() => {
@@ -54,31 +203,42 @@ describe('WeekView', () => {
 
       render(
         <WeekView
-          events={[someEvent]}
+          events={events}
           numberOfDays={5}
-          selectedDate={new Date(2021, 4, 1)}
-          startHour={10}
+          selectedDate={new Date(2020, 7, 22)}
+          hoursInDisplay={24}
+          startHour={0}
           onEventPress={mockOnEventPress}
         />,
       );
+
+      /**
+       * Ideally, the press would be grabbed without knowledge of gesture-handler,
+       * for example: `fireEvent.press(getByText('target event'))`,
+       * but RNGH does not work like that
+       */
+      fireGestureHandler(getByGestureTestId(`pressGesture-${targetId}`), []);
     });
-    it('calls with correct arguments', () => {
-      fireGestureHandler(getByGestureTestId('pressGesture'), []);
+
+    it('calls callback exactly once', () => {
       expect(mockOnEventPress).toHaveBeenCalledOnce();
+    });
+
+    it('calls callback with event as first argument', () => {
       const [eventArg] = mockOnEventPress.mock.calls[0];
-      expect(eventArg.id).toEqual(someEvent.id);
+      expect(eventArg.id).toEqual(targetId);
     });
   });
 
-  describe('onDragEvent callback', () => {
+  describe('Dragging events', () => {
     /**
      * NOTES: This test maybe somewhat fragile regarding:
      *
-     * Screen width in pixels: needed to simulate a drag gesture
+     * The screen-width in pixels: needed to simulate a drag gesture
      * through some days.
      *
-     * Days displayed in the screen: so the target event is seen
-     * and can be dragged, recommended values:
+     * The amount-of-days displayed in the screen: so the target event is
+     * shown and can be dragged, recommended values:
      *     numberOfDays: 3
      *     selectedDate: one day before startDate
      *     startHour: 2 hours before the target event
@@ -87,11 +247,20 @@ describe('WeekView', () => {
     const startDate = new Date(2022, 3, 5, 12, 0, 0);
     const endDate = new Date(2022, 3, 5, 14, 53, 52);
 
-    const someEvent = {
-      id: 17,
-      startDate,
-      endDate,
-    };
+    const targetId = 171;
+    const events = [
+      {
+        id: targetId,
+        startDate,
+        endDate,
+        description: 'event to be dragged',
+      },
+      {
+        id: 82,
+        startDate: new Date(2022, 3, 6, 17),
+        endDate: new Date(2022, 3, 6, 18),
+      },
+    ];
     let mockOnDragEvent;
 
     const numberOfDays = 3;
@@ -101,17 +270,18 @@ describe('WeekView', () => {
 
       render(
         <WeekView
-          events={[someEvent]}
+          events={events}
           numberOfDays={numberOfDays}
           selectedDate={new Date(2022, 3, 4)}
           startHour={10}
+          hoursInDisplay={24}
           onDragEvent={mockOnDragEvent}
         />,
       );
     });
 
-    it('is not called if the movement fails', () => {
-      fireGestureHandler(getByGestureTestId('dragGesture'), [
+    it('callback is not called if the movement fails', () => {
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: 100, translationY: -3 },
         { state: State.FAILED },
       ]);
@@ -119,8 +289,8 @@ describe('WeekView', () => {
       expect(mockOnDragEvent).not.toHaveBeenCalled();
     });
 
-    it('is not called if the movement is cancelled', () => {
-      fireGestureHandler(getByGestureTestId('dragGesture'), [
+    it('callback is not called if the movement is cancelled', () => {
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: -100, translationY: 200 },
         { state: State.CANCELLED },
       ]);
@@ -128,15 +298,15 @@ describe('WeekView', () => {
       expect(mockOnDragEvent).not.toHaveBeenCalled();
     });
 
-    it('is called with the correct arguments', () => {
-      fireGestureHandler(getByGestureTestId('dragGesture'), [
+    it('callback is called with the correct arguments', () => {
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: 100, translationY: 100 },
       ]);
 
       expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
       const [e, newStartDate, newEndDate] = mockOnDragEvent.mock.calls[0];
 
-      expect(e.id).toEqual(someEvent.id);
+      expect(e.id).toEqual(targetId);
       expect(newStartDate).toBeValidDate();
       expect(newEndDate).toBeValidDate();
     });
@@ -160,7 +330,7 @@ describe('WeekView', () => {
       }
 
       it('up and right, computes correctly newStartDate', () => {
-        fireGestureHandler(getByGestureTestId('dragGesture'), [
+        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: atLeastOneDay, translationY: -30 },
         ]);
 
@@ -171,7 +341,7 @@ describe('WeekView', () => {
       });
 
       it('down and left, computes correctly newStartDate', () => {
-        fireGestureHandler(getByGestureTestId('dragGesture'), [
+        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: -atLeastOneDay, translationY: 55 },
         ]);
 
@@ -182,7 +352,7 @@ describe('WeekView', () => {
       });
 
       it('up (same day), computes correctly newStartDate', () => {
-        fireGestureHandler(getByGestureTestId('dragGesture'), [
+        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: 0, translationY: -55 },
         ]);
 
@@ -195,7 +365,7 @@ describe('WeekView', () => {
 
     describe('duration handling', () => {
       it('is called with the correct duration', () => {
-        fireGestureHandler(getByGestureTestId('dragGesture'), [
+        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: 100, translationY: 100 },
         ]);
 
@@ -217,14 +387,24 @@ describe('WeekView', () => {
         // lasts 4 hours
         const edgeCaseDuration =
           endDateInDay2.getTime() - startDateInDay1.getTime();
-        const edgeEvent = {
-          id: 2,
-          startDate: startDateInDay1,
-          endDate: endDateInDay2,
-        };
+        const edgeCaseId = 2;
+        const eventsPlusEdgeCase = [
+          ...events,
+          {
+            id: edgeCaseId,
+            startDate: startDateInDay1,
+            endDate: endDateInDay2,
+            description: 'event lasting more than 1 day',
+          },
+          {
+            id: 29,
+            startDate: new Date(2022, 3, 7, 6),
+            endDate: new Date(2022, 3, 7, 9),
+          },
+        ];
         render(
           <WeekView
-            events={[edgeEvent]}
+            events={eventsPlusEdgeCase}
             numberOfDays={3}
             selectedDate={new Date(2022, 3, 5)}
             startHour={20}
@@ -232,7 +412,7 @@ describe('WeekView', () => {
           />,
         );
 
-        fireGestureHandler(getByGestureTestId('dragGesture'), [
+        fireGestureHandler(getByGestureTestId(`dragGesture-${edgeCaseId}`), [
           { translationX: 100, translationY: 100 },
         ]);
 
