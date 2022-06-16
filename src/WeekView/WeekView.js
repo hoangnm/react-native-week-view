@@ -275,7 +275,7 @@ export default class WeekView extends Component {
       const prependNeeded = firstViewablePage - targetIndex;
 
       newState.initialDates = [
-        this.buildPages(initialDates[0], prependNeeded, false),
+        ...this.buildPages(initialDates[0], prependNeeded, false),
         ...initialDates,
       ];
       targetIndex = this.pageOffset;
@@ -285,7 +285,7 @@ export default class WeekView extends Component {
       const appendNeeded = targetIndex - lastViewablePage;
       newState.initialDates = [
         ...initialDates,
-        this.buildPages(
+        ...this.buildPages(
           initialDates[initialDates.length - 1],
           appendNeeded,
           true,
@@ -344,7 +344,7 @@ export default class WeekView extends Component {
         const prependNeeded = buffer - pagesToStartOfList;
 
         newState.initialDates = [
-          this.buildPages(initialDates[0], prependNeeded, false),
+          ...this.buildPages(initialDates[0], prependNeeded, false),
           ...initialDates,
         ];
 
@@ -361,7 +361,7 @@ export default class WeekView extends Component {
         const appendNeeded = buffer - pagesToEndOfList;
         newState.initialDates = [
           ...initialDates,
-          this.buildPages(
+          ...this.buildPages(
             initialDates[initialDates.length - 1],
             appendNeeded,
             true,
