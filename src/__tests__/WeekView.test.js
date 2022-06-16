@@ -8,6 +8,13 @@ import {
 } from 'react-native-gesture-handler/jest-utils';
 import WeekView from '../WeekView/WeekView';
 
+/**
+ * Extracts the event-id embedded in "WeekViewEvent-<id>".
+ *
+ * Throws an error if the testID does not match the regex.
+ * @param {String} testID
+ * @returns string with event id
+ */
 const extractEventIdFromTestID = (testID) => {
   const found = testID.match(/WeekViewEvent-(?<eventId>\d+)/);
   const eventId = found && found.groups && found.groups.eventId;
@@ -17,6 +24,15 @@ const extractEventIdFromTestID = (testID) => {
   return eventId;
 };
 
+/**
+ * NOTE: In most cases the props provided to <WeekView /> need to be
+ * selected carefully, so that events _are visible in the screen_.
+ * For example:
+ *   - numberOfDays
+ *   - selectedDate (usually, at least the same day the target event's startDate)
+ *   - hoursInDisplay
+ *   - startHour (usually, some hours before the target event)
+ */
 describe('Basic render functionality', () => {
   it('Renders with no events', () => {
     // does not throw exception
@@ -35,6 +51,14 @@ describe('Basic render functionality', () => {
       /* eslint-disable-next-line react/jsx-props-no-spreading */
       <WeekView events={events} {...baseProps} />,
     );
+    /**
+     * NOTE: Ideally, the selection would be by text: queryByText('event something')
+     * instead of queryByHintText(), but in practice the event description might be
+     * hidden due to the size of the events --> queryByText() does not find it, even though
+     * the event is visible in the screen as a box with a color.
+     * (Is hard to ensure that the event size is large enough to display the description:
+     * depends on the screen size, hours in display, number of days, font size, padding, etc.)
+     */
     expect(queryAllByHintText('Show event')).toBeArrayOfSize(events.length);
   };
 
@@ -99,7 +123,6 @@ describe('Basic render functionality', () => {
       },
     ];
     const baseProps = {
-      // these props must allow showing the events in the screen:
       numberOfDays: 5,
       selectedDate: new Date(2021, 4, 1),
       hoursInDisplay: 24,
@@ -152,7 +175,6 @@ describe('Basic render functionality', () => {
       },
     ];
     const baseProps = {
-      // these props must allow showing the events in the screen:
       numberOfDays: 3,
       selectedDate: new Date(2020, 7, 24),
       hoursInDisplay: 24,
@@ -213,9 +235,9 @@ describe('User interactions', () => {
       );
 
       /**
-       * Ideally, the press would be grabbed without knowledge of gesture-handler,
+       * NOTE: Ideally, the press would be grabbed without knowledge of gesture-handler,
        * for example: `fireEvent.press(getByText('target event'))`,
-       * but RNGH does not work like that
+       * but RNGH does not provide an appropriate API for that
        */
       fireGestureHandler(getByGestureTestId(`pressGesture-${targetId}`), []);
     });
@@ -231,19 +253,6 @@ describe('User interactions', () => {
   });
 
   describe('Dragging events', () => {
-    /**
-     * NOTES: This test maybe somewhat fragile regarding:
-     *
-     * The screen-width in pixels: needed to simulate a drag gesture
-     * through some days.
-     *
-     * The amount-of-days displayed in the screen: so the target event is
-     * shown and can be dragged, recommended values:
-     *     numberOfDays: 3
-     *     selectedDate: one day before startDate
-     *     startHour: 2 hours before the target event
-     */
-
     const startDate = new Date(2022, 3, 5, 12, 0, 0);
     const endDate = new Date(2022, 3, 5, 14, 53, 52);
 
@@ -312,7 +321,6 @@ describe('User interactions', () => {
     });
 
     describe('when dragging in direction', () => {
-      // const startDate = new Date(2022, 3, 5, 12, 0, 0);
       const startOfDay = new Date(startDate.getTime());
       startOfDay.setHours(0);
       startOfDay.setMinutes(0);
@@ -322,6 +330,10 @@ describe('User interactions', () => {
       endOfDay.setMinutes(59);
       endOfDay.setSeconds(59);
 
+      /**
+       * NOTE: the screen-width (in pixels) is needed to simulate a drag gesture
+       * through a specific amount of days.
+       */
       const estimatedDayWidth = Dimensions.get('window').width / numberOfDays;
       const atLeastOneDay = Math.floor(estimatedDayWidth * 1.5);
 
@@ -338,6 +350,12 @@ describe('User interactions', () => {
         const args = mockOnDragEvent.mock.calls[0];
         const newStartDate = args[1];
         expect(newStartDate).toBeAfter(endOfDay);
+        /**
+         * NOTE: we do not expect an exact amount of days/time dragged,
+         * since the specific calculation from pixels to time depends on:
+         * hoursInDisplay, selectedDate, window size, etc.
+         * We only expect that the date change was in the correct direction.
+         */
       });
 
       it('down and left, computes correctly newStartDate', () => {
@@ -384,7 +402,6 @@ describe('User interactions', () => {
         const startDateInDay1 = new Date(2022, 3, 6, 22, 0, 0);
         const endDateInDay2 = new Date(2022, 3, 7, 2, 0, 0);
 
-        // lasts 4 hours
         const edgeCaseDuration =
           endDateInDay2.getTime() - startDateInDay1.getTime();
         const edgeCaseId = 2;
