@@ -244,10 +244,17 @@ export default class WeekView extends Component {
     );
   };
 
+  /**
+   * Moves the view to a pageIndex.
+   *
+   * Add more pages (if necessary), scrolls the VirtualizedList to the new index,
+   * and updates this.currentPageIndex.
+   *
+   * @param {Number} target index between (-infinity, infinity) indicating target page.
+   * @param {bool} animated
+   * @returns
+   */
   goToPageIndex = (target, animated = true) => {
-    // - `target` is a number between -inf and inf,
-    // - valid pages are between [0 and length-1]
-    //   --> add pages necessary and update currentPageIndex
     if (target === this.currentPageIndex) {
       return;
     }
@@ -265,7 +272,7 @@ export default class WeekView extends Component {
     const newState = {};
     let newStateCallback = () => {};
 
-    // The final target will change if pages are added in either direction
+    // The final target will change (will be re-indexed) if pages are added in either direction
     let targetIndex = target;
 
     const firstViewablePage = this.pageOffset;
