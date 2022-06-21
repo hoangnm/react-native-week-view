@@ -1,14 +1,31 @@
+![tests](https://github.com/hoangnm/react-native-week-view/actions/workflows/tests.yml/badge.svg) ![linter](https://github.com/hoangnm/react-native-week-view/actions/workflows/linter.yml/badge.svg) ![codeql](https://github.com/hoangnm/react-native-week-view/actions/workflows/codeql-analysis.yml/badge.svg)
+
 # react-native-week-view
 The week view component for react-native.
 
-![weekView](images/gif.gif)
-
-## Key features
-
 * Supported in Android and iOS
-* Many user interactions supported: **drag and drop events**, swipe through pages, event press and long-press, grid press and long-press
+* Many user interactions supported: **drag and drop events**, swipe through pages, event press, grid press, etc
 * Customizable styles
 * Multiple locale support
+
+![weekView](images/gif.gif)
+
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+- [Basic usage](#basic-usage)
+- [Full API](#full-api)
+  - [Props](#props)
+  - [Event Item](#event-item)
+  - [Methods](#methods)
+- [Custom components](#custom-components)
+  - [Custom Event item component](#custom-event-item-component)
+  - [Custom Day header component](#custom-day-header-component)
+  - [Locales customization](#locales-customization)
+  - [Custom RefreshComponent](#custom-refreshcomponent)
+- [Example use cases](#example-use-cases)
+- [Known issues](#known-issues)
+- [Contributors](#contributors)
 
 
 ## Installation
@@ -22,14 +39,12 @@ or
 **Requirements:** install peer dependencies [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) v2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) v2, which we use to provide smoother interactions and animations (e.g. drag and drop).
 Required by react-native-week-view since versions 0.17.0 and higher.
 
-
-### Compatibility
+Compatibility:
 
 | react-native-week-view | react-native |
 | ---------------------- | ------------ |
 | >= 0.7.0               | >= 0.59      |
 | >= 0.17.0              | >= 0.60.0    |
-
 
 
 ## Basic usage
@@ -108,7 +123,7 @@ const MyComponent = () => (
 | `gridRowStyle`                         | _Object_                                                     | `width: 1`, `color: grey (#E9EDF0)` | Prop to customize width and color of horizontal lines, provide: `{ borderTopWidth: <width>, borderColor: <color> }`                                                                                                                                                                                                                                                                                                                                                                 |
 | `gridColumnStyle`                      | _Object_                                                     | same as above                       | Prop to customize width and color of vertical lines, provide: `{ borderLeftWidth: <width>, borderColor: <color> }`                                                                                                                                                                                                                                                                                                                                                                  |
 | **_Other props <br> (patch RN bugs)_** |
-| `prependMostRecent`                    | _Boolean_                                                    | `false`                             | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [issue #39](https://github.com/hoangnm/react-native-week-view/issues/39) for more details.                                                                                                                                                                                                                                                                                                |
+| `prependMostRecent`                    | _Boolean_                                                    | `false`                             | If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [known issues](#glitch-when-swiping-to-new-pages)                                                                                                                                                                                                                                                                                                                                         |
 
 ### Event Item
 ```js
@@ -124,21 +139,26 @@ const MyComponent = () => (
 
 ### Methods
 
-To use the component methods save a reference to it:
+* **`goToDate(date, animated = true)`**: navigate to a custom date.
+* **`goToNextPage(animated = true)`**: navigate to the next page (to the future).
+* **`goToPrevPage(animated = true)`**: navigate to the previous page (to the past).
+* **`scrollToTime(minutes, options = { animated = false })`**: scroll vertically to a time in the day, provided in minutes. For example, scroll to 13:00 hrs: `ref.scrollToTime(13 * 60)`.
+
+To save a reference to the component:
 ```js
 <WeekView
-  // ... other props
+  // class components:
   ref={(ref) => { this.weekViewRef = ref; }}
+  // functional components:
+  ref={weekViewRef} // with `const weekViewRef = React.useRef()`
 />
 ```
 
-* **`goToDate(date, animated = true)`**: the component navigates to a custom date. Note: if the target date has not been rendered before, there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
-* **`goToNextPage(animated = true)`**: the component navigates to the next page (to the future). Note: if `prependMostRecent` is `true`, and the component is near the last page rendered, there may be a delay on the animation.
-* **`goToPrevPage(animated = true)`**: the component navigates to the previous page (to the past). Note: if `prependMostRecent` is `false` (the default), and the component is near the first page rendered, there may be a delay on the animation.
-* **`scrollToTime(minutes, options = { animated = false })`**: scroll vertically to a time in the day, provided in minutes. For example, to scroll to 13:00 hrs: `ref.scrollToTime(13 * 60)`.
+## Custom components
 
+Further customize the week-view by providing your own components.
 
-### Custom `EventComponent`
+### Custom Event item component
 The custom component will be rendered inside a `TouchableOpacity`, which has the background color set to `event.color`, and is placed with absolute position in the grid. The component receives two props:
 * **`event`** _(Event)_ - Event item as described before.
 * **`position`**: _(Object)_ - object containing `top`, `left`, `height` and `width` values in pixels.
@@ -160,8 +180,7 @@ const MyEventComponent = ({ event, position }) => (
 />
 ```
 
-
-### Custom day components
+### Custom Day header component
 (Note: first you should check if the props `headerStyle`, `headerTextStyle` and/or `formatDateHeader` are enough for your use case).
 
 Use these props to fully customize the days in the header.
@@ -226,55 +245,33 @@ const MyRefreshComponent = ({ style }) => (
 />
 ```
 
-## Other example usages
+## Example use cases
 
-### Fixed week
+See [dedicated docs](./docs/common-usages.md) with common usages and example code.
 
-The `WeekView` component can be used to display a fixed week (as a timetable):
-
-* Use the prop `fixedHorizontally={true}`. This prop should not be changed after the first render
-
-* To set `startDate` and `endDate` in each event, you should use the function provided: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`, where:
-  * `day`: _(Number|String)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc. for english).
-  * `hour`: _(Number)_ - specify hour of the day as number (from 0 to 23)
-  * `minutes`: _(Number)_ - specify minutes of the day as number (from 0 to 59), defaults to 0
-  * `seconds`: _(Number)_ - specify seconds of the day as number (from 0 to 59), defaults to 0
-
-  If you choose to not use `createFixedWeekDate()`, make sure that `startDate` and `endDate` are `Date` objects within this week, otherwise the events will not be displayed correctly in the timetable.
+- [Drag and drop events](./docs/common-usages.md#drag-and-drop-events)
+- [Press the grid to create an event](./docs/common-usages.md#press-or-longpress-the-grid-to-create-an-event)
+- [Fixed week (timetable)](./docs/common-usages.md#fixed-week-timetable)
 
 
-* If the `numberOfDays` is other than 7, will display the first days of the week. E.g. if `numberOfDays === 5`, will display from monday to friday.
+## Known issues
+
+We try to make all user interactions and animations as smooth as possible, but we have seen issues in some cases.
+
+#### Glitch when swiping to new pages
+
+* When navigating to a new distant date (e.g. using `weekViewRef.goToDate(someDistantDate)`) there may be a delay on the animation. See [this issue](https://github.com/hoangnm/react-native-week-view/issues/54) for details.
+* Flicker issue when swiping to one side
+  * See https://github.com/hoangnm/react-native-week-view/issues/39 for details
+  * As a workaround, you can prioritize navigations to the past XOR to the future:
+    * if `prependMostRecent={false}` (default) the swiping to the future will be smooth, but the swiping to the past pages may have glitches
+    * if `prependMostRecent={true}`, the swiping to the past will be smooth, but swiping to the future may have glitches
 
 
-```js
-import WeekView, { createFixedWeekDate } from 'react-native-week-view';
+## Contributors
 
-const myEvents = [
-  {
-    id: 1,
-    description: 'Event 1',
-    startDate: createFixedWeekDate('Monday', 12), // Day may be passed as string
-    endDate: createFixedWeekDate(1, 14), // Or as number, 1 = monday
-    color: 'blue',
-  },
-  {
-    id: 2,
-    description: 'Event 2',
-    startDate: createFixedWeekDate('wed', 16),
-    endDate: createFixedWeekDate(3, 16, 30),
-    color: 'red',
-  },
-];
+<a href="https://github.com/hoangnm/react-native-week-view/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=hoangnm/react-native-week-view" />
+</a>
 
-const MyComponent = () => (
-  <WeekView
-    events={myEvents}
-    fixedHorizontally={true}
-    // Recommended props:
-    showTitle={false} // if true, shows this month and year
-    numberOfDays={7}
-    formatDateHeader="ddd" // display short name days, e.g. Mon, Tue, etc
-    // ... other props
-  />
-);
-```
+Made with [contrib.rocks](https://contrib.rocks).
