@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Lint Code Base
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Lint Code Base
+      - name: Run super linter
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
