@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -11,10 +11,33 @@ import Animated, {
   runOnJS,
   useDerivedValue,
 } from 'react-native-reanimated';
-import styles from './Event.styles';
+import styles, { circleStyles } from './Event.styles';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
+
+const SIDES = ['bottom', 'top', 'left', 'right'];
+
+const Circle = ({ side }) => (
+  <View
+    style={circleStyles[side]}
+    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+  />
+);
+
+const Circles = ({ isEditing, editEventConfig, buildCircleGesture }) =>
+  isEditing
+    ? SIDES.reduce((acc, side) => {
+        if (editEventConfig[side]) {
+          acc.push(
+            <GestureDetector key={side} gesture={buildCircleGesture(side)}>
+              <Circle side={side} />
+            </GestureDetector>,
+          );
+        }
+        return acc;
+      }, [])
+    : [];
 
 const Event = ({
   event,
@@ -24,8 +47,12 @@ const Event = ({
   EventComponent,
   containerStyle,
   onDrag,
+  onEdit,
+  editingEventId,
+  editEventConfig,
 }) => {
-  const isDragEnabled = !!onDrag;
+  const isEditing = !!onEdit && editingEventId === event.id;
+  const isDragEnabled = !!onDrag && editingEventId == null;
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
@@ -51,11 +78,50 @@ const Event = ({
     [event, position, onDrag],
   );
 
+  const onEditRelease = useCallback(
+    (translation) => onEdit && onEdit(event, translation),
+    [event, onEdit],
+  );
+
+  const resizeByEdit = {
+    bottom: useSharedValue(0),
+    right: useSharedValue(0),
+    top: useSharedValue(0),
+    topPinOpposite: useSharedValue(0),
+    left: useSharedValue(0),
+    leftPinOpposite: useSharedValue(0),
+  };
+
+  // Used when exitAfterFirst: false
+  const accumulatedEdit = {
+    top: useSharedValue(0),
+    left: useSharedValue(0),
+    width: useSharedValue(0),
+    height: useSharedValue(0),
+  };
+
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
-  const currentWidth = useSharedValue(position.width);
-  const currentLeft = useSharedValue(position.left);
-  const currentTop = useSharedValue(position.top);
-  const currentHeight = useSharedValue(position.height);
+  const currentWidth = useDerivedValue(
+    () =>
+      position.width +
+      resizeByEdit.right.value +
+      resizeByEdit.leftPinOpposite.value +
+      accumulatedEdit.width.value,
+  );
+  const currentLeft = useDerivedValue(
+    () => position.left + resizeByEdit.left.value + accumulatedEdit.left.value,
+  );
+  const currentTop = useDerivedValue(
+    () => position.top + resizeByEdit.top.value + accumulatedEdit.top.value,
+  );
+
+  const currentHeight = useDerivedValue(
+    () =>
+      position.height +
+      resizeByEdit.bottom.value +
+      resizeByEdit.topPinOpposite.value +
+      accumulatedEdit.height.value,
+  );
 
   const isDragging = useSharedValue(false);
   const isPressing = useSharedValue(false);
@@ -108,6 +174,28 @@ const Event = ({
     },
   );
 
+  useAnimatedReaction(
+    () => editingEventId,
+    (targetEvent) => {
+      if (targetEvent !== event.id) {
+        Object.keys(resizeByEdit).forEach((key) => {
+          if (resizeByEdit[key].value !== 0) {
+            resizeByEdit[key].value = withTiming(0, {
+              duration: UPDATE_EVENT_ANIMATION_DURATION,
+            });
+          }
+        });
+        Object.keys(accumulatedEdit).forEach((key) => {
+          if (accumulatedEdit[key].value !== 0) {
+            accumulatedEdit[key].value = withTiming(0, {
+              duration: UPDATE_EVENT_ANIMATION_DURATION,
+            });
+          }
+        });
+      }
+    },
+  );
+
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
@@ -138,7 +226,7 @@ const Event = ({
     });
 
   const longPressGesture = Gesture.LongPress()
-    .enabled(!!onLongPress)
+    .enabled(!!onLongPress && !isEditing)
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -153,7 +241,7 @@ const Event = ({
     });
 
   const pressGesture = Gesture.Tap()
-    .enabled(!!onPress)
+    .enabled(!!onPress && !isEditing)
     .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
@@ -172,6 +260,60 @@ const Event = ({
     longPressGesture,
     pressGesture,
   );
+
+  const buildCircleGesture = (side) =>
+    Gesture.Pan()
+      .onUpdate((panEvt) => {
+        switch (side) {
+          case 'top':
+            resizeByEdit.top.value = panEvt.translationY;
+            resizeByEdit.topPinOpposite.value = -panEvt.translationY;
+            break;
+          case 'bottom':
+            resizeByEdit.bottom.value = panEvt.translationY;
+            break;
+          case 'left':
+            resizeByEdit.left.value = panEvt.translationX;
+            resizeByEdit.leftPinOpposite.value = -panEvt.translationX;
+            break;
+          case 'right':
+            resizeByEdit.right.value = panEvt.translationX;
+            break;
+          default:
+        }
+      })
+      .onEnd((panEvt, success) => {
+        if (!success) {
+          resizeByEdit[side].value = 0;
+          return;
+        }
+        const movedAmount = resizeByEdit[side].value;
+        resizeByEdit[side].value = 0;
+
+        if (!(editEventConfig && editEventConfig.exitAfterFirst)) {
+          switch (side) {
+            case 'top':
+              accumulatedEdit.top.value += movedAmount;
+              accumulatedEdit.height.value -= movedAmount;
+              resizeByEdit.topPinOpposite.value = 0;
+              break;
+            case 'bottom':
+              accumulatedEdit.height.value += movedAmount;
+              break;
+            case 'left':
+              accumulatedEdit.left.value += movedAmount;
+              accumulatedEdit.width.value -= movedAmount;
+              resizeByEdit.leftPinOpposite.value = 0;
+              break;
+            case 'right':
+              accumulatedEdit.width.value += movedAmount;
+              break;
+            default:
+          }
+        }
+
+        runOnJS(onEditRelease)({ [side]: movedAmount });
+      });
 
   return (
     <GestureDetector gesture={composedGesture}>
@@ -194,10 +336,18 @@ const Event = ({
         ) : (
           <Text style={styles.description}>{event.description}</Text>
         )}
+        <Circles
+          isEditing={isEditing}
+          editEventConfig={editEventConfig}
+          buildCircleGesture={buildCircleGesture}
+        />
       </Animated.View>
     </GestureDetector>
   );
 };
+
+// TODO: shape
+// export const EditEventConfigPropType = PropTypes.object;
 
 export const eventPropType = PropTypes.shape({
   color: PropTypes.string,
@@ -222,6 +372,8 @@ Event.propTypes = {
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   onDrag: PropTypes.func,
+  onEdit: PropTypes.func,
+  editingEventId: PropTypes.number,
 };
 
 export default Event;

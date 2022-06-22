@@ -73,6 +73,7 @@ export default class WeekView extends Component {
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
       windowWidth: Dimensions.get('window').width,
+      editingEventId: null,
     };
 
     setLocale(props.locale);
@@ -484,6 +485,92 @@ export default class WeekView extends Component {
     };
   };
 
+  /* Edit-mode methods */
+
+  /**
+   * Stop editing mode, if it is on.
+   * @returns bool indicating if stopped editing mode
+   */
+  tryStopEditing = () => {
+    if (this.props.onEditEvent && this.state.editingEventId != null) {
+      this.setState({ editingEventId: null });
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * Try handling a touch in edit mode
+   * @param {EventItem} event
+   * @returns true if consumed the touch, false if not
+   */
+  tryConsumingTouchWithEdit = (isLongPress, event) => {
+    if (!this.props.onEditEvent) return false;
+
+    if (this.tryStopEditing()) return true;
+
+    const { longPress: configLongPress } = this.props.editEventConfig || {};
+    if (configLongPress === isLongPress) {
+      this.setState({ editingEventId: event.id });
+      return true;
+    }
+
+    return false;
+  };
+  /* End of edit-mode methods */
+
+  /* Wrappers for edit-mode */
+  /**
+   * onEvent<Press|LongPress> wrapper to capture touch if edit-mode is enabled.
+   * @param {EventItem} event
+   */
+  handleEventTouch = (longPress, event) => {
+    if (this.tryConsumingTouchWithEdit(longPress, event)) return;
+
+    const callback = longPress
+      ? this.props.onEventLongPress
+      : this.props.onEventPress;
+    if (callback && event) {
+      callback(event);
+    }
+  };
+
+  handleEventPress = (event) => this.handleEventTouch(false, event);
+
+  handleEventLongPress = (event) => this.handleEventTouch(true, event);
+
+  /**
+   * onGrid<Press|LongPress> wrapper to capture touch if edit-mode is enabled.
+   * @param {EventItem} event
+   */
+  handleGridTouch = (callback, ...args) => {
+    if (this.tryStopEditing()) return;
+    if (callback) {
+      callback(...args);
+    }
+  };
+
+  handleGridPress = (...args) =>
+    this.handleGridTouch(this.props.onGridClick, ...args);
+
+  handleGridLongPress = (...args) =>
+    this.handleGridTouch(this.props.onGridLongPress, ...args);
+
+  /**
+   * onEditEvent wrapper to check if should end edit-mode after first edition
+   * @param  {...any} args passed to onEditEvent() callback
+   */
+  handleEditEvent = (...args) => {
+    const { onEditEvent, editEventConfig } = this.props;
+    if (!onEditEvent && this.state.editingEventId == null) {
+      return;
+    }
+    if (editEventConfig && editEventConfig.exitAfterFirst) {
+      this.setState({ editingEventId: null });
+    }
+    onEditEvent(...args);
+  };
+
   render() {
     const {
       showTitle,
@@ -497,16 +584,18 @@ export default class WeekView extends Component {
       DayHeaderComponent,
       TodayHeaderComponent,
       formatDateHeader,
-      onEventPress,
-      onEventLongPress,
+      // onEventPress,
+      // onEventLongPress,
       events,
       hoursInDisplay,
       timeStep,
       beginAgendaAt,
       endAgendaAt,
       formatTimeLabel,
-      onGridClick,
-      onGridLongPress,
+      // onGridClick,
+      // onGridLongPress,
+      onEditEvent,
+      editEventConfig,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -519,7 +608,12 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates, windowWidth } = this.state;
+    const {
+      currentMoment,
+      initialDates,
+      windowWidth,
+      editingEventId,
+    } = this.state;
     const times = this.calculateTimes(
       timeStep,
       formatTimeLabel,
@@ -534,6 +628,7 @@ export default class WeekView extends Component {
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
+    console.log('EDITING: ', editingEventId);
     return (
       <GestureHandlerRootView style={styles.container}>
         <View style={styles.headerContainer}>
@@ -622,10 +717,10 @@ export default class WeekView extends Component {
                     eventsByDate={eventsByDate}
                     initialDate={item}
                     numberOfDays={numberOfDays}
-                    onEventPress={onEventPress}
-                    onEventLongPress={onEventLongPress}
-                    onGridClick={onGridClick}
-                    onGridLongPress={onGridLongPress}
+                    onEventPress={this.handleEventPress}
+                    onEventLongPress={this.handleEventLongPress}
+                    onGridClick={this.handleGridPress}
+                    onGridLongPress={this.handleGridLongPress}
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
                     beginAgendaAt={beginAgendaAt}
@@ -639,6 +734,9 @@ export default class WeekView extends Component {
                     onDragEvent={onDragEvent}
                     pageWidth={pageWidth}
                     dayWidth={dayWidth}
+                    onEditEvent={onEditEvent && this.handleEditEvent}
+                    editingEventId={editingEventId}
+                    editEventConfig={editEventConfig}
                   />
                 );
               }}
@@ -687,6 +785,8 @@ WeekView.propTypes = {
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
+  // onEditEvent: PropTypes.func,
+  // editEventConfig: EditEventConfigPropType,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,

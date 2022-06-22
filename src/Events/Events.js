@@ -190,23 +190,26 @@ const processEvents = (
 class Events extends PureComponent {
   processEvents = memoizeOne(processEvents);
 
+  yToSeconds = (yValue) => {
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+    return yToSeconds(yValue - CONTENT_OFFSET, hoursInDisplay, beginAgendaAt);
+  };
+
+  xToDayIndex = (xValue) => {
+    return Math.floor(xValue / this.props.dayWidth);
+  };
+
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
-    const { initialDate, hoursInDisplay, beginAgendaAt } = this.props;
-    const dayIndex = Math.floor(pressEvt.x / this.props.dayWidth);
+    const dayIndex = this.xToDayIndex(pressEvt.x);
+    const secondsInDay = this.yToSeconds(pressEvt.y);
 
-    const seconds = yToSeconds(
-      pressEvt.y - CONTENT_OFFSET,
-      hoursInDisplay,
-      beginAgendaAt,
-    );
-
-    const dateWithTime = moment(initialDate)
+    const dateWithTime = moment(this.props.initialDate)
       .add(dayIndex, 'day')
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     callback(pressEvt, dateWithTime.getHours(), dateWithTime);
@@ -225,27 +228,55 @@ class Events extends PureComponent {
     if (!onDragEvent) {
       return;
     }
-
-    const { dayWidth, hoursInDisplay, beginAgendaAt } = this.props;
-
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
-    const movedDays = Math.floor(newX / dayWidth);
-    const seconds = yToSeconds(
-      newY - CONTENT_OFFSET,
-      hoursInDisplay,
-      beginAgendaAt,
-    );
+
+    const movedDays = this.xToDayIndex(newX);
+    const secondsInDay = this.yToSeconds(newY);
 
     const newStartDate = moment(event.startDate)
       .add(movedDays, 'days')
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     const eventDuration = event.endDate.getTime() - event.startDate.getTime();
     const newEndDate = new Date(newStartDate.getTime() + eventDuration);
 
     onDragEvent(event, newStartDate, newEndDate);
+  };
+
+  handleEditEvent = (event, params) => {
+    const { onEditEvent } = this.props;
+    if (!onEditEvent) {
+      return;
+    }
+    if (!params || Object.keys(params).length === 0) {
+      return;
+    }
+
+    let newStartDate = moment(event.startDate);
+    let newEndDate = moment(event.endDate);
+
+    if (params.left) {
+      const daysToLeft = this.xToDayIndex(params.left);
+      newStartDate = newStartDate.subtract(daysToLeft, 'days');
+    }
+    if (params.right) {
+      const movedRight = this.xToDayIndex(params.right);
+      newEndDate = newEndDate.add(movedRight, 'days');
+    }
+    if (params.top) {
+      newStartDate = newStartDate
+        .startOf('day')
+        .seconds(this.yToSeconds(params.top));
+    }
+    if (params.bottom) {
+      newEndDate = newEndDate
+        .startOf('day')
+        .seconds(this.yToSeconds(params.bottom));
+    }
+
+    onEditEvent(event, newStartDate.toDate(), newEndDate.toDate());
   };
 
   isToday = (dayIndex) => {
@@ -277,6 +308,9 @@ class Events extends PureComponent {
       onGridLongPress,
       dayWidth,
       pageWidth,
+      onEditEvent,
+      editingEventId,
+      editEventConfig,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -325,6 +359,9 @@ class Events extends PureComponent {
                   EventComponent={EventComponent}
                   containerStyle={eventContainerStyle}
                   onDrag={onDragEvent && this.handleDragEvent}
+                  onEdit={onEditEvent && this.handleEditEvent}
+                  editingEventId={editingEventId}
+                  editEventConfig={editEventConfig}
                 />
               ))}
             </View>
@@ -376,6 +413,8 @@ Events.propTypes = {
   onDragEvent: PropTypes.func,
   pageWidth: PropTypes.number.isRequired,
   dayWidth: PropTypes.number.isRequired,
+  onEditEvent: PropTypes.func,
+  editingEventId: PropTypes.number,
 };
 
 export default Events;

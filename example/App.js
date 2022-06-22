@@ -87,6 +87,15 @@ const MyRefreshComponent = ({style}) => (
   <ActivityIndicator style={style} color="red" size="large" />
 );
 
+const editEventConfig = {
+  top: true,
+  bottom: true,
+  left: true,
+  right: false,
+  exitAfterFirst: true,
+  longPress: true,
+};
+
 class App extends React.Component {
   state = {
     events: showFixedComponent ? sampleFixedEvents : sampleEvents,
@@ -112,7 +121,7 @@ class App extends React.Component {
     Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
   };
 
-  onDragEvent = (event, newStartDate, newEndDate) => {
+  updateDB = (event, newStartDate, newEndDate) => {
     // Here you should update the event in your DB with the new date and hour
     this.setState({
       events: [
@@ -126,6 +135,10 @@ class App extends React.Component {
     });
   };
 
+  onDragEvent = (event, newStartDate, newEndDate) => {
+    this.updateDB(event, newStartDate, newEndDate);
+  };
+
   onDayPress = (date, formattedDate) => {
     console.log('Day: ', date, formattedDate);
   };
@@ -136,6 +149,11 @@ class App extends React.Component {
 
   onTimeScrolled = date => {
     console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
+  };
+
+  onEditEvent = (event, newStartDate, newEndDate) => {
+    console.log('Edited: ', event.id, newStartDate, newEndDate);
+    // this.updateDB(event, newStartDate, newEndDate);
   };
 
   render() {
@@ -162,7 +180,7 @@ class App extends React.Component {
             formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
             hoursInDisplay={12}
             timeStep={60}
-            startHour={8}
+            startHour={15}
             fixedHorizontally={showFixedComponent}
             showTitle={!showFixedComponent}
             showNowLine
@@ -172,6 +190,8 @@ class App extends React.Component {
             onDayPress={this.onDayPress}
             onMonthPress={this.onMonthPress}
             onTimeScrolled={this.onTimeScrolled}
+            onEditEvent={this.onEditEvent}
+            editEventConfig={editEventConfig}
           />
         </SafeAreaView>
       </>
