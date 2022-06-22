@@ -257,20 +257,20 @@ class Events extends PureComponent {
     let newStartDate = moment(event.startDate);
     let newEndDate = moment(event.endDate);
 
-    if (params.left) {
+    if (params.left != null) {
       const daysToLeft = this.xToDayIndex(params.left);
-      newStartDate = newStartDate.subtract(daysToLeft, 'days');
+      newStartDate = newStartDate.add(daysToLeft, 'days');
     }
-    if (params.right) {
+    if (params.right != null) {
       const movedRight = this.xToDayIndex(params.right);
       newEndDate = newEndDate.add(movedRight, 'days');
     }
-    if (params.top) {
+    if (params.top != null) {
       newStartDate = newStartDate
         .startOf('day')
         .seconds(this.yToSeconds(params.top));
     }
-    if (params.bottom) {
+    if (params.bottom != null) {
       newEndDate = newEndDate
         .startOf('day')
         .seconds(this.yToSeconds(params.bottom));

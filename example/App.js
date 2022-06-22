@@ -88,11 +88,11 @@ const MyRefreshComponent = ({style}) => (
 );
 
 const editEventConfig = {
-  top: true,
+  top: false,
   bottom: true,
-  left: true,
-  right: false,
-  exitAfterFirst: true,
+  left: false,
+  right: true,
+  exitAfterFirst: false,
   longPress: true,
 };
 
@@ -153,7 +153,7 @@ class App extends React.Component {
 
   onEditEvent = (event, newStartDate, newEndDate) => {
     console.log('Edited: ', event.id, newStartDate, newEndDate);
-    // this.updateDB(event, newStartDate, newEndDate);
+    this.updateDB(event, newStartDate, newEndDate);
   };
 
   render() {

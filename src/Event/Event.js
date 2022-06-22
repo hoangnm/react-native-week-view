@@ -79,7 +79,7 @@ const Event = ({
   );
 
   const onEditRelease = useCallback(
-    (translation) => onEdit && onEdit(event, translation),
+    (params) => onEdit && onEdit(event, params),
     [event, onEdit],
   );
 
@@ -92,36 +92,11 @@ const Event = ({
     leftPinOpposite: useSharedValue(0),
   };
 
-  // Used when exitAfterFirst: false
-  const accumulatedEdit = {
-    top: useSharedValue(0),
-    left: useSharedValue(0),
-    width: useSharedValue(0),
-    height: useSharedValue(0),
-  };
-
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
-  const currentWidth = useDerivedValue(
-    () =>
-      position.width +
-      resizeByEdit.right.value +
-      resizeByEdit.leftPinOpposite.value +
-      accumulatedEdit.width.value,
-  );
-  const currentLeft = useDerivedValue(
-    () => position.left + resizeByEdit.left.value + accumulatedEdit.left.value,
-  );
-  const currentTop = useDerivedValue(
-    () => position.top + resizeByEdit.top.value + accumulatedEdit.top.value,
-  );
-
-  const currentHeight = useDerivedValue(
-    () =>
-      position.height +
-      resizeByEdit.bottom.value +
-      resizeByEdit.topPinOpposite.value +
-      accumulatedEdit.height.value,
-  );
+  const currentWidth = useSharedValue(position.width);
+  const currentLeft = useSharedValue(position.left);
+  const currentTop = useSharedValue(position.top);
+  const currentHeight = useSharedValue(position.height);
 
   const isDragging = useSharedValue(false);
   const isPressing = useSharedValue(false);
@@ -140,17 +115,22 @@ const Event = ({
         { translateX: translatedByDrag.value.x },
         { translateY: translatedByDrag.value.y },
       ],
-      width: currentWidth.value,
-      left: currentLeft.value,
-      top: currentTop.value,
-      height: currentHeight.value,
+      width:
+        currentWidth.value + resizeByEdit.right.value - resizeByEdit.left.value,
+      left: currentLeft.value + resizeByEdit.left.value,
+      top: currentTop.value + resizeByEdit.top.value,
+      height:
+        currentHeight.value +
+        resizeByEdit.bottom.value -
+        resizeByEdit.top.value,
       opacity: withSpring(currentOpacity.value),
     };
   });
 
   useAnimatedReaction(
     () => position,
-    ({ top, left, height, width }) => {
+    (newPosition) => {
+      const { top, left, height, width } = newPosition;
       if (currentTop.value !== top) {
         currentTop.value = withTiming(top, {
           duration: UPDATE_EVENT_ANIMATION_DURATION,
@@ -169,28 +149,6 @@ const Event = ({
       if (currentWidth.value !== width) {
         currentWidth.value = withTiming(width, {
           duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-    },
-  );
-
-  useAnimatedReaction(
-    () => editingEventId,
-    (targetEvent) => {
-      if (targetEvent !== event.id) {
-        Object.keys(resizeByEdit).forEach((key) => {
-          if (resizeByEdit[key].value !== 0) {
-            resizeByEdit[key].value = withTiming(0, {
-              duration: UPDATE_EVENT_ANIMATION_DURATION,
-            });
-          }
-        });
-        Object.keys(accumulatedEdit).forEach((key) => {
-          if (accumulatedEdit[key].value !== 0) {
-            accumulatedEdit[key].value = withTiming(0, {
-              duration: UPDATE_EVENT_ANIMATION_DURATION,
-            });
-          }
         });
       }
     },
@@ -267,14 +225,12 @@ const Event = ({
         switch (side) {
           case 'top':
             resizeByEdit.top.value = panEvt.translationY;
-            resizeByEdit.topPinOpposite.value = -panEvt.translationY;
             break;
           case 'bottom':
             resizeByEdit.bottom.value = panEvt.translationY;
             break;
           case 'left':
             resizeByEdit.left.value = panEvt.translationX;
-            resizeByEdit.leftPinOpposite.value = -panEvt.translationX;
             break;
           case 'right':
             resizeByEdit.right.value = panEvt.translationX;
@@ -290,29 +246,30 @@ const Event = ({
         const movedAmount = resizeByEdit[side].value;
         resizeByEdit[side].value = 0;
 
-        if (!(editEventConfig && editEventConfig.exitAfterFirst)) {
-          switch (side) {
-            case 'top':
-              accumulatedEdit.top.value += movedAmount;
-              accumulatedEdit.height.value -= movedAmount;
-              resizeByEdit.topPinOpposite.value = 0;
-              break;
-            case 'bottom':
-              accumulatedEdit.height.value += movedAmount;
-              break;
-            case 'left':
-              accumulatedEdit.left.value += movedAmount;
-              accumulatedEdit.width.value -= movedAmount;
-              resizeByEdit.leftPinOpposite.value = 0;
-              break;
-            case 'right':
-              accumulatedEdit.width.value += movedAmount;
-              break;
-            default:
-          }
+        const params = {};
+        switch (side) {
+          case 'top':
+            currentTop.value += movedAmount;
+            currentHeight.value -= movedAmount;
+            params.top = currentTop.value;
+            break;
+          case 'bottom':
+            currentHeight.value += movedAmount;
+            params.bottom = currentTop.value + currentHeight.value;
+            break;
+          case 'left':
+            currentLeft.value += movedAmount;
+            currentWidth.value -= movedAmount;
+            params.left = currentLeft.value;
+            break;
+          case 'right':
+            currentWidth.value += movedAmount;
+            params.right = currentLeft.value + currentWidth.value;
+            break;
+          default:
         }
 
-        runOnJS(onEditRelease)({ [side]: movedAmount });
+        runOnJS(onEditRelease)(params);
       });
 
   return (

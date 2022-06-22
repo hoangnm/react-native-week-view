@@ -488,7 +488,7 @@ export default class WeekView extends Component {
   /* Edit-mode methods */
 
   /**
-   * Stop editing mode, if it is on.
+   * Stop editing mode if it is currently on.
    * @returns bool indicating if stopped editing mode
    */
   tryStopEditing = () => {
@@ -500,20 +500,29 @@ export default class WeekView extends Component {
   };
 
   /**
-   * Try handling a touch in edit mode
+   * Start editing mode if is enabled and the recent touch matches the configuration.
+   * @param {bool} isLongPress
    * @param {EventItem} event
+   */
+  tryStartEditing = (isLongPress, event) => {
+    const { onEditEvent, editEventConfig } = this.props;
+    const { longPress: configLongPress } = editEventConfig || {};
+    if (onEditEvent && configLongPress === isLongPress) {
+      this.setState({ editingEventId: event.id });
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * Try handling a touch in edit mode
    * @returns true if consumed the touch, false if not
    */
   tryConsumingTouchWithEdit = (isLongPress, event) => {
     if (!this.props.onEditEvent) return false;
 
     if (this.tryStopEditing()) return true;
-
-    const { longPress: configLongPress } = this.props.editEventConfig || {};
-    if (configLongPress === isLongPress) {
-      this.setState({ editingEventId: event.id });
-      return true;
-    }
+    if (this.tryStartEditing(isLongPress, event)) return true;
 
     return false;
   };
@@ -628,7 +637,6 @@ export default class WeekView extends Component {
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
-    console.log('EDITING: ', editingEventId);
     return (
       <GestureHandlerRootView style={styles.container}>
         <View style={styles.headerContainer}>
