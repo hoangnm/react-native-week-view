@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dimensions } from 'react-native';
-import { render, cleanup } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { State } from 'react-native-gesture-handler';
 import {
   fireGestureHandler,
@@ -211,10 +211,8 @@ describe('User interactions', () => {
       },
     ];
 
-    let mockOnEventPress;
-
-    beforeEach(() => {
-      mockOnEventPress = jest.fn();
+    const mockRenderAndFire = () => {
+      const mockOnEventPress = jest.fn();
 
       render(
         <WeekView
@@ -233,13 +231,17 @@ describe('User interactions', () => {
        * but RNGH does not provide an appropriate API for that
        */
       fireGestureHandler(getByGestureTestId(`pressGesture-${targetId}`), []);
-    });
+
+      return mockOnEventPress;
+    };
 
     it('calls callback exactly once', () => {
+      const mockOnEventPress = mockRenderAndFire();
       expect(mockOnEventPress).toHaveBeenCalledOnce();
     });
 
     it('calls callback with event as first argument', () => {
+      const mockOnEventPress = mockRenderAndFire();
       const [eventArg] = mockOnEventPress.mock.calls[0];
       expect(eventArg.id).toEqual(targetId);
     });
@@ -263,12 +265,11 @@ describe('User interactions', () => {
         endDate: new Date(2022, 3, 6, 18),
       },
     ];
-    let mockOnDragEvent;
 
     const numberOfDays = 3;
 
-    beforeEach(() => {
-      mockOnDragEvent = jest.fn();
+    const mockAndRender = () => {
+      const mockOnDragEvent = jest.fn();
 
       render(
         <WeekView
@@ -280,9 +281,13 @@ describe('User interactions', () => {
           onDragEvent={mockOnDragEvent}
         />,
       );
-    });
+
+      return mockOnDragEvent;
+    };
 
     it('callback is not called if the movement fails', () => {
+      const mockOnDragEvent = mockAndRender();
+
       fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: 100, translationY: -3 },
         { state: State.FAILED },
@@ -292,6 +297,8 @@ describe('User interactions', () => {
     });
 
     it('callback is not called if the movement is cancelled', () => {
+      const mockOnDragEvent = mockAndRender();
+
       fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: -100, translationY: 200 },
         { state: State.CANCELLED },
@@ -301,6 +308,8 @@ describe('User interactions', () => {
     });
 
     it('callback is called with the correct arguments', () => {
+      const mockOnDragEvent = mockAndRender();
+
       fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
         { translationX: 100, translationY: 100 },
       ]);
@@ -335,6 +344,8 @@ describe('User interactions', () => {
       }
 
       it('up and right, computes correctly newStartDate', () => {
+        const mockOnDragEvent = mockAndRender();
+
         fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: atLeastOneDay, translationY: -30 },
         ]);
@@ -352,6 +363,8 @@ describe('User interactions', () => {
       });
 
       it('down and left, computes correctly newStartDate', () => {
+        const mockOnDragEvent = mockAndRender();
+
         fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: -atLeastOneDay, translationY: 55 },
         ]);
@@ -363,6 +376,7 @@ describe('User interactions', () => {
       });
 
       it('up (same day), computes correctly newStartDate', () => {
+        const mockOnDragEvent = mockAndRender();
         fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: 0, translationY: -55 },
         ]);
@@ -376,6 +390,7 @@ describe('User interactions', () => {
 
     describe('duration handling', () => {
       it('is called with the correct duration', () => {
+        const mockOnDragEvent = mockAndRender();
         fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
           { translationX: 100, translationY: 100 },
         ]);
@@ -390,7 +405,7 @@ describe('User interactions', () => {
       });
 
       it('handles the duration for events of multiple days', () => {
-        cleanup();
+        const mockOnDragEvent = jest.fn();
 
         const startDateInDay1 = new Date(2022, 3, 6, 22, 0, 0);
         const endDateInDay2 = new Date(2022, 3, 7, 2, 0, 0);
