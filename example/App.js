@@ -88,11 +88,11 @@ const MyRefreshComponent = ({style}) => (
 );
 
 const editEventConfig = {
-  top: false,
+  top: true,
   bottom: true,
-  left: false,
+  left: true,
   right: true,
-  exitAfterFirst: false,
+  exitAfterFirst: true,
   longPress: true,
 };
 

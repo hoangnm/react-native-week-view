@@ -486,7 +486,6 @@ export default class WeekView extends Component {
   };
 
   /* Edit-mode methods */
-
   /**
    * Stop editing mode if it is currently on.
    * @returns bool indicating if stopped editing mode
@@ -526,7 +525,6 @@ export default class WeekView extends Component {
 
     return false;
   };
-  /* End of edit-mode methods */
 
   /* Wrappers for edit-mode */
   /**

@@ -222,18 +222,28 @@ const Event = ({
   const buildCircleGesture = (side) =>
     Gesture.Pan()
       .onUpdate((panEvt) => {
+        const { translationX, translationY } = panEvt;
+        const { height, width } = position;
         switch (side) {
           case 'top':
-            resizeByEdit.top.value = panEvt.translationY;
+            if (translationY < height) {
+              resizeByEdit.top.value = translationY;
+            }
             break;
           case 'bottom':
-            resizeByEdit.bottom.value = panEvt.translationY;
+            if (translationY > -height) {
+              resizeByEdit.bottom.value = translationY;
+            }
             break;
           case 'left':
-            resizeByEdit.left.value = panEvt.translationX;
+            if (translationX < width) {
+              resizeByEdit.left.value = translationX;
+            }
             break;
           case 'right':
-            resizeByEdit.right.value = panEvt.translationX;
+            if (translationX > -width) {
+              resizeByEdit.right.value = translationX;
+            }
             break;
           default:
         }
@@ -243,27 +253,27 @@ const Event = ({
           resizeByEdit[side].value = 0;
           return;
         }
-        const movedAmount = resizeByEdit[side].value;
+        const resizedAmount = resizeByEdit[side].value;
         resizeByEdit[side].value = 0;
 
         const params = {};
         switch (side) {
           case 'top':
-            currentTop.value += movedAmount;
-            currentHeight.value -= movedAmount;
+            currentTop.value += resizedAmount;
+            currentHeight.value -= resizedAmount;
             params.top = currentTop.value;
             break;
           case 'bottom':
-            currentHeight.value += movedAmount;
+            currentHeight.value += resizedAmount;
             params.bottom = currentTop.value + currentHeight.value;
             break;
           case 'left':
-            currentLeft.value += movedAmount;
-            currentWidth.value -= movedAmount;
+            currentLeft.value += resizedAmount;
+            currentWidth.value -= resizedAmount;
             params.left = currentLeft.value;
             break;
           case 'right':
-            currentWidth.value += movedAmount;
+            currentWidth.value += resizedAmount;
             params.right = currentLeft.value + currentWidth.value;
             break;
           default:
