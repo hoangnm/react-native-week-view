@@ -34,58 +34,55 @@ const extractEventIdFromTestID = (testID) => {
  *   - startHour (usually, some hours before the target event)
  */
 describe('Basic render functionality', () => {
-  it('Renders with no events', () => {
-    // does not throw exception
-    render(
-      <WeekView
-        events={[]}
-        numberOfDays={3}
-        selectedDate={new Date(2020, 3, 24)}
-      />,
-    );
+  describe('with no events', () => {
+    it('renders an empty grid', () => {
+      const { getByHintText, queryAllByHintText } = render(
+        <WeekView
+          events={[]}
+          numberOfDays={3}
+          selectedDate={new Date(2020, 3, 24)}
+        />,
+      );
+      expect(getByHintText('Grid with horizontal scroll')).toBeDefined();
+      expect(queryAllByHintText(/Show event \d+/)).toBeArrayOfSize(0);
+    });
   });
 
-  const runTestShowsAll = (baseEvents, baseProps) => {
-    const events = baseEvents;
-    const { queryAllByHintText } = render(
+  const runTestShowsAll = (events, props) => {
+    const { queryAllByHintText, queryAllByText } = render(
       /* eslint-disable-next-line react/jsx-props-no-spreading */
-      <WeekView events={events} {...baseProps} />,
+      <WeekView events={events} {...props} />,
     );
+    expect(queryAllByHintText(/Show event \d+/)).toBeArrayOfSize(events.length);
+    expect(queryAllByText(/event \d+/)).toBeArrayOfSize(events.length);
+
     /**
-     * NOTE: Ideally, the selection would be by text: queryByText('event something')
-     * instead of queryByHintText(), but in practice the event description might be
-     * hidden due to the size of the events --> queryByText() does not find it, even though
-     * the event is visible in the screen as a box with a color.
-     * (Is hard to ensure that the event size is large enough to display the description:
-     * depends on the screen size, hours in display, number of days, font size, padding, etc.)
+     * NOTE: Ideally, the selection would be only by text: queryAllByText('event \d')
+     * without queryAllByHintText(), but in practice an edge case might occur:
+     *     the box is visible --> events are detected byHint
+     *     but is too small, so the text is hidden --> events are not detected byText.
+     * This depends on many factors: screen size, hours in display, number of days,
+     * font size, padding, etc.
+     *
+     * To avoid future headaches with this test, we test both things in that order:
+     * byHint and byText.
+     *   - If byHint passes the test but byText does not
+     *     --> boxes are visible but the text inside is not
+     *     --> test events are too small, or change props hoursInDisplay, numberOfDays, etc
+     *   - If both test fails --> events are not rendered at all --> code is broken
      */
-    expect(queryAllByHintText('Show event')).toBeArrayOfSize(events.length);
   };
 
-  const runTestShowDescription = (baseEvents, baseProps) => {
-    const events = baseEvents.map((evt) => ({
-      ...evt,
-      description: `event ${evt.id}`,
-    }));
-    const { queryAllByHintText } = render(
-      /* eslint-disable-next-line react/jsx-props-no-spreading */
-      <WeekView events={events} {...baseProps} />,
-    );
-    queryAllByHintText('Show event').forEach((renderedEvent) => {
-      expect(renderedEvent).toHaveTextContent(/event \d+/g);
-    });
-  };
-
-  const runTestShowColor = (baseEvents, baseProps, colors) => {
+  const runTestShowColor = (baseEvents, props, colors) => {
     const events = baseEvents.map((evt, index) => ({
       ...evt,
       color: colors[index],
     }));
     const { queryAllByHintText } = render(
       /* eslint-disable-next-line react/jsx-props-no-spreading */
-      <WeekView events={events} {...baseProps} />,
+      <WeekView events={events} {...props} />,
     );
-    queryAllByHintText('Show event').forEach((renderedEvent) => {
+    queryAllByHintText(/Show event \d+/).forEach((renderedEvent) => {
       const eventId = Number(
         extractEventIdFromTestID(renderedEvent.props.testID),
       );
@@ -94,12 +91,12 @@ describe('Basic render functionality', () => {
     });
   };
 
-  describe('with events with no overlap', () => {
+  describe('with non-overlapping events', () => {
     const baseEventsNoOverlap = [
       {
         id: 1,
         startDate: new Date(2021, 4, 2, 12, 0),
-        endDate: new Date(2021, 4, 2, 12, 30),
+        endDate: new Date(2021, 4, 2, 13, 0),
       },
       {
         id: 2,
@@ -108,32 +105,30 @@ describe('Basic render functionality', () => {
       },
       {
         id: 7,
-        startDate: new Date(2021, 4, 3, 11),
-        endDate: new Date(2021, 4, 3, 11, 30),
+        startDate: new Date(2021, 4, 3, 11, 14, 56),
+        endDate: new Date(2021, 4, 3, 11, 30, 21),
       },
       {
         id: 19,
-        startDate: new Date(2021, 4, 4, 13),
+        startDate: new Date(2021, 4, 4, 13, 32),
         endDate: new Date(2021, 4, 4, 14, 35),
       },
       {
         id: 52,
-        startDate: new Date(2021, 4, 5, 18),
-        endDate: new Date(2021, 4, 5, 21, 57),
+        startDate: new Date(2021, 4, 5, 18, 23),
+        endDate: new Date(2021, 4, 5, 19, 57),
       },
-    ];
+    ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
+
     const baseProps = {
       numberOfDays: 5,
       selectedDate: new Date(2021, 4, 1),
-      hoursInDisplay: 24,
-      startHour: 0,
+      hoursInDisplay: 10,
+      startHour: 11,
     };
 
     it('shows all events', () =>
       runTestShowsAll(baseEventsNoOverlap, baseProps));
-
-    it('shows each event with its description', () =>
-      runTestShowDescription(baseEventsNoOverlap, baseProps));
 
     it('shows each event with its color', () => {
       const colors = ['blue', 'lightblue', 'purple', 'yellow', 'pink'];
@@ -141,18 +136,8 @@ describe('Basic render functionality', () => {
     });
   });
 
-  describe('with events with some overlap', () => {
+  describe('with overlapped events', () => {
     const baseEventsOverlap = [
-      {
-        id: 11,
-        startDate: new Date(2020, 7, 25, 12, 0),
-        endDate: new Date(2020, 7, 25, 14, 30),
-      },
-      {
-        id: 2,
-        startDate: new Date(2020, 7, 25, 13, 0),
-        endDate: new Date(2020, 7, 25, 13, 45),
-      },
       {
         id: 9,
         startDate: new Date(2020, 7, 24, 17),
@@ -164,27 +149,35 @@ describe('Basic render functionality', () => {
         endDate: new Date(2020, 7, 24, 18),
       },
       {
+        id: 11,
+        startDate: new Date(2020, 7, 25, 12, 15),
+        endDate: new Date(2020, 7, 25, 14, 30),
+      },
+      {
+        id: 2,
+        startDate: new Date(2020, 7, 25, 13, 0),
+        endDate: new Date(2020, 7, 25, 13, 45),
+      },
+      {
         id: 3,
         startDate: new Date(2020, 7, 24, 17),
         endDate: new Date(2020, 7, 24, 18),
       },
       {
         id: 1,
-        startDate: new Date(2020, 7, 26, 11),
+        startDate: new Date(2020, 7, 26, 13),
         endDate: new Date(2020, 7, 26, 20),
       },
-    ];
+    ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
+
     const baseProps = {
       numberOfDays: 3,
       selectedDate: new Date(2020, 7, 24),
-      hoursInDisplay: 24,
-      startHour: 0,
+      hoursInDisplay: 12,
+      startHour: 12,
     };
 
     it('shows all events', () => runTestShowsAll(baseEventsOverlap, baseProps));
-
-    it('shows each event with its description', () =>
-      runTestShowDescription(baseEventsOverlap, baseProps));
 
     it('shows each event with its color', () => {
       const colors = [

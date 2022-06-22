@@ -178,8 +178,8 @@ const Event = ({
       <Animated.View
         testID={`WeekViewEvent-${event.id}`}
         accessible
-        accessibilityLabel="Show event"
-        accessibilityHint="Show event"
+        accessibilityLabel={`Show event ${event.id}`}
+        accessibilityHint={`Show event ${event.id}`}
         style={[
           styles.container,
           {
