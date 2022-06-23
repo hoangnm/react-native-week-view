@@ -9,24 +9,8 @@ import {
 import WeekView from '../WeekView/WeekView';
 
 /**
- * Extracts the event-id embedded in "WeekViewEvent-<id>".
- *
- * Throws an error if the testID does not match the regex.
- * @param {String} testID
- * @returns string with event id
- */
-const extractEventIdFromTestID = (testID) => {
-  const found = testID.match(/WeekViewEvent-(?<eventId>\d+)/);
-  const eventId = found && found.groups && found.groups.eventId;
-  if (!eventId) {
-    throw Error(`Could not find the event id in testID: ${testID}`);
-  }
-  return eventId;
-};
-
-/**
- * NOTE: In most cases the props provided to <WeekView /> need to be
- * selected carefully, so that events _are visible in the screen_.
+ * NOTE: In most cases, when providing events to <WeekView />, select
+ * carefully some props so the events _are visible in the screen_.
  * For example:
  *   - numberOfDays
  *   - selectedDate (usually, at least the same day the target event's startDate)
@@ -48,147 +32,114 @@ describe('Basic render functionality', () => {
     });
   });
 
-  const runTestShowsAll = (events, props) => {
-    const { queryAllByHintText, queryAllByText } = render(
-      /* eslint-disable-next-line react/jsx-props-no-spreading */
-      <WeekView events={events} {...props} />,
-    );
-    expect(queryAllByHintText(/Show event \d+/)).toBeArrayOfSize(events.length);
-    expect(queryAllByText(/event \d+/)).toBeArrayOfSize(events.length);
+  const eventsWithoutOverlap = [
+    {
+      id: 1,
+      startDate: new Date(2021, 4, 2, 12, 0),
+      endDate: new Date(2021, 4, 2, 13, 0),
+      color: 'blue',
+    },
+    {
+      id: 2,
+      startDate: new Date(2021, 4, 2, 13, 0),
+      endDate: new Date(2021, 4, 2, 13, 45),
+      color: 'lightblue',
+    },
+    {
+      id: 7,
+      startDate: new Date(2021, 4, 3, 11, 14, 56),
+      endDate: new Date(2021, 4, 3, 11, 30, 21),
+      color: 'purple',
+    },
+    {
+      id: 19,
+      startDate: new Date(2021, 4, 4, 13, 32),
+      endDate: new Date(2021, 4, 4, 14, 35),
+      color: 'yellow',
+    },
+    {
+      id: 52,
+      startDate: new Date(2021, 4, 5, 18, 23),
+      endDate: new Date(2021, 4, 5, 19, 57),
+      color: 'pink',
+    },
+  ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
 
-    /**
-     * NOTE: Ideally, the selection would be only by text: queryAllByText('event \d')
-     * without queryAllByHintText(), but in practice an edge case might occur:
-     *     the box is visible --> events are detected byHint
-     *     but is too small, so the text is hidden --> events are not detected byText.
-     * This depends on many factors: screen size, hours in display, number of days,
-     * font size, padding, etc.
-     *
-     * To avoid future headaches with this test, we test both things in that order:
-     * byHint and byText.
-     *   - If byHint passes the test but byText does not
-     *     --> boxes are visible but the text inside is not
-     *     --> test events are too small, or change props hoursInDisplay, numberOfDays, etc
-     *   - If both test fails --> events are not rendered at all --> code is broken
-     */
+  const propsForNoOverlap = {
+    numberOfDays: 5,
+    selectedDate: new Date(2021, 4, 1),
+    hoursInDisplay: 10,
+    startHour: 11,
   };
 
-  const runTestShowColor = (baseEvents, props, colors) => {
-    const events = baseEvents.map((evt, index) => ({
-      ...evt,
-      color: colors[index],
-    }));
-    const { queryAllByHintText } = render(
-      /* eslint-disable-next-line react/jsx-props-no-spreading */
-      <WeekView events={events} {...props} />,
-    );
-    queryAllByHintText(/Show event \d+/).forEach((renderedEvent) => {
-      const eventId = Number(
-        extractEventIdFromTestID(renderedEvent.props.testID),
+  const eventsWithOverlap = [
+    {
+      id: 9,
+      startDate: new Date(2020, 7, 24, 17),
+      endDate: new Date(2020, 7, 24, 18),
+      color: 'purple',
+    },
+    {
+      id: 43,
+      startDate: new Date(2020, 7, 24, 17),
+      endDate: new Date(2020, 7, 24, 18),
+      color: 'red',
+    },
+    {
+      id: 11,
+      startDate: new Date(2020, 7, 25, 12, 15),
+      endDate: new Date(2020, 7, 25, 14, 30),
+      color: 'pink',
+    },
+    {
+      id: 2,
+      startDate: new Date(2020, 7, 25, 13, 0),
+      endDate: new Date(2020, 7, 25, 13, 45),
+      color: 'yellow',
+    },
+    {
+      id: 3,
+      startDate: new Date(2020, 7, 24, 17),
+      endDate: new Date(2020, 7, 24, 18),
+      color: 'lightblue',
+    },
+    {
+      id: 1,
+      startDate: new Date(2020, 7, 26, 13),
+      endDate: new Date(2020, 7, 26, 20),
+      color: 'lightblue',
+    },
+  ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
+
+  const propsForOverlap = {
+    numberOfDays: 3,
+    selectedDate: new Date(2020, 7, 24),
+    hoursInDisplay: 12,
+    startHour: 12,
+  };
+
+  describe.each([
+    ['non-overlapping', eventsWithoutOverlap, propsForNoOverlap],
+    ['overlapped', eventsWithOverlap, propsForOverlap],
+  ])('with %s events', (_, events, props) => {
+    it('shows all events', () => {
+      const { queryAllByText } = render(
+        /* eslint-disable-next-line react/jsx-props-no-spreading */
+        <WeekView events={events} {...props} />,
       );
-      const expectedColor = events.find((evt) => evt.id === eventId).color;
-      expect(renderedEvent).toHaveStyle({ backgroundColor: expectedColor });
+      expect(queryAllByText(/event \d+/)).toBeArrayOfSize(events.length);
     });
-  };
-
-  describe('with non-overlapping events', () => {
-    const baseEventsNoOverlap = [
-      {
-        id: 1,
-        startDate: new Date(2021, 4, 2, 12, 0),
-        endDate: new Date(2021, 4, 2, 13, 0),
-      },
-      {
-        id: 2,
-        startDate: new Date(2021, 4, 2, 13, 0),
-        endDate: new Date(2021, 4, 2, 13, 45),
-      },
-      {
-        id: 7,
-        startDate: new Date(2021, 4, 3, 11, 14, 56),
-        endDate: new Date(2021, 4, 3, 11, 30, 21),
-      },
-      {
-        id: 19,
-        startDate: new Date(2021, 4, 4, 13, 32),
-        endDate: new Date(2021, 4, 4, 14, 35),
-      },
-      {
-        id: 52,
-        startDate: new Date(2021, 4, 5, 18, 23),
-        endDate: new Date(2021, 4, 5, 19, 57),
-      },
-    ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
-
-    const baseProps = {
-      numberOfDays: 5,
-      selectedDate: new Date(2021, 4, 1),
-      hoursInDisplay: 10,
-      startHour: 11,
-    };
-
-    it('shows all events', () =>
-      runTestShowsAll(baseEventsNoOverlap, baseProps));
 
     it('shows each event with its color', () => {
-      const colors = ['blue', 'lightblue', 'purple', 'yellow', 'pink'];
-      runTestShowColor(baseEventsNoOverlap, baseProps, colors);
-    });
-  });
-
-  describe('with overlapped events', () => {
-    const baseEventsOverlap = [
-      {
-        id: 9,
-        startDate: new Date(2020, 7, 24, 17),
-        endDate: new Date(2020, 7, 24, 18),
-      },
-      {
-        id: 43,
-        startDate: new Date(2020, 7, 24, 17),
-        endDate: new Date(2020, 7, 24, 18),
-      },
-      {
-        id: 11,
-        startDate: new Date(2020, 7, 25, 12, 15),
-        endDate: new Date(2020, 7, 25, 14, 30),
-      },
-      {
-        id: 2,
-        startDate: new Date(2020, 7, 25, 13, 0),
-        endDate: new Date(2020, 7, 25, 13, 45),
-      },
-      {
-        id: 3,
-        startDate: new Date(2020, 7, 24, 17),
-        endDate: new Date(2020, 7, 24, 18),
-      },
-      {
-        id: 1,
-        startDate: new Date(2020, 7, 26, 13),
-        endDate: new Date(2020, 7, 26, 20),
-      },
-    ].map((evt) => ({ ...evt, description: `event ${evt.id}` }));
-
-    const baseProps = {
-      numberOfDays: 3,
-      selectedDate: new Date(2020, 7, 24),
-      hoursInDisplay: 12,
-      startHour: 12,
-    };
-
-    it('shows all events', () => runTestShowsAll(baseEventsOverlap, baseProps));
-
-    it('shows each event with its color', () => {
-      const colors = [
-        'purple',
-        'red',
-        'pink',
-        'yellow',
-        'lightblue',
-        'lightblue',
-      ];
-      runTestShowColor(baseEventsOverlap, baseProps, colors);
+      const { getByHintText } = render(
+        /* eslint-disable-next-line react/jsx-props-no-spreading */
+        <WeekView events={events} {...props} />,
+      );
+      events.forEach((evt) => {
+        const renderedEvent = getByHintText(`Show event ${evt.id}`);
+        const expectedColor = evt.color;
+        expect(renderedEvent).toHaveStyle({ backgroundColor: expectedColor });
+      });
     });
   });
 });
@@ -338,10 +289,6 @@ describe('User interactions', () => {
        */
       const estimatedDayWidth = Dimensions.get('window').width / numberOfDays;
       const atLeastOneDay = Math.floor(estimatedDayWidth * 1.5);
-
-      if (Number.isNaN(estimatedDayWidth)) {
-        throw new Error('Could not get window width');
-      }
 
       it('up and right, computes correctly newStartDate', () => {
         const mockOnDragEvent = mockAndRender();
