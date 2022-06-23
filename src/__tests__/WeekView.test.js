@@ -146,14 +146,14 @@ describe('Basic render functionality', () => {
 
 describe('User interactions', () => {
   describe('Pressing events', () => {
-    const targetId = 34;
+    const targetEvent = {
+      id: 34,
+      startDate: new Date(2020, 7, 24, 12),
+      endDate: new Date(2020, 7, 24, 18),
+      description: 'target event',
+    };
     const events = [
-      {
-        id: targetId,
-        startDate: new Date(2020, 7, 24, 12),
-        endDate: new Date(2020, 7, 24, 18),
-        description: 'target event',
-      },
+      targetEvent,
       {
         id: 91,
         startDate: new Date(2020, 7, 23, 20),
@@ -181,20 +181,20 @@ describe('User interactions', () => {
        * for example: `fireEvent.press(getByText('target event'))`,
        * but RNGH does not provide an appropriate API for that
        */
-      fireGestureHandler(getByGestureTestId(`pressGesture-${targetId}`), []);
+      fireGestureHandler(
+        getByGestureTestId(`pressGesture-${targetEvent.id}`),
+        [],
+      );
 
       return mockOnEventPress;
     };
 
-    it('calls callback exactly once', () => {
+    it('calls callback exactly once and with event as argument', () => {
       const mockOnEventPress = mockRenderAndFire();
       expect(mockOnEventPress).toHaveBeenCalledOnce();
-    });
-
-    it('calls callback with event as first argument', () => {
-      const mockOnEventPress = mockRenderAndFire();
-      const [eventArg] = mockOnEventPress.mock.calls[0];
-      expect(eventArg.id).toEqual(targetId);
+      expect(mockOnEventPress).toHaveBeenCalledWith(
+        expect.objectContaining(targetEvent),
+      );
     });
   });
 
@@ -202,14 +202,14 @@ describe('User interactions', () => {
     const startDate = new Date(2022, 3, 5, 12, 0, 0);
     const endDate = new Date(2022, 3, 5, 14, 53, 52);
 
-    const targetId = 171;
+    const targetEvent = {
+      id: 171,
+      startDate,
+      endDate,
+      description: 'event to be dragged',
+    };
     const events = [
-      {
-        id: targetId,
-        startDate,
-        endDate,
-        description: 'event to be dragged',
-      },
+      targetEvent,
       {
         id: 82,
         startDate: new Date(2022, 3, 6, 17),
@@ -239,7 +239,7 @@ describe('User interactions', () => {
     it('callback is not called if the movement fails', () => {
       const mockOnDragEvent = mockAndRender();
 
-      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetEvent.id}`), [
         { translationX: 100, translationY: -3 },
         { state: State.FAILED },
       ]);
@@ -250,7 +250,7 @@ describe('User interactions', () => {
     it('callback is not called if the movement is cancelled', () => {
       const mockOnDragEvent = mockAndRender();
 
-      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetEvent.id}`), [
         { translationX: -100, translationY: 200 },
         { state: State.CANCELLED },
       ]);
@@ -261,16 +261,16 @@ describe('User interactions', () => {
     it('callback is called with the correct arguments', () => {
       const mockOnDragEvent = mockAndRender();
 
-      fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
+      fireGestureHandler(getByGestureTestId(`dragGesture-${targetEvent.id}`), [
         { translationX: 100, translationY: 100 },
       ]);
 
-      expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
-      const [e, newStartDate, newEndDate] = mockOnDragEvent.mock.calls[0];
-
-      expect(e.id).toEqual(targetId);
-      expect(newStartDate).toBeValidDate();
-      expect(newEndDate).toBeValidDate();
+      expect(mockOnDragEvent).toHaveBeenCalledOnce();
+      expect(mockOnDragEvent).toHaveBeenCalledWith(
+        expect.objectContaining(targetEvent),
+        expect.toBeValidDate(),
+        expect.toBeValidDate(),
+      );
     });
 
     describe('when dragging in direction', () => {
@@ -293,14 +293,17 @@ describe('User interactions', () => {
       it('up and right, computes correctly newStartDate', () => {
         const mockOnDragEvent = mockAndRender();
 
-        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
-          { translationX: atLeastOneDay, translationY: -30 },
-        ]);
+        fireGestureHandler(
+          getByGestureTestId(`dragGesture-${targetEvent.id}`),
+          [{ translationX: atLeastOneDay, translationY: -30 }],
+        );
 
-        expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
-        const args = mockOnDragEvent.mock.calls[0];
-        const newStartDate = args[1];
-        expect(newStartDate).toBeAfter(endOfDay);
+        expect(mockOnDragEvent).toHaveBeenCalledOnce();
+        expect(mockOnDragEvent).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.toBeAfter(endOfDay),
+          expect.toBeValidDate(),
+        );
         /**
          * NOTE: we do not expect an exact amount of days/time dragged,
          * since the specific calculation from pixels to time depends on:
@@ -312,11 +315,12 @@ describe('User interactions', () => {
       it('down and left, computes correctly newStartDate', () => {
         const mockOnDragEvent = mockAndRender();
 
-        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
-          { translationX: -atLeastOneDay, translationY: 55 },
-        ]);
+        fireGestureHandler(
+          getByGestureTestId(`dragGesture-${targetEvent.id}`),
+          [{ translationX: -atLeastOneDay, translationY: 55 }],
+        );
 
-        expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
+        expect(mockOnDragEvent).toHaveBeenCalledOnce();
         const args = mockOnDragEvent.mock.calls[0];
         const newStartDate = args[1];
         expect(newStartDate).toBeBefore(startOfDay);
@@ -324,27 +328,32 @@ describe('User interactions', () => {
 
       it('up (same day), computes correctly newStartDate', () => {
         const mockOnDragEvent = mockAndRender();
-        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
-          { translationX: 0, translationY: -55 },
-        ]);
+        fireGestureHandler(
+          getByGestureTestId(`dragGesture-${targetEvent.id}`),
+          [{ translationX: 0, translationY: -55 }],
+        );
 
-        expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
-        const args = mockOnDragEvent.mock.calls[0];
-        const newStartDate = args[1];
-        expect(newStartDate).toBeBetween(startOfDay, startDate);
+        expect(mockOnDragEvent).toHaveBeenCalledOnce();
+        expect(mockOnDragEvent).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.toBeBetween(startOfDay, startDate),
+          expect.toBeValidDate(),
+        );
       });
     });
 
     describe('duration handling', () => {
       it('is called with the correct duration', () => {
         const mockOnDragEvent = mockAndRender();
-        fireGestureHandler(getByGestureTestId(`dragGesture-${targetId}`), [
-          { translationX: 100, translationY: 100 },
-        ]);
+        fireGestureHandler(
+          getByGestureTestId(`dragGesture-${targetEvent.id}`),
+          [{ translationX: 100, translationY: 100 }],
+        );
 
-        expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
+        expect(mockOnDragEvent).toHaveBeenCalledOnce();
         const [, newStartDate, newEndDate] = mockOnDragEvent.mock.calls[0];
 
+        expect(newStartDate).toBeValidDate();
         expect(newEndDate).toBeValidDate();
         expect(newEndDate.getTime() - newStartDate.getTime()).toEqual(
           endDate.getTime() - startDate.getTime(),
@@ -388,9 +397,10 @@ describe('User interactions', () => {
           { translationX: 100, translationY: 100 },
         ]);
 
-        expect(mockOnDragEvent).toHaveBeenCalledTimes(1);
+        expect(mockOnDragEvent).toHaveBeenCalledOnce();
         const [, newStartDate, newEndDate] = mockOnDragEvent.mock.calls[0];
 
+        expect(newStartDate).toBeValidDate();
         expect(newEndDate).toBeValidDate();
         expect(newEndDate.getTime() - newStartDate.getTime()).toEqual(
           edgeCaseDuration,
