@@ -299,11 +299,9 @@ describe('User interactions', () => {
         );
 
         expect(mockOnDragEvent).toHaveBeenCalledOnce();
-        expect(mockOnDragEvent).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.toBeAfter(endOfDay),
-          expect.toBeValidDate(),
-        );
+        const args = mockOnDragEvent.mock.calls[0];
+        const newStartDate = args[1];
+        expect(newStartDate).toBeAfter(endOfDay);
         /**
          * NOTE: we do not expect an exact amount of days/time dragged,
          * since the specific calculation from pixels to time depends on:
@@ -334,11 +332,9 @@ describe('User interactions', () => {
         );
 
         expect(mockOnDragEvent).toHaveBeenCalledOnce();
-        expect(mockOnDragEvent).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.toBeBetween(startOfDay, startDate),
-          expect.toBeValidDate(),
-        );
+        const args = mockOnDragEvent.mock.calls[0];
+        const newStartDate = args[1];
+        expect(newStartDate).toBeBetween(startOfDay, startDate);
       });
     });
 
