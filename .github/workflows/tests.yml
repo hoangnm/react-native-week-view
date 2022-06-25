@@ -1,11 +1,13 @@
 name: Node tests
 
 on:
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  test-main:
+  build:
     name: Run lib tests
     runs-on: ubuntu-latest
 

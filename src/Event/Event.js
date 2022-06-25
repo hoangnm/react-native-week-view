@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import styles from './Event.styles';
 
+const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
 
 const Event = ({
@@ -109,7 +110,7 @@ const Event = ({
 
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
-    .withTestId('dragGesture')
+    .withTestId(`dragGesture-${event.id}`)
     .onTouchesDown(() => {
       isDragging.value = true;
     })
@@ -153,6 +154,7 @@ const Event = ({
 
   const pressGesture = Gesture.Tap()
     .enabled(!!onPress)
+    .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
     })
@@ -174,10 +176,14 @@ const Event = ({
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
+        testID={`WeekViewEvent-${event.id}`}
+        accessible
+        accessibilityLabel={`Show event ${event.id}`}
+        accessibilityHint={`Show event ${event.id}`}
         style={[
           styles.container,
           {
-            backgroundColor: event.color,
+            backgroundColor: event.color || DEFAULT_COLOR,
           },
           containerStyle,
           animatedStyles,
@@ -193,7 +199,7 @@ const Event = ({
   );
 };
 
-const eventPropType = PropTypes.shape({
+export const eventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   description: PropTypes.string,

@@ -664,6 +664,9 @@ export default class WeekView extends Component {
               windowSize={this.windowSize}
               initialNumToRender={this.windowSize}
               maxToRenderPerBatch={this.pageOffset}
+              accessible
+              accessibilityLabel="Grid with horizontal scroll"
+              accessibilityHint="Grid with horizontal scroll"
             />
           </View>
         </ScrollView>
