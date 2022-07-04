@@ -28,3 +28,25 @@ yarn start
 
 When you make changes to the `react-native-week-view/` package, you need to manually sync the code with the `example/` app to see the changes.
 After each change, run `yarn sync` and reload the app.
+
+
+### Profile performance on android
+
+See general guides here: https://reactnative.dev/docs/profiling#profiling-android-ui-performance-with-systrace
+
+Run the following:
+```sh
+cd example
+yarn android:release # Install release version (__DEV__ === false)
+
+# Open the app in the emulator
+
+# Run systrace with:
+/path/to/android-sdk/platform-tools/systrace/systrace.py --time 10 -o ../traces/<some-filename>.html sched gfx view -a com.example
+
+# Interact with the app for 10 seconds, then check trace.html in Google Chrome
+```
+
+Known issues:
+
+* UI thread info is detailed, but JS thread info may not be complete, see here: https://github.com/facebook/react-native/issues/26032

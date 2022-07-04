@@ -13,10 +13,16 @@ const getFontSizeHeader = (numberOfDays) => {
 };
 
 const Title = ({
-  style, showTitle, numberOfDays, selectedDate, textStyle, onMonthPress, width,
+  style,
+  showTitle,
+  numberOfDays,
+  selectedDate,
+  textStyle,
+  onMonthPress,
+  width,
 }) => {
   if (!showTitle) {
-    return <View style={[styles.title, { width }, style]}></View>
+    return <View style={[styles.title, { width }, style]} />;
   }
   const formattedMonth = getCurrentMonth(selectedDate);
   return (

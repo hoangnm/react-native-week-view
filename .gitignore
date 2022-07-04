@@ -2,6 +2,7 @@
 #
 node_modules/
 npm-debug.log
+yarn-error.log
 package-lock.json
 
 # Android
@@ -9,3 +10,6 @@ android/app/build
 
 # IDE
 .vscode
+
+# Performance profiles
+traces/

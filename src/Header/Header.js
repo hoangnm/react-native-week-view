@@ -36,7 +36,8 @@ const Column = ({
   const isToday = moment().isSame(column, 'days');
   const fullTextStyle = [getDayTextStyles(numberOfDays), textStyle];
 
-  const ComponentChosen = DayComponent || (isToday && TodayComponent) || DefaultDayComponent;
+  const ComponentChosen =
+    DayComponent || (isToday && TodayComponent) || DefaultDayComponent;
 
   return (
     <TouchableOpacity
