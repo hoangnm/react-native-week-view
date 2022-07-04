@@ -10,6 +10,7 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -23,18 +24,23 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  minutesToYDimension,
+  minutesToY,
+  yToSeconds,
   computeWeekViewDimensions,
+  CONTENT_OFFSET,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
-  minutesStep, formatTimeLabel, beginAt = 0, endAt = MINUTES_IN_DAY,
+  minutesStep,
+  formatTimeLabel,
+  beginAt = 0,
+  endAt = MINUTES_IN_DAY,
 ) => {
   const times = [];
   const startOfDay = moment().startOf('day');
   for (
-    let timer = (0 <= beginAt && beginAt < MINUTES_IN_DAY) ? beginAt : 0;
+    let timer = beginAt >= 0 && beginAt < MINUTES_IN_DAY ? beginAt : 0;
     timer < endAt && timer < MINUTES_IN_DAY;
     timer += minutesStep
   ) {
@@ -70,6 +76,9 @@ export default class WeekView extends Component {
     };
 
     setLocale(props.locale);
+
+    // FlatList optimization
+    this.windowSize = this.pageOffset * 2 + 1;
   }
 
   componentDidMount() {
@@ -90,7 +99,14 @@ export default class WeekView extends Component {
       setLocale(this.props.locale);
     }
     if (this.props.numberOfDays !== prevProps.numberOfDays) {
+      /**
+       * HOTFIX: linter rules no-access-state-in-setstate and no-did-update-set-state
+       * are disabled here for now.
+       * TODO: apply a better solution for the `currentMoment` and `initialDates` logic,
+       * without using componentDidUpdate()
+       */
       const initialDates = this.calculatePagesDates(
+        // eslint-disable-next-line react/no-access-state-in-setstate
         this.state.currentMoment,
         this.props.numberOfDays,
         this.props.prependMostRecent,
@@ -98,7 +114,9 @@ export default class WeekView extends Component {
       );
 
       this.currentPageIndex = this.pageOffset;
-      this.setState({
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState(
+        {
           currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
           initialDates,
         },
@@ -136,14 +154,49 @@ export default class WeekView extends Component {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
       const { hoursInDisplay, beginAgendaAt } = this.props;
-      const height = minutesToYDimension(hoursInDisplay, minutes);
-      const agendaOffset = minutesToYDimension(hoursInDisplay, beginAgendaAt);
+      const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
       this.verticalAgenda.scrollTo({
-        y: height - agendaOffset,
+        y: top,
         x: 0,
         animated,
       });
     }
+  };
+
+  verticalScrollBegun = () => {
+    this.isScrollingVertical = true;
+  };
+
+  verticalScrollEnded = (scrollEvent) => {
+    if (!this.isScrollingVertical) {
+      // Ensure the callback is called only once, same as with horizontal case
+      return;
+    }
+    this.isScrollingVertical = false;
+
+    const { onTimeScrolled, hoursInDisplay, beginAgendaAt } = this.props;
+
+    if (!onTimeScrolled) {
+      return;
+    }
+
+    const {
+      nativeEvent: { contentOffset },
+    } = scrollEvent;
+    const { y: position } = contentOffset;
+
+    const seconds = yToSeconds(
+      position - CONTENT_OFFSET,
+      hoursInDisplay,
+      beginAgendaAt,
+    );
+
+    const date = moment(this.state.currentMoment)
+      .startOf('day')
+      .seconds(seconds)
+      .toDate();
+
+    onTimeScrolled(date);
   };
 
   getSignToTheFuture = () => {
@@ -353,9 +406,6 @@ export default class WeekView extends Component {
     // If an event spans through multiple days, adds the event multiple times
     const sortedEvents = {};
     events.forEach((event) => {
-      // in milliseconds
-      const originalDuration =
-        event.endDate.getTime() - event.startDate.getTime();
       const startDate = moment(event.startDate);
       const endDate = moment(event.endDate);
 
@@ -367,8 +417,10 @@ export default class WeekView extends Component {
         // Calculate actual start and end dates
         const startOfDay = moment(date).startOf('day');
         const endOfDay = moment(date).endOf('day');
-        const actualStartDate = moment.max(startDate, startOfDay);
-        const actualEndDate = moment.min(endDate, endOfDay);
+
+        // The event box is limited to the start and end of the day
+        const boxStartDate = moment.max(startDate, startOfDay).toDate();
+        const boxEndDate = moment.min(endDate, endOfDay).toDate();
 
         // Add to object
         const dateStr = date.format(DATE_STR_FORMAT);
@@ -376,17 +428,18 @@ export default class WeekView extends Component {
           sortedEvents[dateStr] = [];
         }
         sortedEvents[dateStr].push({
-          ...event,
-          startDate: actualStartDate.toDate(),
-          endDate: actualEndDate.toDate(),
-          originalDuration,
+          ref: event,
+          box: {
+            startDate: boxStartDate,
+            endDate: boxEndDate,
+          },
         });
       }
     });
     // For each day, sort the events by the minute (in-place)
     Object.keys(sortedEvents).forEach((date) => {
       sortedEvents[date].sort((a, b) => {
-        return moment(a.startDate).diff(b.startDate, 'minutes');
+        return moment(a.box.startDate).diff(b.box.startDate, 'minutes');
       });
     });
     return sortedEvents;
@@ -439,21 +492,22 @@ export default class WeekView extends Component {
       RefreshComponent,
     } = this.props;
     const { currentMoment, initialDates, windowWidth } = this.state;
-    const times = this.calculateTimes(timeStep, formatTimeLabel, beginAgendaAt, endAgendaAt);
+    const times = this.calculateTimes(
+      timeStep,
+      formatTimeLabel,
+      beginAgendaAt,
+      endAgendaAt,
+    );
     const eventsByDate = this.sortEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
-    const {
-      pageWidth,
-      dayWidth,
-      timeLabelsWidth,
-    } = this.dimensions;
+    const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
     return (
-      <View style={styles.container}>
+      <GestureHandlerRootView style={styles.container}>
         <View style={styles.headerContainer}>
           <Title
             showTitle={showTitle}
@@ -478,6 +532,9 @@ export default class WeekView extends Component {
             keyExtractor={(item) => item}
             initialScrollIndex={this.pageOffset}
             extraData={dayWidth}
+            windowSize={this.windowSize}
+            initialNumToRender={this.windowSize}
+            maxToRenderPerBatch={this.pageOffset}
             renderItem={({ item }) => {
               return (
                 <Header
@@ -507,7 +564,10 @@ export default class WeekView extends Component {
           onMoveShouldSetResponderCapture={() => false}
           onResponderTerminationRequest={() => false}
           contentContainerStyle={Platform.OS === 'web' && styles.webScrollView}
-          ref={this.verticalAgendaRef}>
+          onMomentumScrollBegin={this.verticalScrollBegun}
+          onMomentumScrollEnd={this.verticalScrollEnded}
+          ref={this.verticalAgendaRef}
+        >
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
@@ -573,10 +633,16 @@ export default class WeekView extends Component {
                 { useNativeDriver: false },
               )}
               ref={this.eventsGridRef}
+              windowSize={this.windowSize}
+              initialNumToRender={this.windowSize}
+              maxToRenderPerBatch={this.pageOffset}
+              accessible
+              accessibilityLabel="Grid with horizontal scroll"
+              accessibilityHint="Grid with horizontal scroll"
             />
           </View>
         </ScrollView>
-      </View>
+      </GestureHandlerRootView>
     );
   }
 }
@@ -588,6 +654,7 @@ WeekView.propTypes = {
   weekStartsOn: PropTypes.number,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
+  onTimeScrolled: PropTypes.func,
   onEventPress: PropTypes.func,
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,

@@ -1,14 +1,20 @@
-import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Animated, PanResponder, Text, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useAnimatedStyle,
+  useAnimatedReaction,
+  useSharedValue,
+  withTiming,
+  withSpring,
+  runOnJS,
+  useDerivedValue,
+} from 'react-native-reanimated';
 import styles from './Event.styles';
 
+const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
-
-const hasMovedEnough = (gestureState) => {
-  const { dx, dy } = gestureState;
-  return Math.abs(dx) > 2 || Math.abs(dy) > 2;
-};
 
 const Event = ({
   event,
@@ -21,7 +27,16 @@ const Event = ({
 }) => {
   const isDragEnabled = !!onDrag;
 
-  const isPressDisabled = !onPress && !onLongPress;
+  // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
+  // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
+  const onPressWrapper = useCallback(() => onPress && onPress(event), [
+    event,
+    onPress,
+  ]);
+  const onLongPressWrapper = useCallback(
+    () => onLongPress && onLongPress(event),
+    [event, onLongPress],
+  );
 
   const onDragRelease = useCallback(
     (dx, dy) => {
@@ -36,94 +51,155 @@ const Event = ({
     [event, position, onDrag],
   );
 
-  const translatedByDrag = useRef(new Animated.ValueXY()).current;
-  const currentWidth = useRef(new Animated.Value(position.width)).current;
-  const currentLeft = useRef(new Animated.Value(position.left)).current;
+  const translatedByDrag = useSharedValue({ x: 0, y: 0 });
+  const currentWidth = useSharedValue(position.width);
+  const currentLeft = useSharedValue(position.left);
+  const currentTop = useSharedValue(position.top);
+  const currentHeight = useSharedValue(position.height);
 
-  useEffect(() => {
-    translatedByDrag.setValue({ x: 0, y: 0 });
-    const { left, width } = position;
-    const animations = [
-      Animated.timing(currentWidth, {
-        toValue: width,
-        duration: UPDATE_EVENT_ANIMATION_DURATION,
-        useNativeDriver: false,
-      }),
-      Animated.timing(currentLeft, {
-        toValue: left,
-        duration: UPDATE_EVENT_ANIMATION_DURATION,
-        useNativeDriver: false,
-      }),
-    ];
-    Animated.parallel(animations).start();
-  }, [position]);
+  const isDragging = useSharedValue(false);
+  const isPressing = useSharedValue(false);
+  const isLongPressing = useSharedValue(false);
 
-  const panResponder = useMemo(() => {
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => isDragEnabled,
-      onStartShouldSetPanResponderCapture: () =>
-        isPressDisabled && isDragEnabled,
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        isDragEnabled && hasMovedEnough(gestureState),
-      onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-        isPressDisabled && isDragEnabled && hasMovedEnough(gestureState),
-      onPanResponderMove: Animated.event(
-        [
-          null,
-          {
-            dx: translatedByDrag.x,
-            dy: translatedByDrag.y,
-          },
-        ],
-        {
-          useNativeDriver: false,
-        },
-      ),
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderRelease: (_, gestureState) => {
-        const { dx, dy } = gestureState;
-        onDragRelease(dx, dy);
-      },
-      onPanResponderTerminate: () => {
-        translatedByDrag.setValue({ x: 0, y: 0 });
-      },
+  const currentOpacity = useDerivedValue(() => {
+    if (isDragging.value || isPressing.value || isLongPressing.value) {
+      return 0.5;
+    }
+    return 1;
+  });
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translatedByDrag.value.x },
+        { translateY: translatedByDrag.value.y },
+      ],
+      width: currentWidth.value,
+      left: currentLeft.value,
+      top: currentTop.value,
+      height: currentHeight.value,
+      opacity: withSpring(currentOpacity.value),
+    };
+  });
+
+  useAnimatedReaction(
+    () => position,
+    ({ top, left, height, width }) => {
+      if (currentTop.value !== top) {
+        currentTop.value = withTiming(top, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
+      }
+      if (currentLeft.value !== left) {
+        currentLeft.value = withTiming(left, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
+      }
+      if (currentHeight.value !== height) {
+        currentHeight.value = withTiming(height, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
+      }
+      if (currentWidth.value !== width) {
+        currentWidth.value = withTiming(width, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
+      }
+    },
+  );
+
+  const dragGesture = Gesture.Pan()
+    .enabled(isDragEnabled)
+    .withTestId(`dragGesture-${event.id}`)
+    .onTouchesDown(() => {
+      isDragging.value = true;
+    })
+    .onUpdate((e) => {
+      translatedByDrag.value = {
+        x: e.translationX,
+        y: e.translationY,
+      };
+    })
+    .onEnd((evt, success) => {
+      if (!success) {
+        translatedByDrag.value = { x: 0, y: 0 };
+        return;
+      }
+      const { translationX, translationY } = evt;
+
+      currentTop.value += translationY;
+      currentLeft.value += translationX;
+      translatedByDrag.value = { x: 0, y: 0 };
+
+      runOnJS(onDragRelease)(translationX, translationY);
+    })
+    .onFinalize(() => {
+      isDragging.value = false;
     });
-  }, [onDragRelease, isDragEnabled, isPressDisabled]);
+
+  const longPressGesture = Gesture.LongPress()
+    .enabled(!!onLongPress)
+    .maxDistance(20)
+    .onTouchesDown(() => {
+      isLongPressing.value = true;
+    })
+    .onEnd((evt, success) => {
+      if (success) {
+        runOnJS(onLongPressWrapper)();
+      }
+    })
+    .onFinalize(() => {
+      isLongPressing.value = false;
+    });
+
+  const pressGesture = Gesture.Tap()
+    .enabled(!!onPress)
+    .withTestId(`pressGesture-${event.id}`)
+    .onTouchesDown(() => {
+      isPressing.value = true;
+    })
+    .onEnd((evt, success) => {
+      if (success) {
+        runOnJS(onPressWrapper)();
+      }
+    })
+    .onFinalize(() => {
+      isPressing.value = false;
+    });
+
+  const composedGesture = Gesture.Race(
+    dragGesture,
+    longPressGesture,
+    pressGesture,
+  );
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          top: position.top,
-          left: currentLeft,
-          height: position.height,
-          width: currentWidth,
-          backgroundColor: event.color,
-          transform: translatedByDrag.getTranslateTransform(),
-        },
-        containerStyle,
-      ]}
-      /* eslint-disable react/jsx-props-no-spreading */
-      {...panResponder.panHandlers}
-    >
-      <TouchableOpacity
-        onPress={() => onPress && onPress(event)}
-        onLongPress={() => onLongPress && onLongPress(event)}
-        style={styles.touchableContainer}
-        disabled={!onPress && !onLongPress}
+    <GestureDetector gesture={composedGesture}>
+      <Animated.View
+        testID={`WeekViewEvent-${event.id}`}
+        accessible
+        accessibilityLabel={`Show event ${event.id}`}
+        accessibilityHint={`Show event ${event.id}`}
+        style={[
+          styles.container,
+          {
+            backgroundColor: event.color || DEFAULT_COLOR,
+          },
+          containerStyle,
+          animatedStyles,
+        ]}
       >
         {EventComponent ? (
           <EventComponent event={event} position={position} />
         ) : (
           <Text style={styles.description}>{event.description}</Text>
         )}
-      </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
+    </GestureDetector>
   );
 };
 
-const eventPropType = PropTypes.shape({
+export const eventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   description: PropTypes.string,

@@ -1,20 +1,23 @@
 name: Node tests
 
 on:
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  test-main:
+  build:
     name: Run lib tests
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Setup node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-        node-version: 14.x
+        node-version: 14
+        cache: 'yarn'
 
     - run: yarn install --frozen-lockfile
     - run: yarn test
