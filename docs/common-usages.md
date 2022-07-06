@@ -1,91 +1,132 @@
 # Common use cases
 
 - [Drag and drop events](#drag-and-drop-events)
-- [Press or longPress the grid to create an event](#press-or-longpress-the-grid-to-create-an-event)
+- [Press the grid to create an event](#press-the-grid-to-create-an-event)
+- [Press an event and drag for editing](#press-an-event-and-drag-for-editing)
 - [Fixed week (timetable)](#fixed-week-timetable)
+- [Utility reducer](#utility-reducer)
 
 ## Drag and drop events
 
 ```js
-class MyComponent extends React.Component {
-  state = {
-    events: [
-      // ...
-    ],
-  };
+const MyComponent = () => {
+  const {events, updateEvent} = useEvents();
 
-  /** Here you should update the event in your DB with the new date and time. */
-  handleDragEvent = (event, newStartDate, newEndDate) => {
-    this.setState({
-      events: [
-        ...this.state.events.filter(e => e.id !== event.id),
-        {
-          ...event,
-          startDate: newStartDate,
-          endDate: newEndDate,
-        },
-      ],
-    });
-  };
-
-  render() {
-    return (
-      <WeekView
-        events={this.state.events}
-        onDragEvent={this.handleDragEvent}
-      />
-    );
-  }
+  return (
+    <WeekView
+      events={events}
+      onDragEvent={(event, newStartDate, newEndDate) => {
+        // Here you must update the event in your DB with the new date and time
+        updateEvent({ event, newStartDate, newEndDate })
+      }}
+    />
+  );
 }
 ```
 
 
-## Press or longPress the grid to create an event
+## Press the grid to create an event
 
 ```js
-class MyComponent extends React.Component {
-  state = {
-    events: [
-      // ...
-    ],
+const createDummyEvent = ({ startDate, duration }) => {
+  const endDate = new Date(startDate.getTime());
+  endDate.setHours(startDate.getHours() + duration);
+  return {
+    description: 'New Event',
+    color: 'lightblue',
+    startDate,
+    endDate,
+  };
+}
+
+const MyComponent = () => {
+  const {events, addEvent} = useEvents();
+
+  const createSomeNewEvent = (event, startHour, date) => {
+    // Here you update the DB with some new event
+    addEvent(createDummyEvent({ startDate: date, duration: 2 }));
   };
 
-  createDummyEvent = ({ startDate, duration }) => {
-    const maxId = Math.max(...this.state.events.map(e => e.id));
-    const endDate = new Date(startDate.getTime());
-    endDate.setHours(startDate.getHours() + duration);
-    return {
-      id: maxId + 1,
-      description: 'New Event',
-      color: 'lightblue',
-      startDate,
-      endDate,
-    };
-  }
+  return (
+    <WeekView
+      events={events}
+      onGridClick={createSomeNewEvent} // create on press
+      onGridLongPress={createSomeNewEvent} // ...and/or on long-press
+    />
+  );
+}
+```
 
-  /** Here you should update your DB with the new event. */
-  handleCreateNewEvent = (event, startHour, date) => {
-    // Create dummy event
-    const dummyEvent = this.createDummyEvent({ startDate: date, duration: 2 });
 
-    // Update DB with the new event
-    this.setState({
-      events: [
-        ...this.state.events,
-        dummyEvent,
-      ],
-    });
+## Press an event and drag for editing
+
+```js
+const EDIT_EVENT_CONFIG = {
+  top: true,
+  bottom: true,
+  left: true,
+  right: true,
+};
+
+const MyComponent = () => {
+  const {events, updateEvent} = useEvents();
+
+  const onEditEvent = (event, newStartDate, newEndDate) => {
+    // Here you must update the event in your DB with the new date and time
+    updateEvent({event, newStartDate, newEndDate});
   };
 
-  render() {
-    return (
-      <WeekView
-        events={this.state.events}
-        onGridClick={this.handleCreateNewEvent} // create on press
-        onGridLongPress={this.handleCreateNewEvent} // ...or on long-press
-      />
-    );
-  }
+  // You must handle in a state/prop the event being edited
+  const [editingEventId, setEditEvent] = useState(null);
+
+  /* When to enable/disable edit mode */
+  const handleLongPressEvent = event => {
+    if (editingEventId == null) {
+      // Long pressing the event enables editing mode
+      setEditEvent(event.id);
+    } else {
+      setEditEvent(null);
+    }
+  };
+
+  const handlePressEvent = event => {
+    if (editingEventId != null) {
+      // pressing the event disables editing mode
+      setEditEvent(null);
+      return;
+    }
+
+    console.log(`Event press ${event.id}`);
+  };
+
+  const handleGridPress = (event, startHour, date) => {
+    if (editingEventId != null) {
+      // pressing the grid disables editing mode
+      setEditEvent(null);
+      return;
+    }
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // zero-based
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    console.log(`Grid press: ${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
+  };
+
+  return (
+    <WeekView
+      events={events}
+      onEventPress={handlePressEvent}
+      onEventLongPress={handleLongPressEvent}
+      onGridClick={handleGridPress}
+      editingEvent={editingEventId}
+      onEditEvent={onEditEvent}
+      editEventConfig={EDIT_EVENT_CONFIG}
+    />
+  );
 }
 ```
 
@@ -138,4 +179,58 @@ const MyComponent = () => (
     // ... other props
   />
 );
+```
+
+
+## Utility reducer
+
+Events reducer used in these examples.
+
+```js
+const useEvents = (initialEvents = []) => {
+  const [events, dispatch] = useReducer(
+    (prevEvents, action) => {
+      switch (action.type) {
+        case 'updateEvent':
+          const {event, newStartDate, newEndDate} = action.payload;
+          return [
+            ...prevEvents.filter(e => e.id !== event.id),
+            {
+              ...event,
+              startDate: newStartDate,
+              endDate: newEndDate,
+            },
+          ];
+        case 'addEvent':
+          const maxId = Math.max(...prevEvents.map(e => e.id));
+          return [
+            ...prevEvents,
+            {
+              ...action.payload,
+              id: maxId + 1,
+            },
+          ];
+        default:
+          break;
+      }
+      return prevEvents;
+    },
+    initialEvents,
+  );
+
+  const addEvent = (payload) => dispatch({
+    type: 'addEvent',
+    payload,
+  });
+
+  const updateEvent = ({ event, newStartDate, newEndDate }) => dispatch({
+    type: 'updateEvent',
+    payload: { event, newStartDate, newEndDate },
+  });
+
+  return {
+    events,
+    updateEvent,
+  };
+};
 ```
