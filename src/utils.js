@@ -29,6 +29,25 @@ export const computeWeekViewDimensions = (totalWidth, numberOfDays) => {
 };
 
 /**
+ * TODO
+ *
+ * @param {*} totalHeight
+ * @param {*} hoursInDisplay
+ * @param {*} minutesStep
+ * @returns
+ */
+export const computeHeightDimensions = (
+  totalHeight,
+  hoursInDisplay,
+  minutesStep,
+) => {
+  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
+  return {
+    timeLabelHeight: totalHeight / timeLabelsInDisplay,
+  };
+};
+
+/**
  * Transform time in the day (expressed in minutes) to y dimension (pixels).
  *
  * Usage:
@@ -68,11 +87,6 @@ export const minutesToY = (minutes, hoursInDisplay, minutesOffset = 0) => {
 export const yToSeconds = (yValue, hoursInDisplay, minutesOffset = 0) => {
   const hour = (yValue * hoursInDisplay) / CONTAINER_HEIGHT;
   return (hour * 60 + minutesOffset) * 60;
-};
-
-export const getTimeLabelHeight = (hoursInDisplay, minutesStep) => {
-  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
-  return CONTAINER_HEIGHT / timeLabelsInDisplay;
 };
 
 export const getFormattedDate = (date, format) => {

@@ -28,6 +28,7 @@ import {
   yToSeconds,
   computeWeekViewDimensions,
   CONTENT_OFFSET,
+  computeHeightDimensions,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -68,11 +69,15 @@ export default class WeekView extends Component {
       props.prependMostRecent,
       props.fixedHorizontally,
     );
+    const { width: windowWidth, height: windowHeight } = Dimensions.get(
+      'window',
+    );
     this.state = {
       // currentMoment should always be the first date of the current page
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
-      windowWidth: Dimensions.get('window').width,
+      windowWidth,
+      windowHeight,
     };
 
     setLocale(props.locale);
@@ -89,8 +94,12 @@ export default class WeekView extends Component {
       this.header.scrollToOffset({ offset: position.value, animated: false });
     });
 
-    this.windowListener = Dimensions.addEventListener('change', ({ window }) =>
-      this.setState({ windowWidth: window.width }),
+    this.windowListener = Dimensions.addEventListener(
+      'change',
+      ({ window }) => {
+        const { width: windowWidth, height: windowHeight } = window;
+        this.setState({ windowWidth, windowHeight });
+      },
     );
   }
 
@@ -491,7 +500,12 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates, windowWidth } = this.state;
+    const {
+      currentMoment,
+      initialDates,
+      windowWidth,
+      windowHeight,
+    } = this.state;
     const times = this.calculateTimes(
       timeStep,
       formatTimeLabel,
@@ -503,8 +517,16 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
+    // TODO: rename to widthDimensions
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
+
+    this.heightDimensions = computeHeightDimensions(
+      windowHeight,
+      hoursInDisplay,
+      timeStep,
+    );
+    const { timeLabelHeight } = this.heightDimensions;
 
     return (
       <GestureHandlerRootView style={styles.container}>
@@ -572,8 +594,7 @@ export default class WeekView extends Component {
             <Times
               times={times}
               textStyle={hourTextStyle}
-              hoursInDisplay={hoursInDisplay}
-              timeStep={timeStep}
+              timeLabelHeight={timeLabelHeight}
               width={timeLabelsWidth}
             />
             <VirtualizedList
@@ -601,6 +622,7 @@ export default class WeekView extends Component {
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
                     beginAgendaAt={beginAgendaAt}
+                    timeLabelHeight={timeLabelHeight}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     gridRowStyle={gridRowStyle}

@@ -1,6 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -11,7 +15,6 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   CONTENT_OFFSET,
-  getTimeLabelHeight,
   yToSeconds,
   minutesToY,
 } from '../utils';
@@ -37,7 +40,7 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
 
 const getStyleForEvent = (
   event,
-  regularItemWidth,
+  oneDayWidth,
   hoursInDisplay,
   beginAgendaAt,
 ) => {
@@ -52,7 +55,7 @@ const getStyleForEvent = (
     top: top + CONTENT_OFFSET,
     left: 0,
     height,
-    width: regularItemWidth,
+    width: oneDayWidth,
   };
 };
 
@@ -187,6 +190,18 @@ const processEvents = (
   return totalEventsWithPosition;
 };
 
+const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
+  const heightStyle = useAnimatedStyle(() => ({
+    height: withTiming(timeLabelHeight),
+  }));
+  return times.map((time) => (
+    <Animated.View
+      key={`${initialDate}-${time}`}
+      style={[styles.timeRow, gridRowStyle, heightStyle]}
+    />
+  ));
+};
+
 class Events extends PureComponent {
   processEvents = memoizeOne(processEvents);
 
@@ -268,7 +283,6 @@ class Events extends PureComponent {
       EventComponent,
       rightToLeft,
       hoursInDisplay,
-      timeStep,
       beginAgendaAt,
       showNowLine,
       nowLineColor,
@@ -277,6 +291,7 @@ class Events extends PureComponent {
       onGridLongPress,
       dayWidth,
       pageWidth,
+      timeLabelHeight,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -287,16 +302,15 @@ class Events extends PureComponent {
       rightToLeft,
       beginAgendaAt,
     );
-    const timeSlotHeight = getTimeLabelHeight(hoursInDisplay, timeStep);
 
     return (
       <View style={[styles.container, { width: pageWidth }]}>
-        {times.map((time) => (
-          <View
-            key={`${initialDate}-${time}`}
-            style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
-          />
-        ))}
+        <Lines
+          initialDate={initialDate}
+          times={times}
+          timeLabelHeight={timeLabelHeight}
+          gridRowStyle={gridRowStyle}
+        />
         <ViewWithTouchable
           style={styles.eventsContainer}
           onPress={onGridClick && this.handleGridPress}
@@ -360,7 +374,6 @@ Events.propTypes = {
   ).isRequired,
   initialDate: PropTypes.string.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
-  timeStep: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onEventLongPress: PropTypes.func,

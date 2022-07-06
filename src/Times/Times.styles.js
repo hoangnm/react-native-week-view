@@ -1,9 +1,6 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  columnContainer: {
-    paddingTop: 10,
-  },
   label: {
     flex: -1,
   },

@@ -10,20 +10,12 @@ import {
 } from '../utils';
 import styles from './Header.styles';
 
-const getDayTextStyles = (numberOfDays) => {
-  const fontSize = numberOfDays === 7 ? 12 : 14;
-  return {
-    fontSize,
-  };
-};
-
 const DefaultDayComponent = ({ textStyle, formattedDate }) => (
-  <Text style={textStyle}>{formattedDate}</Text>
+  <Text style={[styles.text, textStyle]}>{formattedDate}</Text>
 );
 
 const Column = ({
   column,
-  numberOfDays,
   format,
   style,
   textStyle,
@@ -34,7 +26,6 @@ const Column = ({
 }) => {
   const formattedDate = getFormattedDate(column, format);
   const isToday = moment().isSame(column, 'days');
-  const fullTextStyle = [getDayTextStyles(numberOfDays), textStyle];
 
   const ComponentChosen =
     DayComponent || (isToday && TodayComponent) || DefaultDayComponent;
@@ -48,7 +39,7 @@ const Column = ({
       <ComponentChosen
         date={column}
         formattedDate={formattedDate}
-        textStyle={fullTextStyle}
+        textStyle={textStyle}
         isToday={isToday}
       />
     </TouchableOpacity>
@@ -69,22 +60,20 @@ const WeekViewHeader = ({
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
   return (
-    <View style={styles.container}>
-      {columns &&
-        columns.map((column) => (
-          <Column
-            style={style}
-            textStyle={textStyle}
-            key={column}
-            column={column}
-            numberOfDays={numberOfDays}
-            format={formatDate}
-            DayComponent={DayComponent}
-            TodayComponent={TodayComponent}
-            onDayPress={onDayPress}
-            width={dayWidth}
-          />
-        ))}
+    <View style={[styles.container, { height: 50 }]}>
+      {(columns || []).map((column) => (
+        <Column
+          style={style}
+          textStyle={textStyle}
+          key={column}
+          column={column}
+          format={formatDate}
+          DayComponent={DayComponent}
+          TodayComponent={TodayComponent}
+          onDayPress={onDayPress}
+          width={dayWidth}
+        />
+      ))}
     </View>
   );
 };
