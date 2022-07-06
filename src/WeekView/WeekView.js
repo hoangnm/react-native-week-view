@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
-import Event from '../Event/Event';
+import Event, { EditEventConfigPropType } from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
@@ -73,7 +73,6 @@ export default class WeekView extends Component {
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
       windowWidth: Dimensions.get('window').width,
-      editingEventId: null,
     };
 
     setLocale(props.locale);
@@ -485,99 +484,6 @@ export default class WeekView extends Component {
     };
   };
 
-  /* Edit-mode methods */
-  /**
-   * Stop editing mode if it is currently on.
-   * @returns bool indicating if stopped editing mode
-   */
-  tryStopEditing = () => {
-    if (this.props.onEditEvent && this.state.editingEventId != null) {
-      this.setState({ editingEventId: null });
-      return true;
-    }
-    return false;
-  };
-
-  /**
-   * Start editing mode if is enabled and the recent touch matches the configuration.
-   * @param {bool} isLongPress
-   * @param {EventItem} event
-   */
-  tryStartEditing = (isLongPress, event) => {
-    const { onEditEvent, editEventConfig } = this.props;
-    const { longPress: configLongPress } = editEventConfig || {};
-    if (onEditEvent && configLongPress === isLongPress) {
-      this.setState({ editingEventId: event.id });
-      return true;
-    }
-    return false;
-  };
-
-  /**
-   * Try handling a touch in edit mode
-   * @returns true if consumed the touch, false if not
-   */
-  tryConsumingTouchWithEdit = (isLongPress, event) => {
-    if (!this.props.onEditEvent) return false;
-
-    if (this.tryStopEditing()) return true;
-    if (this.tryStartEditing(isLongPress, event)) return true;
-
-    return false;
-  };
-
-  /* Wrappers for edit-mode */
-  /**
-   * onEvent<Press|LongPress> wrapper to capture touch if edit-mode is enabled.
-   * @param {EventItem} event
-   */
-  handleEventTouch = (longPress, event) => {
-    if (this.tryConsumingTouchWithEdit(longPress, event)) return;
-
-    const callback = longPress
-      ? this.props.onEventLongPress
-      : this.props.onEventPress;
-    if (callback && event) {
-      callback(event);
-    }
-  };
-
-  handleEventPress = (event) => this.handleEventTouch(false, event);
-
-  handleEventLongPress = (event) => this.handleEventTouch(true, event);
-
-  /**
-   * onGrid<Press|LongPress> wrapper to capture touch if edit-mode is enabled.
-   * @param {EventItem} event
-   */
-  handleGridTouch = (callback, ...args) => {
-    if (this.tryStopEditing()) return;
-    if (callback) {
-      callback(...args);
-    }
-  };
-
-  handleGridPress = (...args) =>
-    this.handleGridTouch(this.props.onGridClick, ...args);
-
-  handleGridLongPress = (...args) =>
-    this.handleGridTouch(this.props.onGridLongPress, ...args);
-
-  /**
-   * onEditEvent wrapper to check if should end edit-mode after first edition
-   * @param  {...any} args passed to onEditEvent() callback
-   */
-  handleEditEvent = (...args) => {
-    const { onEditEvent, editEventConfig } = this.props;
-    if (!onEditEvent && this.state.editingEventId == null) {
-      return;
-    }
-    if (editEventConfig && editEventConfig.exitAfterFirst) {
-      this.setState({ editingEventId: null });
-    }
-    onEditEvent(...args);
-  };
-
   render() {
     const {
       showTitle,
@@ -591,18 +497,19 @@ export default class WeekView extends Component {
       DayHeaderComponent,
       TodayHeaderComponent,
       formatDateHeader,
-      // onEventPress,
-      // onEventLongPress,
+      onEventPress,
+      onEventLongPress,
       events,
       hoursInDisplay,
       timeStep,
       beginAgendaAt,
       endAgendaAt,
       formatTimeLabel,
-      // onGridClick,
-      // onGridLongPress,
+      onGridClick,
+      onGridLongPress,
       onEditEvent,
       editEventConfig,
+      editingEvent,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -615,12 +522,7 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const {
-      currentMoment,
-      initialDates,
-      windowWidth,
-      editingEventId,
-    } = this.state;
+    const { currentMoment, initialDates, windowWidth } = this.state;
     const times = this.calculateTimes(
       timeStep,
       formatTimeLabel,
@@ -723,10 +625,10 @@ export default class WeekView extends Component {
                     eventsByDate={eventsByDate}
                     initialDate={item}
                     numberOfDays={numberOfDays}
-                    onEventPress={this.handleEventPress}
-                    onEventLongPress={this.handleEventLongPress}
-                    onGridClick={this.handleGridPress}
-                    onGridLongPress={this.handleGridLongPress}
+                    onEventPress={onEventPress}
+                    onEventLongPress={onEventLongPress}
+                    onGridClick={onGridClick}
+                    onGridLongPress={onGridLongPress}
                     hoursInDisplay={hoursInDisplay}
                     timeStep={timeStep}
                     beginAgendaAt={beginAgendaAt}
@@ -740,8 +642,8 @@ export default class WeekView extends Component {
                     onDragEvent={onDragEvent}
                     pageWidth={pageWidth}
                     dayWidth={dayWidth}
-                    onEditEvent={onEditEvent && this.handleEditEvent}
-                    editingEventId={editingEventId}
+                    onEditEvent={onEditEvent}
+                    editingEventId={editingEvent}
                     editEventConfig={editEventConfig}
                   />
                 );
@@ -791,8 +693,9 @@ WeekView.propTypes = {
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
-  // onEditEvent: PropTypes.func,
-  // editEventConfig: EditEventConfigPropType,
+  editingEvent: PropTypes.number,
+  onEditEvent: PropTypes.func,
+  editEventConfig: EditEventConfigPropType,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,

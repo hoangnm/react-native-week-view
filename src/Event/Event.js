@@ -184,7 +184,7 @@ const Event = ({
     });
 
   const longPressGesture = Gesture.LongPress()
-    .enabled(!!onLongPress && !isEditing)
+    .enabled(!!onLongPress)
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -199,7 +199,7 @@ const Event = ({
     });
 
   const pressGesture = Gesture.Tap()
-    .enabled(!!onPress && !isEditing)
+    .enabled(!!onPress)
     .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
@@ -313,8 +313,12 @@ const Event = ({
   );
 };
 
-// TODO: shape
-// export const EditEventConfigPropType = PropTypes.object;
+export const EditEventConfigPropType = PropTypes.shape({
+  left: PropTypes.bool,
+  top: PropTypes.bool,
+  right: PropTypes.bool,
+  bottom: PropTypes.bool,
+});
 
 export const eventPropType = PropTypes.shape({
   color: PropTypes.string,

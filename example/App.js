@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, {useReducer, useRef, useCallback} from 'react';
+import React, {useState, useReducer, useRef, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -88,13 +88,11 @@ const MyRefreshComponent = ({style}) => (
   <ActivityIndicator style={style} color="red" size="large" />
 );
 
-const editEventConfig = {
+const EDIT_EVENT_CONFIG = {
   top: true,
   bottom: true,
   left: true,
   right: true,
-  exitAfterFirst: false,
-  longPress: true,
 };
 
 const eventsReducer = (prevEvents, actionPayload) => {
@@ -107,21 +105,6 @@ const eventsReducer = (prevEvents, actionPayload) => {
       endDate: newEndDate,
     },
   ];
-};
-
-const onEventPress = ({id, color, startDate, endDate}) => {
-  Alert.alert(`event ${color} - ${id}`, `start: ${startDate}\nend: ${endDate}`);
-};
-
-const onGridClick = (event, startHour, date) => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1; // zero-based
-  const day = date.getDate();
-  const hour = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-
-  Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
 };
 
 const onDayPress = (date, formattedDate) => {
@@ -137,7 +120,7 @@ const onTimeScrolled = date => {
 };
 
 const App = ({}) => {
-  const componentRef = useRef();
+  const componentRef = useRef(null);
 
   const [events, updateEvent] = useReducer(eventsReducer, INITIAL_EVENTS);
 
@@ -150,11 +133,50 @@ const App = ({}) => {
 
   const onEditEvent = useCallback(
     (event, newStartDate, newEndDate) => {
-      console.log('Edited: ', event.id, newStartDate, newEndDate);
+      console.log('Editing: ', event.id, newStartDate, newEndDate);
       updateEvent({event, newStartDate, newEndDate});
     },
     [updateEvent],
   );
+
+  const [editingEvent, setEditEvent] = useState(null);
+
+  const handleLongPressEvent = event => {
+    if (editingEvent == null) {
+      setEditEvent(event.id);
+    } else {
+      setEditEvent(null);
+    }
+  };
+
+  const handlePressEvent = event => {
+    if (editingEvent != null) {
+      setEditEvent(null);
+      return;
+    }
+
+    const {id, color, startDate, endDate} = event;
+    Alert.alert(
+      `Event press ${color} - ${id}`,
+      `start: ${startDate}\nend: ${endDate}`,
+    );
+  };
+
+  const handlePressGrid = (event, startHour, date) => {
+    if (editingEvent != null) {
+      setEditEvent(null);
+      return;
+    }
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // zero-based
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
+  };
 
   return (
     <>
@@ -165,8 +187,9 @@ const App = ({}) => {
           events={events}
           selectedDate={new Date()}
           numberOfDays={7}
-          onEventPress={onEventPress}
-          onGridClick={onGridClick}
+          onEventPress={handlePressEvent}
+          onEventLongPress={handleLongPressEvent}
+          onGridClick={handlePressGrid}
           headerStyle={styles.header}
           headerTextStyle={styles.headerText}
           hourTextStyle={styles.hourText}
@@ -186,8 +209,9 @@ const App = ({}) => {
           onDayPress={onDayPress}
           onMonthPress={onMonthPress}
           onTimeScrolled={onTimeScrolled}
+          editingEvent={editingEvent}
           onEditEvent={onEditEvent}
-          editEventConfig={editEventConfig}
+          editEventConfig={EDIT_EVENT_CONFIG}
         />
       </SafeAreaView>
     </>
