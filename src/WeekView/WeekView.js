@@ -517,7 +517,7 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    // TODO: rename to widthDimensions
+    // TODO: rename to widthDimensions?
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
@@ -526,7 +526,7 @@ export default class WeekView extends Component {
       hoursInDisplay,
       timeStep,
     );
-    const { timeLabelHeight } = this.heightDimensions;
+    const { timeLabelHeight, verticalResolution } = this.heightDimensions;
 
     return (
       <GestureHandlerRootView style={styles.container}>
@@ -633,6 +633,7 @@ export default class WeekView extends Component {
                     onDragEvent={onDragEvent}
                     pageWidth={pageWidth}
                     dayWidth={dayWidth}
+                    verticalResolution={verticalResolution}
                   />
                 );
               }}

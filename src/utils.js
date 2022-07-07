@@ -41,9 +41,14 @@ export const computeHeightDimensions = (
   hoursInDisplay,
   minutesStep,
 ) => {
-  const timeLabelsInDisplay = Math.ceil((hoursInDisplay * 60) / minutesStep);
+  const minutesInDisplay = hoursInDisplay * 60;
+  const timeLabelsInDisplay = Math.ceil(minutesInDisplay / minutesStep);
+
+  const minutesResolution = totalHeight / minutesInDisplay;
+
   return {
     timeLabelHeight: totalHeight / timeLabelsInDisplay,
+    verticalResolution: minutesResolution,
   };
 };
 
@@ -64,8 +69,8 @@ export const computeHeightDimensions = (
  * @returns amount of pixels
  */
 export const minutesToY = (minutes, hoursInDisplay, minutesOffset = 0) => {
-  const minutesInDisplay = 60 * hoursInDisplay;
-  return ((minutes - minutesOffset) * CONTAINER_HEIGHT) / minutesInDisplay;
+  const minutesResolution = CONTAINER_HEIGHT / (60 * hoursInDisplay);
+  return (minutes - minutesOffset) * minutesResolution;
 };
 
 /**
@@ -105,6 +110,17 @@ export const addLocale = (locale, obj) => {
 
 export const getCurrentMonth = (date) => {
   return moment(date).format('MMMM Y');
+};
+
+/**
+ * Get the amount of minutes in a day of a date.
+ * @param {Date} date
+ * @returns amount of minutes in the day.
+ */
+export const minutesInDay = (date) => {
+  const dateObj = moment(date);
+  if (!dateObj.isValid()) return 0;
+  return dateObj.hours() * 60 + dateObj.minutes();
 };
 
 export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {

@@ -16,7 +16,7 @@ import {
   availableNumberOfDays,
   CONTENT_OFFSET,
   yToSeconds,
-  minutesToY,
+  minutesInDay,
 } from '../utils';
 import { ViewWithTouchable } from '../utils-gestures';
 
@@ -39,18 +39,6 @@ const getWidth = (box, dayWidth) => {
     MIN_ITEM_WIDTH,
   );
   return width;
-};
-
-const getTop = (event, hoursInDisplay, beginAgendaAt) => {
-  const startDate = moment(event.startDate);
-  const minutes = startDate.hours() * 60 + startDate.minutes();
-  return minutesToY(minutes, hoursInDisplay, beginAgendaAt) + CONTENT_OFFSET;
-};
-
-const getHeight = (event, hoursInDisplay) => {
-  const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
-  const height = minutesToY(deltaMinutes, hoursInDisplay);
-  return height;
 };
 
 const getLeft = (box, dayWidth) => {
@@ -266,6 +254,7 @@ class Events extends PureComponent {
       dayWidth,
       pageWidth,
       timeLabelHeight,
+      verticalResolution,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -301,17 +290,21 @@ class Events extends PureComponent {
                 />
               )}
               {eventsInSection.map((item) => {
-                const position = {
-                  top: getTop(item.ref, hoursInDisplay, beginAgendaAt),
-                  left: getLeft(item.box, dayWidth),
-                  width: getWidth(item.box, dayWidth),
-                  height: getHeight(item.ref, hoursInDisplay),
-                };
+                const { ref: event, box } = item;
+                const minutesTop =
+                  minutesInDay(event.startDate) - beginAgendaAt;
+                const minutesHeight =
+                  minutesInDay(box.endDate) - minutesInDay(box.startDate);
                 return (
                   <Event
-                    key={item.ref.id}
-                    event={item.ref}
-                    position={position}
+                    key={event.id}
+                    event={event}
+                    position={{
+                      top: minutesTop * verticalResolution + CONTENT_OFFSET,
+                      height: minutesHeight * verticalResolution,
+                      left: getLeft(box, dayWidth),
+                      width: getWidth(box, dayWidth),
+                    }}
                     onPress={onEventPress}
                     onLongPress={onEventLongPress}
                     EventComponent={EventComponent}
