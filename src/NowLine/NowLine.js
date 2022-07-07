@@ -1,5 +1,10 @@
-import React from 'react';
-import { View, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
 import { minutesToY, CONTENT_OFFSET } from '../utils';
@@ -13,87 +18,56 @@ const getCurrentTop = (hoursInDisplay, beginAgendaAt) => {
   return minutesToY(minutes, hoursInDisplay, beginAgendaAt) + CONTENT_OFFSET;
 };
 
-class NowLine extends React.Component {
-  constructor(props) {
-    super(props);
+const NowLine = ({ hoursInDisplay, beginAgendaAt, color, width }) => {
+  const currentTop = useSharedValue(
+    getCurrentTop(hoursInDisplay, beginAgendaAt),
+  );
 
-    const { hoursInDisplay, beginAgendaAt } = this.props;
+  const animatedStyle = useAnimatedStyle(() => ({
+    top: withTiming(currentTop.value),
+  }));
 
-    this.initialTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
-
-    this.state = {
-      currentTranslateY: new Animated.Value(0),
-    };
-
-    this.intervalCallbackId = null;
-  }
-
-  componentDidMount() {
-    this.intervalCallbackId = setInterval(() => {
-      this.updateLinePosition(1000);
+  useEffect(() => {
+    const intervalCallbackId = setInterval(() => {
+      currentTop.value = getCurrentTop(hoursInDisplay, beginAgendaAt);
     }, UPDATE_EVERY_MILLISECONDS);
-  }
 
-  componentWillUnmount() {
-    if (this.intervalCallbackId) {
-      clearInterval(this.intervalCallbackId);
-    }
-  }
+    return () => intervalCallbackId && clearInterval(intervalCallbackId);
+  }, [currentTop, hoursInDisplay, beginAgendaAt]);
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.hoursInDisplay !== this.props.hoursInDisplay) {
-      this.updateLinePosition(500);
-    }
-  }
-
-  updateLinePosition = (animationDuration) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-
-    const newTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
-    Animated.timing(this.state.currentTranslateY, {
-      toValue: newTop - this.initialTop,
-      duration: animationDuration,
-      useNativeDriver: true,
-      isInteraction: false,
-    }).start();
-  };
-
-  render() {
-    const { color, width } = this.props;
-
-    return (
-      <Animated.View
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          borderColor: color,
+          width,
+        },
+        animatedStyle,
+      ]}
+    >
+      <View
         style={[
-          styles.container,
+          styles.circle,
           {
-            top: this.initialTop,
-            transform: [{ translateY: this.state.currentTranslateY }],
-            borderColor: color,
-            width,
+            backgroundColor: color,
           },
         ]}
-      >
-        <View
-          style={[
-            styles.circle,
-            {
-              backgroundColor: color,
-            },
-          ]}
-        />
-      </Animated.View>
-    );
-  }
-}
+      />
+    </Animated.View>
+  );
+};
 
 NowLine.propTypes = {
   width: PropTypes.number.isRequired,
   hoursInDisplay: PropTypes.number.isRequired,
+  beginAgendaAt: PropTypes.number,
   color: PropTypes.string,
 };
 
 NowLine.defaultProps = {
   color: '#e53935',
+  beginAgendaAt: 0,
 };
 
 export default React.memo(NowLine);
