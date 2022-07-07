@@ -294,7 +294,7 @@ class Events extends PureComponent {
                     event={event}
                     position={{
                       top: minutesInDayToTop(
-                        minutesInDay(event.startDate),
+                        minutesInDay(box.startDate),
                         verticalResolution,
                         beginAgendaAt,
                       ),
