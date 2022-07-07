@@ -24,11 +24,10 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  minutesToY,
   yToSeconds,
   computeWeekViewDimensions,
   CONTENT_OFFSET,
-  computeHeightDimensions,
+  computeVerticalDimensions,
 } from '../utils';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -159,11 +158,13 @@ export default class WeekView extends Component {
     this.scrollToTime(this.props.startHour * 60, { animated: false });
   };
 
-  scrollToTime = (minutes, options = {}) => {
+  scrollToTime = (targetMinutes, options = {}) => {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
-      const { hoursInDisplay, beginAgendaAt } = this.props;
-      const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
+      const { resolution } = this.verticalDimensions;
+      const { beginAgendaAt } = this.props;
+      const minutesTop = targetMinutes - beginAgendaAt;
+      const top = minutesTop * resolution + CONTENT_OFFSET;
       this.verticalAgenda.scrollTo({
         y: top,
         x: 0,
@@ -521,12 +522,15 @@ export default class WeekView extends Component {
     this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
     const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
 
-    this.heightDimensions = computeHeightDimensions(
+    this.verticalDimensions = computeVerticalDimensions(
       windowHeight,
       hoursInDisplay,
       timeStep,
     );
-    const { timeLabelHeight, verticalResolution } = this.heightDimensions;
+    const {
+      timeLabelHeight,
+      resolution: verticalResolution,
+    } = this.verticalDimensions;
 
     return (
       <GestureHandlerRootView style={styles.container}>

@@ -36,7 +36,7 @@ export const computeWeekViewDimensions = (totalWidth, numberOfDays) => {
  * @param {*} minutesStep
  * @returns
  */
-export const computeHeightDimensions = (
+export const computeVerticalDimensions = (
   totalHeight,
   hoursInDisplay,
   minutesStep,
@@ -44,11 +44,12 @@ export const computeHeightDimensions = (
   const minutesInDisplay = hoursInDisplay * 60;
   const timeLabelsInDisplay = Math.ceil(minutesInDisplay / minutesStep);
 
+  // unit: (pixels / minutes)
   const minutesResolution = totalHeight / minutesInDisplay;
 
   return {
     timeLabelHeight: totalHeight / timeLabelsInDisplay,
-    verticalResolution: minutesResolution,
+    resolution: minutesResolution,
   };
 };
 
