@@ -165,25 +165,28 @@ const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
 };
 
 class Events extends PureComponent {
+  yToSeconds = (yValue) => {
+    const { hoursInDisplay, beginAgendaAt } = this.props;
+    return yToSeconds(yValue - CONTENT_OFFSET, hoursInDisplay, beginAgendaAt);
+  };
+
+  xToDayIndex = (xValue) => {
+    return Math.floor(xValue / this.props.dayWidth);
+  };
+
   processEvents = memoizeOne(processEvents);
 
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
-    const { initialDate, hoursInDisplay, beginAgendaAt } = this.props;
-    const dayIndex = Math.floor(pressEvt.x / this.props.dayWidth);
+    const dayIndex = this.xToDayIndex(pressEvt.x);
+    const secondsInDay = this.yToSeconds(pressEvt.y);
 
-    const seconds = yToSeconds(
-      pressEvt.y - CONTENT_OFFSET,
-      hoursInDisplay,
-      beginAgendaAt,
-    );
-
-    const dateWithTime = moment(initialDate)
+    const dateWithTime = moment(this.props.initialDate)
       .add(dayIndex, 'day')
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     callback(pressEvt, dateWithTime.getHours(), dateWithTime);
@@ -203,20 +206,14 @@ class Events extends PureComponent {
       return;
     }
 
-    const { dayWidth, hoursInDisplay, beginAgendaAt } = this.props;
-
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
-    const movedDays = Math.floor(newX / dayWidth);
-    const seconds = yToSeconds(
-      newY - CONTENT_OFFSET,
-      hoursInDisplay,
-      beginAgendaAt,
-    );
+    const movedDays = this.xToDayIndex(newX);
+    const secondsInDay = this.yToSeconds(newY);
 
     const newStartDate = moment(event.startDate)
       .add(movedDays, 'days')
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     const eventDuration = event.endDate.getTime() - event.startDate.getTime();
