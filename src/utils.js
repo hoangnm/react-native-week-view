@@ -69,10 +69,10 @@ export const computeVerticalDimensions = (
  * @param {Number} minutesOffset offset, see docstring
  * @returns amount of pixels
  */
-export const minutesToY = (minutes, hoursInDisplay, minutesOffset = 0) => {
-  const minutesResolution = CONTAINER_HEIGHT / (60 * hoursInDisplay);
-  return (minutes - minutesOffset) * minutesResolution;
-};
+// const minutesToYDeprecated = (minutes, hoursInDisplay, minutesOffset = 0) => {
+//   const minutesResolution = CONTAINER_HEIGHT / (60 * hoursInDisplay);
+//   return (minutes - minutesOffset) * minutesResolution;
+// };
 
 /**
  * Transform a y-dimension value (in pixels) to time in the day (in seconds).

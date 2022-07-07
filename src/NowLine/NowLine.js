@@ -1,39 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useSharedValue,
+  useDerivedValue,
   withTiming,
 } from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
-import { minutesToY, CONTENT_OFFSET } from '../utils';
+import { CONTENT_OFFSET, minutesInDay } from '../utils';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
 
-const getCurrentTop = (hoursInDisplay, beginAgendaAt) => {
-  const now = new Date();
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  return minutesToY(minutes, hoursInDisplay, beginAgendaAt) + CONTENT_OFFSET;
+const useMinutesNow = (updateEvery = UPDATE_EVERY_MILLISECONDS) => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const intervalCallbackId = setInterval(
+      () => setNow(new Date()),
+      updateEvery,
+    );
+
+    return () => intervalCallbackId && clearInterval(intervalCallbackId);
+  }, [setNow, updateEvery]);
+
+  return minutesInDay(now);
 };
 
-const NowLine = ({ hoursInDisplay, beginAgendaAt, color, width }) => {
-  const currentTop = useSharedValue(
-    getCurrentTop(hoursInDisplay, beginAgendaAt),
+const NowLine = ({ verticalResolution, beginAgendaAt, color, width }) => {
+  const minutesNow = useMinutesNow();
+
+  const currentTop = useDerivedValue(
+    () =>
+      (minutesNow - (beginAgendaAt || 0)) * verticalResolution + CONTENT_OFFSET,
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
     top: withTiming(currentTop.value),
   }));
-
-  useEffect(() => {
-    const intervalCallbackId = setInterval(() => {
-      currentTop.value = getCurrentTop(hoursInDisplay, beginAgendaAt);
-    }, UPDATE_EVERY_MILLISECONDS);
-
-    return () => intervalCallbackId && clearInterval(intervalCallbackId);
-  }, [currentTop, hoursInDisplay, beginAgendaAt]);
 
   return (
     <Animated.View
@@ -60,7 +63,7 @@ const NowLine = ({ hoursInDisplay, beginAgendaAt, color, width }) => {
 
 NowLine.propTypes = {
   width: PropTypes.number.isRequired,
-  hoursInDisplay: PropTypes.number.isRequired,
+  verticalResolution: PropTypes.number.isRequired,
   beginAgendaAt: PropTypes.number,
   color: PropTypes.string,
 };

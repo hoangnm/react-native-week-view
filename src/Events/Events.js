@@ -244,7 +244,6 @@ class Events extends PureComponent {
       gridColumnStyle,
       EventComponent,
       rightToLeft,
-      hoursInDisplay,
       beginAgendaAt,
       showNowLine,
       nowLineColor,
@@ -284,7 +283,7 @@ class Events extends PureComponent {
               {showNowLine && this.isToday(dayIndex) && (
                 <NowLine
                   color={nowLineColor}
-                  hoursInDisplay={hoursInDisplay}
+                  verticalResolution={verticalResolution}
                   width={dayWidth}
                   beginAgendaAt={beginAgendaAt}
                 />
