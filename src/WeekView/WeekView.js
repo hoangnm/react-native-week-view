@@ -584,7 +584,10 @@ export default class WeekView extends Component {
         </View>
         {isRefreshing && RefreshComponent && (
           <RefreshComponent
-            style={[styles.loadingSpinner, { right: pageWidth / 2 }]}
+            style={[
+              styles.loadingSpinner,
+              { right: pageWidth / 2, top: windowHeight / 2 },
+            ]}
           />
         )}
         <ScrollView
