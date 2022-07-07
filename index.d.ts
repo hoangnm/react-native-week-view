@@ -148,20 +148,20 @@ export interface WeekViewProps {
    * @param date
    * @param formattedDate
    */
-  onDayPress(date: Date, formattedDate: string): void;
+  onDayPress?(date: Date, formattedDate: string): void;
 
   /**
    * Callback when the month at the top left (title) is pressed.
    * @param date
    * @param formattedDate
    */
-  onMonthPress(date: Date, formattedDate: string): void;
+  onMonthPress?(date: Date, formattedDate: string): void;
 
   /**
    * Callback when the agenda is scrolled vertically.
    * @param dateWithTime
    */
-  onTimeScrolled(dateWithTime: Date): void;
+  onTimeScrolled?(dateWithTime: Date): void;
 }
 
 declare const WeekView: React.ComponentType<WeekViewProps>;
