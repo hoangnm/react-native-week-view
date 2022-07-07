@@ -184,7 +184,7 @@ export default class WeekView extends Component {
     }
     this.isScrollingVertical = false;
 
-    const { onTimeScrolled, hoursInDisplay, beginAgendaAt } = this.props;
+    const { onTimeScrolled, beginAgendaAt } = this.props;
 
     if (!onTimeScrolled) {
       return;
@@ -193,17 +193,17 @@ export default class WeekView extends Component {
     const {
       nativeEvent: { contentOffset },
     } = scrollEvent;
-    const { y: position } = contentOffset;
+    const { y: yPosition } = contentOffset;
 
-    const seconds = yToSeconds(
-      position - CONTENT_OFFSET,
-      hoursInDisplay,
+    const secondsInDay = yToSeconds(
+      yPosition,
+      this.verticalDimensions.resolution,
       beginAgendaAt,
     );
 
     const date = moment(this.state.currentMoment)
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     onTimeScrolled(date);
@@ -623,8 +623,6 @@ export default class WeekView extends Component {
                     onEventLongPress={onEventLongPress}
                     onGridClick={onGridClick}
                     onGridLongPress={onGridLongPress}
-                    hoursInDisplay={hoursInDisplay}
-                    timeStep={timeStep}
                     beginAgendaAt={beginAgendaAt}
                     timeLabelHeight={timeLabelHeight}
                     EventComponent={EventComponent}

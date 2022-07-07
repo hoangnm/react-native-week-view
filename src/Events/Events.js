@@ -165,9 +165,9 @@ const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
 };
 
 class Events extends PureComponent {
-  yToSeconds = (yValue) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-    return yToSeconds(yValue - CONTENT_OFFSET, hoursInDisplay, beginAgendaAt);
+  topToSecondsInDay = (yValue) => {
+    const { verticalResolution, beginAgendaAt } = this.props;
+    return yToSeconds(yValue, verticalResolution, beginAgendaAt);
   };
 
   xToDayIndex = (xValue) => {
@@ -181,7 +181,7 @@ class Events extends PureComponent {
       return;
     }
     const dayIndex = this.xToDayIndex(pressEvt.x);
-    const secondsInDay = this.yToSeconds(pressEvt.y);
+    const secondsInDay = this.topToSecondsInDay(pressEvt.y);
 
     const dateWithTime = moment(this.props.initialDate)
       .add(dayIndex, 'day')
@@ -208,7 +208,7 @@ class Events extends PureComponent {
 
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = this.xToDayIndex(newX);
-    const secondsInDay = this.yToSeconds(newY);
+    const secondsInDay = this.topToSecondsInDay(newY);
 
     const newStartDate = moment(event.startDate)
       .add(movedDays, 'days')
@@ -341,7 +341,6 @@ Events.propTypes = {
     ),
   ).isRequired,
   initialDate: PropTypes.string.isRequired,
-  hoursInDisplay: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onEventLongPress: PropTypes.func,
@@ -354,9 +353,12 @@ Events.propTypes = {
   rightToLeft: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
+  beginAgendaAt: PropTypes.number,
   onDragEvent: PropTypes.func,
   pageWidth: PropTypes.number.isRequired,
   dayWidth: PropTypes.number.isRequired,
+  verticalResolution: PropTypes.number.isRequired,
+  timeLabelHeight: PropTypes.number.isRequired,
 };
 
 export default Events;

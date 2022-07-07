@@ -77,22 +77,17 @@ export const computeVerticalDimensions = (
 /**
  * Transform a y-dimension value (in pixels) to time in the day (in seconds).
  *
- * Usage:
- * - if a top position is provided, also provide the agenda offset:
- *   `secondsInDay = yToSeconds(top, hoursInDisplay, beginAgendaAt)`
- * - if a delta-y is provided (e.g. height dimension), the offset must be 0:
- *   `secondsDuration = yToSeconds(height, hoursInDisplay)`
- *
  * The output precision is up to seconds (arbitrary choice).
  *
  * @param {Number} yValue pixels
- * @param {Number} hoursInDisplay component prop
+ * @param {Number} verticalResolution TODO
  * @param {Number} minutesOffset offset, see docstring
  * @returns amount of seconds
  */
-export const yToSeconds = (yValue, hoursInDisplay, minutesOffset = 0) => {
-  const hour = (yValue * hoursInDisplay) / CONTAINER_HEIGHT;
-  return (hour * 60 + minutesOffset) * 60;
+export const yToSeconds = (yValue, verticalResolution, minutesOffset = 0) => {
+  const secondsResolution = verticalResolution / 60;
+  const secondsInDay = (yValue - CONTENT_OFFSET) / secondsResolution;
+  return secondsInDay + minutesOffset * 60;
 };
 
 export const getFormattedDate = (date, format) => {
