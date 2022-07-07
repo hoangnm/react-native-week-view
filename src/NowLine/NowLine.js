@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
-import { CONTENT_OFFSET, minutesInDay } from '../utils';
+import { minutesInDay, minutesInDayToTop } from '../utils';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
@@ -29,9 +29,8 @@ const useMinutesNow = (updateEvery = UPDATE_EVERY_MILLISECONDS) => {
 const NowLine = ({ verticalResolution, beginAgendaAt, color, width }) => {
   const minutesNow = useMinutesNow();
 
-  const currentTop = useDerivedValue(
-    () =>
-      (minutesNow - (beginAgendaAt || 0)) * verticalResolution + CONTENT_OFFSET,
+  const currentTop = useDerivedValue(() =>
+    minutesInDayToTop(minutesNow, verticalResolution, beginAgendaAt),
   );
 
   const animatedStyle = useAnimatedStyle(() => ({

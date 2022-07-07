@@ -14,7 +14,8 @@ import {
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
-  CONTENT_OFFSET,
+  minutesInDayToTop,
+  minutesToHeight,
   yToSeconds,
   minutesInDay,
 } from '../utils';
@@ -287,17 +288,20 @@ class Events extends PureComponent {
               )}
               {eventsInSection.map((item) => {
                 const { ref: event, box } = item;
-                const minutesTop =
-                  minutesInDay(event.startDate) - beginAgendaAt;
-                const minutesHeight =
-                  minutesInDay(box.endDate) - minutesInDay(box.startDate);
                 return (
                   <Event
                     key={event.id}
                     event={event}
                     position={{
-                      top: minutesTop * verticalResolution + CONTENT_OFFSET,
-                      height: minutesHeight * verticalResolution,
+                      top: minutesInDayToTop(
+                        minutesInDay(event.startDate),
+                        verticalResolution,
+                        beginAgendaAt,
+                      ),
+                      height: minutesToHeight(
+                        minutesInDay(box.endDate) - minutesInDay(box.startDate),
+                        verticalResolution,
+                      ),
                       left: getLeft(box, dayWidth),
                       width: getWidth(box, dayWidth),
                     }}

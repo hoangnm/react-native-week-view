@@ -58,21 +58,39 @@ export const computeVerticalDimensions = (
  *
  * Usage:
  * - to get a top position, consider the agenda offset:
- *   `top = minutesToY(minutesInDay, hoursInDisplay, beginAgendaAt)`
+ *   `top = minutesInDayToTop(minutesInDay, hoursInDisplay, beginAgendaAt)`
  * - to get a delta-y (e.g. height dimension), the offset must be 0:
- *   `height = minutesToY(minutesDelta, hoursInDisplay)`
+ *   `height = minutesInDayToTop(minutesDelta, hoursInDisplay)`
  *
  * The precision is up to minutes (arbitrary choice).
  *
  * @param {Number} minutes Minutes to transform
- * @param {Number} hoursInDisplay component prop
+ * @param {Number} verticalResolution TODO
  * @param {Number} minutesOffset offset, see docstring
  * @returns amount of pixels
  */
-// const minutesToYDeprecated = (minutes, hoursInDisplay, minutesOffset = 0) => {
-//   const minutesResolution = CONTAINER_HEIGHT / (60 * hoursInDisplay);
-//   return (minutes - minutesOffset) * minutesResolution;
-// };
+export const minutesInDayToTop = (
+  minutes,
+  verticalResolution,
+  minutesOffset = 0,
+) => {
+  'worklet';
+
+  return (minutes - (minutesOffset || 0)) * verticalResolution + CONTENT_OFFSET;
+};
+
+/**
+ * TODO
+ *
+ * @param {*} minutesDelta
+ * @param {*} verticalResolution
+ * @returns
+ */
+export const minutesToHeight = (minutesDelta, verticalResolution) => {
+  'worklet';
+
+  return minutesDelta * verticalResolution;
+};
 
 /**
  * Transform a y-dimension value (in pixels) to time in the day (in seconds).

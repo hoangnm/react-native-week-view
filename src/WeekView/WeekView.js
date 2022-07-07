@@ -26,7 +26,7 @@ import {
   setLocale,
   yToSeconds,
   computeWeekViewDimensions,
-  CONTENT_OFFSET,
+  minutesInDayToTop,
   computeVerticalDimensions,
 } from '../utils';
 
@@ -158,13 +158,15 @@ export default class WeekView extends Component {
     this.scrollToTime(this.props.startHour * 60, { animated: false });
   };
 
-  scrollToTime = (targetMinutes, options = {}) => {
+  scrollToTime = (minutes, options = {}) => {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
-      const { resolution } = this.verticalDimensions;
       const { beginAgendaAt } = this.props;
-      const minutesTop = targetMinutes - beginAgendaAt;
-      const top = minutesTop * resolution + CONTENT_OFFSET;
+      const top = minutesInDayToTop(
+        minutes,
+        this.verticalDimensions.resolution,
+        beginAgendaAt,
+      );
       this.verticalAgenda.scrollTo({
         y: top,
         x: 0,
