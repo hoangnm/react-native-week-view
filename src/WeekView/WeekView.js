@@ -24,9 +24,9 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  yToSeconds,
-  computeWeekViewDimensions,
   minutesInDayToTop,
+  yToSeconds,
+  computeHorizontalDimensions,
   computeVerticalDimensions,
 } from '../utils';
 
@@ -80,6 +80,8 @@ export default class WeekView extends Component {
     };
 
     setLocale(props.locale);
+
+    this.dimensions = {};
 
     // FlatList optimization
     this.windowSize = this.pageOffset * 2 + 1;
@@ -164,7 +166,7 @@ export default class WeekView extends Component {
       const { beginAgendaAt } = this.props;
       const top = minutesInDayToTop(
         minutes,
-        this.verticalDimensions.resolution,
+        this.dimensions.verticalResolution,
         beginAgendaAt,
       );
       this.verticalAgenda.scrollTo({
@@ -199,7 +201,7 @@ export default class WeekView extends Component {
 
     const secondsInDay = yToSeconds(
       yPosition,
-      this.verticalDimensions.resolution,
+      this.dimensions.verticalResolution,
       beginAgendaAt,
     );
 
@@ -457,8 +459,6 @@ export default class WeekView extends Component {
     return sortedEvents;
   });
 
-  updateDimensions = memoizeOne(computeWeekViewDimensions);
-
   getListItemLayout = (item, index) => {
     const pageWidth = this.dimensions.pageWidth || 0;
     return {
@@ -520,19 +520,21 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    // TODO: rename to widthDimensions?
-    this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
-    const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
+    const {
+      pageWidth,
+      dayWidth,
+      timeLabelsWidth,
+    } = computeHorizontalDimensions(windowWidth, numberOfDays);
 
-    this.verticalDimensions = computeVerticalDimensions(
-      windowHeight,
-      hoursInDisplay,
-      timeStep,
-    );
     const {
       timeLabelHeight,
       resolution: verticalResolution,
-    } = this.verticalDimensions;
+    } = computeVerticalDimensions(windowHeight, hoursInDisplay, timeStep);
+
+    this.dimensions = {
+      pageWidth,
+      verticalResolution,
+    };
 
     return (
       <GestureHandlerRootView style={styles.container}>

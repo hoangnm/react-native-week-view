@@ -12,7 +12,7 @@ const Times = ({ times, textStyle, width, timeLabelHeight }) => {
     height: withTiming(timeLabelHeight),
   }));
   return (
-    <View style={{ width, paddingTop: 10 }}>
+    <View style={[styles.container, { width }]}>
       {times.map((time) => (
         <Animated.View key={time} style={[styles.label, lineStyle]}>
           <Text style={[styles.text, textStyle]}>{time}</Text>

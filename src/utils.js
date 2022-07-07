@@ -1,5 +1,6 @@
 import moment from 'moment';
 
+export const HEADER_HEIGHT = 50;
 export const CONTENT_OFFSET = 16;
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
@@ -7,7 +8,7 @@ export const availableNumberOfDays = [1, 3, 5, 7];
 const TIMES_WIDTH_PERCENTAGE = 18;
 const PAGE_WIDTH_PERCENTAGE = (100 - TIMES_WIDTH_PERCENTAGE) / 100;
 
-export const computeWeekViewDimensions = (totalWidth, numberOfDays) => {
+export const computeHorizontalDimensions = (totalWidth, numberOfDays) => {
   // Each day must have an equal width (integer pixels)
   const dayWidth = Math.floor(
     (totalWidth * PAGE_WIDTH_PERCENTAGE) / numberOfDays,

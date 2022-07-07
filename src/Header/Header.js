@@ -60,7 +60,7 @@ const WeekViewHeader = ({
 }) => {
   const columns = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
   return (
-    <View style={[styles.container, { height: 50 }]}>
+    <View style={styles.container}>
       {(columns || []).map((column) => (
         <Column
           style={style}

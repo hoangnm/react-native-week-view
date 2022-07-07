@@ -1,9 +1,11 @@
 import { StyleSheet } from 'react-native';
+import { HEADER_HEIGHT } from '../utils';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
+    height: HEADER_HEIGHT,
     alignItems: 'stretch',
   },
   column: {
