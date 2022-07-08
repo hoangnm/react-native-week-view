@@ -19,7 +19,7 @@ import {
 import {
   minutesInDayToTop,
   minutesToHeight,
-  yToSeconds,
+  topToSecondsInDay as topToSecondsInDayFromUtils,
 } from '../utils/dimensions';
 import { ViewWithTouchable } from '../utils/gestures';
 
@@ -168,14 +168,14 @@ const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
 };
 
 class Events extends PureComponent {
-  topToSecondsInDay = (yValue) => {
-    const { verticalResolution, beginAgendaAt } = this.props;
-    return yToSeconds(yValue, verticalResolution, beginAgendaAt);
-  };
+  topToSecondsInDay = (yValue) =>
+    topToSecondsInDayFromUtils(
+      yValue,
+      this.props.verticalResolution,
+      this.props.beginAgendaAt,
+    );
 
-  xToDayIndex = (xValue) => {
-    return Math.floor(xValue / this.props.dayWidth);
-  };
+  xToDayIndex = (xValue) => Math.floor(xValue / this.props.dayWidth);
 
   processEvents = memoizeOne(processEvents);
 

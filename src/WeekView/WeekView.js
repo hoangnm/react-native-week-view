@@ -27,7 +27,7 @@ import {
 } from '../utils/dates';
 import {
   minutesInDayToTop,
-  yToSeconds,
+  topToSecondsInDay,
   computeVerticalDimensions,
   computeHorizontalDimensions,
 } from '../utils/dimensions';
@@ -201,7 +201,7 @@ export default class WeekView extends Component {
     } = scrollEvent;
     const { y: yPosition } = contentOffset;
 
-    const secondsInDay = yToSeconds(
+    const secondsInDay = topToSecondsInDay(
       yPosition,
       this.dimensions.verticalResolution,
       beginAgendaAt,

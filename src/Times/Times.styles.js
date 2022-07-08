@@ -2,7 +2,8 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10, // Matches the offset from CONTENT_OFFSET
+    // Matches CONTENT_TOP_PADDING but in Text size
+    paddingTop: 10,
   },
   label: {
     flex: 0,
