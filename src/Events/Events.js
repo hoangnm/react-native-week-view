@@ -14,12 +14,14 @@ import {
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
+  minutesInDay,
+} from '../utils/dates';
+import {
   minutesInDayToTop,
   minutesToHeight,
   yToSeconds,
-  minutesInDay,
-} from '../utils';
-import { ViewWithTouchable } from '../utils-gestures';
+} from '../utils/dimensions';
+import { ViewWithTouchable } from '../utils/gestures';
 
 import styles from './Events.styles';
 

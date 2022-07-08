@@ -24,11 +24,13 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
+} from '../utils/dates';
+import {
   minutesInDayToTop,
   yToSeconds,
-  computeHorizontalDimensions,
   computeVerticalDimensions,
-} from '../utils';
+  computeHorizontalDimensions,
+} from '../utils/dimensions';
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (

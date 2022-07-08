@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { CONTENT_OFFSET } from '../utils';
+import { CONTENT_OFFSET } from '../utils/dimensions';
 
 const GREY_COLOR = '#E9EDF0';
 

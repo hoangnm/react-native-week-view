@@ -7,7 +7,7 @@ import {
   getFormattedDate,
   calculateDaysArray,
   availableNumberOfDays,
-} from '../utils';
+} from '../utils/dates';
 import styles from './Header.styles';
 
 const DefaultDayComponent = ({ textStyle, formattedDate }) => (

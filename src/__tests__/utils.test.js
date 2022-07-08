@@ -1,4 +1,4 @@
-import { calculateDaysArray } from '../utils.js';
+import { calculateDaysArray } from '../utils/dates';
 
 describe('calculateDaysArray', () => {
   const expectToBeMomentArray = (daysArray) =>

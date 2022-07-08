@@ -7,7 +7,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
-import { minutesInDay, minutesInDayToTop } from '../utils';
+import { minutesInDay } from '../utils/dates';
+import { minutesInDayToTop } from '../utils/dimensions';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute

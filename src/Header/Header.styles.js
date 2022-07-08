@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { HEADER_HEIGHT } from '../utils';
+import { HEADER_HEIGHT } from '../utils/dimensions';
 
 const styles = StyleSheet.create({
   container: {

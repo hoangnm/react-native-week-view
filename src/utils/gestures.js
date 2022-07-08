@@ -12,7 +12,7 @@
  *     (1) the onPress and onLongPress callbacks do not provide pressEvent information
  *     (2) components have issues when using 'position: absolute' and flexbox
  *
- * This utils-gestures.js file provides the <ViewWithTouchable/> component:
+ * This utils/gestures.js file provides the <ViewWithTouchable/> component:
  *   a simple View plus onPress and onLongPress callbacks for receiving touches.
  *   The view provides no visual feedback, but uses gestures of RNGH, so it fits our goal.
  *
