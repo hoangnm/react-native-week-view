@@ -6,6 +6,9 @@
 - [Fixed week (timetable)](#fixed-week-timetable)
 - [Utility reducer](#utility-reducer)
 
+
+Note: some examples provided use the hook `useEvents()` which handles a state of events and is [defined below](#utility-reducer).
+
 ## Drag and drop events
 
 ```js
@@ -76,13 +79,13 @@ const MyComponent = () => {
     updateEvent({event, newStartDate, newEndDate});
   };
 
-  // You must handle in a state/prop the event being edited
+  // You must store the event being edited
   const [editingEventId, setEditEvent] = useState(null);
 
-  /* When to enable/disable edit mode */
+  /* Here you choose when to enable/disable edit mode */
   const handleLongPressEvent = event => {
     if (editingEventId == null) {
-      // Long pressing the event enables editing mode
+      // e.g. long-pressing the event enables editing mode
       setEditEvent(event.id);
     } else {
       setEditEvent(null);
@@ -91,7 +94,7 @@ const MyComponent = () => {
 
   const handlePressEvent = event => {
     if (editingEventId != null) {
-      // pressing the event disables editing mode
+      // e.g. pressing the event disables editing mode
       setEditEvent(null);
       return;
     }
@@ -101,19 +104,12 @@ const MyComponent = () => {
 
   const handleGridPress = (event, startHour, date) => {
     if (editingEventId != null) {
-      // pressing the grid disables editing mode
+      // e.g. pressing the grid disables editing mode
       setEditEvent(null);
       return;
     }
 
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // zero-based
-    const day = date.getDate();
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    console.log(`Grid press: ${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
+    console.log(`Grid press: ${date}`);
   };
 
   return (
@@ -184,7 +180,7 @@ const MyComponent = () => (
 
 ## Utility reducer
 
-Events reducer used in these examples.
+Events hook used in some of these examples
 
 ```js
 const useEvents = (initialEvents = []) => {

@@ -14,6 +14,7 @@ The week view component for react-native.
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Basic usage](#basic-usage)
+- [Example use cases](#example-use-cases)
 - [Full API](#full-api)
   - [Props](#props)
   - [Event Item](#event-item)
@@ -23,7 +24,6 @@ The week view component for react-native.
   - [Custom Day header component](#custom-day-header-component)
   - [Locales customization](#locales-customization)
   - [Custom RefreshComponent](#custom-refreshcomponent)
-- [Example use cases](#example-use-cases)
 - [Known issues](#known-issues)
 - [Contributors](#contributors)
 
@@ -73,6 +73,17 @@ const MyComponent = () => (
 );
 
 ```
+
+
+## Example use cases
+
+See [dedicated docs](./docs/common-usages.md) with common usages and example code.
+
+- [Drag and drop events](./docs/common-usages.md#drag-and-drop-events)
+- [Press the grid to create an event](./docs/common-usages.md#press-the-grid-to-create-an-event)
+- [Press an event and drag for editing](./docs/common-usages.md#press-an-event-and-drag-for-editing)
+- [Timetable](./docs/common-usages.md#fixed-week-timetable)
+
 
 ## Full API
 
@@ -247,15 +258,6 @@ const MyRefreshComponent = ({ style }) => (
   RefreshComponent={MyRefreshComponent}
 />
 ```
-
-## Example use cases
-
-See [dedicated docs](./docs/common-usages.md) with common usages and example code.
-
-- [Drag and drop events](#drag-and-drop-events)
-- [Press the grid to create an event](#press-the-grid-to-create-an-event)
-- [Press an event and drag for editing](#press-an-event-and-drag-for-editing)
-- [Fixed week (timetable)](#fixed-week-timetable)
 
 
 ## Known issues
