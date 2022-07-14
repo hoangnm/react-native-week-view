@@ -2,13 +2,12 @@
  * Handle horizontal and vertical dimensions.
  *
  * Notes:
- * (1) Definition: _verticalResolution_
- *   - Computed as `component-height / time-in-display`
- *   - (time can be in minutes, hours, etc)
+ * (1) Definition: _verticalResolution = componentHeight / timeInDisplay_
  *   - e.g. `screenHeight / hoursInDisplay`
+ *   - (time can be in minutes, hours, etc)
  *
- * Given a point in the screen, its relation between the position (top in pixels)
- * and the time in the day is:
+ * Given a point in the screen, the relation between
+ * its top position (pixels) and its time in the day is:
  *     top = verticalResolution * time + CONTENT_TOP_PADDING
  *
  * When the agenda does not begin at 00:00, use:
@@ -16,8 +15,8 @@
  *
  *
  * (2) Some functions __must__ be declared as worklets because they
- * are used with react-native-reanimated in useAnimatedStyle(), useDerivedValue(),
- * etc.
+ * are used with react-native-reanimated in useAnimatedStyle(),
+ * useDerivedValue(), etc.
  */
 export const HEADER_HEIGHT = 50;
 export const CONTENT_TOP_PADDING = 16;
