@@ -215,36 +215,20 @@ export default class WeekView extends Component {
     onTimeScrolled(date);
   };
 
-  getSignToTheFuture = () => {
-    const { prependMostRecent } = this.props;
+  isAppendingTheFuture = () => !this.props.prependMostRecent;
 
-    const daySignToTheFuture = prependMostRecent ? -1 : 1;
-    return daySignToTheFuture;
-  };
+  getSignToTheFuture = () => (this.isAppendingTheFuture() ? 1 : -1);
 
-  prependPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
+  buildPages = (fromDate, nPages, appending) => {
+    const timeSign = this.isAppendingTheFuture() === !!appending ? 1 : -1;
+    const deltaDays = timeSign * this.props.numberOfDays;
 
-    const first = initialDates[0];
-    const daySignToThePast = daySignToTheFuture * -1;
-    const addDays = numberOfDays * daySignToThePast;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(first).add(addDays * i, 'd');
-      initialDates.unshift(initialDate.format(DATE_STR_FORMAT));
-    }
-  };
-
-  appendPagesInPlace = (initialDates, nPages) => {
-    const { numberOfDays } = this.props;
-    const daySignToTheFuture = this.getSignToTheFuture();
-
-    const latest = initialDates[initialDates.length - 1];
-    const addDays = numberOfDays * daySignToTheFuture;
-    for (let i = 1; i <= nPages; i += 1) {
-      const initialDate = moment(latest).add(addDays * i, 'd');
-      initialDates.push(initialDate.format(DATE_STR_FORMAT));
-    }
+    const newPages = Array.from({ length: nPages }, (_, index) =>
+      moment(fromDate)
+        .add((index + 1) * deltaDays, 'days')
+        .format(DATE_STR_FORMAT),
+    );
+    return newPages;
   };
 
   goToDate = (targetDate, animated = true) => {
@@ -263,15 +247,29 @@ export default class WeekView extends Component {
   };
 
   goToNextPage = (animated = true) => {
-    const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex + 1 * signToTheFuture, animated);
+    this.goToPageIndex(
+      this.currentPageIndex + 1 * this.getSignToTheFuture(),
+      animated,
+    );
   };
 
   goToPrevPage = (animated = true) => {
-    const signToTheFuture = this.getSignToTheFuture();
-    this.goToPageIndex(this.currentPageIndex - 1 * signToTheFuture, animated);
+    this.goToPageIndex(
+      this.currentPageIndex - 1 * this.getSignToTheFuture(),
+      animated,
+    );
   };
 
+  /**
+   * Moves the view to a pageIndex.
+   *
+   * Add more pages (if necessary), scrolls the VirtualizedList to the new index,
+   * and updates this.currentPageIndex.
+   *
+   * @param {Number} target index between (-infinity, infinity) indicating target page.
+   * @param {bool} animated
+   * @returns
+   */
   goToPageIndex = (target, animated = true) => {
     if (target === this.currentPageIndex) {
       return;
@@ -289,25 +287,36 @@ export default class WeekView extends Component {
 
     const newState = {};
     let newStateCallback = () => {};
-    // The final target may change, if pages are added
+
+    // The final target will change (will be re-indexed) if pages are added in either direction
     let targetIndex = target;
 
+    const firstViewablePage = this.pageOffset;
     const lastViewablePage = initialDates.length - this.pageOffset;
-    if (targetIndex < this.pageOffset) {
-      const nPages = this.pageOffset - targetIndex;
-      this.prependPagesInPlace(initialDates, nPages);
 
+    if (targetIndex < firstViewablePage) {
+      const prependNeeded = firstViewablePage - targetIndex;
+
+      newState.initialDates = [
+        ...this.buildPages(initialDates[0], prependNeeded, false),
+        ...initialDates,
+      ];
       targetIndex = this.pageOffset;
 
-      newState.initialDates = [...initialDates];
       newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
     } else if (targetIndex > lastViewablePage) {
-      const nPages = targetIndex - lastViewablePage;
-      this.appendPagesInPlace(initialDates, nPages);
+      const appendNeeded = targetIndex - lastViewablePage;
+      newState.initialDates = [
+        ...initialDates,
+        ...this.buildPages(
+          initialDates[initialDates.length - 1],
+          appendNeeded,
+          true,
+        ),
+      ];
 
-      targetIndex = initialDates.length - this.pageOffset;
+      targetIndex = newState.initialDates.length - this.pageOffset;
 
-      newState.initialDates = [...initialDates];
       newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
     } else {
       scrollTo(targetIndex);
@@ -329,16 +338,15 @@ export default class WeekView extends Component {
     this.isScrollingHorizontal = false;
 
     const {
-      nativeEvent: { contentOffset, contentSize },
+      nativeEvent: { contentOffset },
     } = event;
     const { x: position } = contentOffset;
-    const { width: innerWidth } = contentSize;
-    const { onSwipePrev, onSwipeNext } = this.props;
+    const { pageWidth } = this.dimensions;
     const { initialDates } = this.state;
 
-    const newPage = Math.round((position / innerWidth) * initialDates.length);
-    const movedPages = newPage - this.currentPageIndex;
-    this.currentPageIndex = newPage;
+    const newPageIndex = Math.round(position / pageWidth);
+    const movedPages = newPageIndex - this.currentPageIndex;
+    this.currentPageIndex = newPageIndex;
 
     if (movedPages === 0) {
       return;
@@ -351,32 +359,52 @@ export default class WeekView extends Component {
       };
       let newStateCallback = () => {};
 
-      if (movedPages < 0 && newPage < this.pageOffset) {
-        this.prependPagesInPlace(initialDates, 1);
-        this.currentPageIndex += 1;
+      const buffer = this.pageOffset;
+      const pagesToStartOfList = newPageIndex;
+      const pagesToEndOfList = initialDates.length - newPageIndex - 1;
 
-        newState.initialDates = [...initialDates];
+      if (movedPages < 0 && pagesToStartOfList < buffer) {
+        const prependNeeded = buffer - pagesToStartOfList;
+
+        newState.initialDates = [
+          ...this.buildPages(initialDates[0], prependNeeded, false),
+          ...initialDates,
+        ];
+
+        // After prepending, it needs to scroll to fix its position,
+        // to mantain visible content position (mvcp)
+        this.currentPageIndex += prependNeeded;
         const scrollToCurrentIndex = () =>
           this.eventsGrid.scrollToIndex({
             index: this.currentPageIndex,
             animated: false,
           });
         newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
-      } else if (
-        movedPages > 0 &&
-        newPage >= this.state.initialDates.length - this.pageOffset
-      ) {
-        this.appendPagesInPlace(initialDates, 1);
-
-        newState.initialDates = [...initialDates];
+      } else if (movedPages > 0 && pagesToEndOfList < buffer) {
+        const appendNeeded = buffer - pagesToEndOfList;
+        newState.initialDates = [
+          ...initialDates,
+          ...this.buildPages(
+            initialDates[initialDates.length - 1],
+            appendNeeded,
+            true,
+          ),
+        ];
       }
 
       this.setState(newState, newStateCallback);
 
-      if (movedPages < 0) {
-        onSwipePrev && onSwipePrev(newMoment);
-      } else {
-        onSwipeNext && onSwipeNext(newMoment);
+      const {
+        onSwipePrev: onSwipeToThePast,
+        onSwipeNext: onSwipeToTheFuture,
+      } = this.props;
+      const movedForward = movedPages > 0;
+      const callback =
+        this.isAppendingTheFuture() === movedForward
+          ? onSwipeToTheFuture
+          : onSwipeToThePast;
+      if (callback) {
+        callback(newMoment);
       }
     });
   };
