@@ -28,7 +28,7 @@ _<< what you expected to happen >>_
  - `react-native-week-view`: _<< e.g. version 0.16.0, master branch >>_
  - `react-native`: _<< version >>_
  - `react`: _<< version >>_
- - OS: _<< e.g. android 9 >>_
+ - OS: _<< e.g. android 9, emulator >>_
 
 **Additional context**
 _<< Add any other context about the problem here >>_
