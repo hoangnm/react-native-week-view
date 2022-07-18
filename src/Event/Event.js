@@ -87,9 +87,7 @@ const Event = ({
     bottom: useSharedValue(0),
     right: useSharedValue(0),
     top: useSharedValue(0),
-    topPinOpposite: useSharedValue(0),
     left: useSharedValue(0),
-    leftPinOpposite: useSharedValue(0),
   };
 
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
