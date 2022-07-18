@@ -29,14 +29,17 @@ const generateDates = (hours, minutes) => {
 const makeBuilder = () => {
   let index = 0;
 
-  return (start, duration, color) => {
+  return (start, duration, color, more = {}) => {
     index += 1;
+    const stackKey = index % 2 === 0 ? 'A' : 'B';
     return {
       id: index,
       description: `Event ${index}`,
       startDate: generateDates(start),
       endDate: generateDates(start + duration),
       color,
+      stackKey: `evt-${stackKey}`,
+      ...(more || {}),
     };
   };
 };
