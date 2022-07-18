@@ -34,7 +34,7 @@ const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
     ? width - Math.max(2, (width * paddingPercentage) / 100)
     : width;
 
-const getWidth = (box, dayWidth) => {
+const computeWidth = (box, dayWidth) => {
   const dividedWidth = dayWidth / (box.nLanes || 1);
   const dividedPadding = EVENT_HORIZONTAL_PADDING / (box.nLanes || 1);
   const width = Math.max(
@@ -44,11 +44,24 @@ const getWidth = (box, dayWidth) => {
   return width;
 };
 
-const getLeft = (box, dayWidth) => {
+const computeLeft = (box, dayWidth) => {
   if (!box.lane || !box.nLanes) return 0;
   const dividedWidth = dayWidth / box.nLanes;
   return dividedWidth * box.lane;
 };
+
+const computeHeight = (box, verticalResolution) =>
+  minutesToHeight(
+    minutesInDay(box.endDate) - minutesInDay(box.startDate),
+    verticalResolution,
+  );
+
+const computeTop = (box, verticalResolution, beginAgendaAt) =>
+  minutesInDayToTop(
+    minutesInDay(box.startDate),
+    verticalResolution,
+    beginAgendaAt,
+  );
 
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   const endDate = moment(event1EndDate);
@@ -178,6 +191,13 @@ class Events extends PureComponent {
   xToDayIndex = (xValue) => Math.floor(xValue / this.props.dayWidth);
 
   processEvents = memoizeOne(processEvents);
+
+  /* Wrap callbacks to avoid shallow changes */
+  handlePressEvent = (...args) =>
+    this.props.onEventPress && this.props.onEventPress(...args);
+
+  handleLongPressEvent = (...args) =>
+    this.props.onEventLongPress && this.props.onEventLongPress(...args);
 
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
@@ -331,21 +351,12 @@ class Events extends PureComponent {
                   <Event
                     key={event.id}
                     event={event}
-                    position={{
-                      top: minutesInDayToTop(
-                        minutesInDay(box.startDate),
-                        verticalResolution,
-                        beginAgendaAt,
-                      ),
-                      height: minutesToHeight(
-                        minutesInDay(box.endDate) - minutesInDay(box.startDate),
-                        verticalResolution,
-                      ),
-                      left: getLeft(box, dayWidth),
-                      width: getWidth(box, dayWidth),
-                    }}
-                    onPress={onEventPress}
-                    onLongPress={onEventLongPress}
+                    top={computeTop(box, verticalResolution, beginAgendaAt)}
+                    left={computeLeft(box, dayWidth)}
+                    height={computeHeight(box, verticalResolution)}
+                    width={computeWidth(box, dayWidth)}
+                    onPress={onEventPress && this.handlePressEvent}
+                    onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                     onDrag={onDragEvent && this.handleDragEvent}

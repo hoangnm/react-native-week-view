@@ -15,8 +15,22 @@ import styles, { circleStyles } from './Event.styles';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
-
 const SIDES = ['bottom', 'top', 'left', 'right'];
+
+const useCurrentDimension = (dimension) => {
+  const currentDimension = useSharedValue(dimension);
+  useAnimatedReaction(
+    () => dimension,
+    (newValue) => {
+      if (currentDimension.value !== newValue) {
+        currentDimension.value = withTiming(newValue, {
+          duration: UPDATE_EVENT_ANIMATION_DURATION,
+        });
+      }
+    },
+  );
+  return currentDimension;
+};
 
 const Circle = ({ side }) => (
   <View
@@ -41,9 +55,12 @@ const Circles = ({ isEditing, editEventConfig, buildCircleGesture }) =>
 
 const Event = ({
   event,
+  top,
+  left,
+  height,
+  width,
   onPress,
   onLongPress,
-  position,
   EventComponent,
   containerStyle,
   onDrag,
@@ -71,11 +88,11 @@ const Event = ({
         return;
       }
 
-      const newX = position.left + position.width / 2 + dx;
-      const newY = position.top + dy;
+      const newX = left + width / 2 + dx;
+      const newY = top + dy;
       onDrag(event, newX, newY);
     },
-    [event, position, onDrag],
+    [event, left, top, width, onDrag],
   );
 
   const onEditRelease = useCallback(
@@ -91,10 +108,10 @@ const Event = ({
   };
 
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
-  const currentWidth = useSharedValue(position.width);
-  const currentLeft = useSharedValue(position.left);
-  const currentTop = useSharedValue(position.top);
-  const currentHeight = useSharedValue(position.height);
+  const currentWidth = useCurrentDimension(width);
+  const currentLeft = useCurrentDimension(left);
+  const currentTop = useCurrentDimension(top);
+  const currentHeight = useCurrentDimension(height);
 
   const isDragging = useSharedValue(false);
   const isPressing = useSharedValue(false);
@@ -124,33 +141,6 @@ const Event = ({
       opacity: withSpring(currentOpacity.value),
     };
   });
-
-  useAnimatedReaction(
-    () => position,
-    (newPosition) => {
-      const { top, left, height, width } = newPosition;
-      if (currentTop.value !== top) {
-        currentTop.value = withTiming(top, {
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-      if (currentLeft.value !== left) {
-        currentLeft.value = withTiming(left, {
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-      if (currentHeight.value !== height) {
-        currentHeight.value = withTiming(height, {
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-      if (currentWidth.value !== width) {
-        currentWidth.value = withTiming(width, {
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-    },
-  );
 
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
@@ -221,7 +211,6 @@ const Event = ({
     Gesture.Pan()
       .onUpdate((panEvt) => {
         const { translationX, translationY } = panEvt;
-        const { height, width } = position;
         switch (side) {
           case 'top':
             if (translationY < height) {
@@ -297,7 +286,10 @@ const Event = ({
         ]}
       >
         {EventComponent ? (
-          <EventComponent event={event} position={position} />
+          <EventComponent
+            event={event}
+            position={{ top, left, height, width }}
+          />
         ) : (
           <Text style={styles.description}>{event.description}</Text>
         )}
@@ -326,16 +318,12 @@ export const eventPropType = PropTypes.shape({
   endDate: PropTypes.instanceOf(Date).isRequired,
 });
 
-const positionPropType = PropTypes.shape({
-  height: PropTypes.number,
-  width: PropTypes.number,
-  top: PropTypes.number,
-  left: PropTypes.number,
-});
-
 Event.propTypes = {
   event: eventPropType.isRequired,
-  position: positionPropType.isRequired,
+  top: PropTypes.number.isRequired,
+  left: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
@@ -345,4 +333,4 @@ Event.propTypes = {
   editingEventId: PropTypes.number,
 };
 
-export default Event;
+export default React.memo(Event);
