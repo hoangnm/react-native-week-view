@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 0,
     flex: 1,
-    // overflow: 'hidden',
   },
   description: {
     marginVertical: 8,
