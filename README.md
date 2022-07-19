@@ -4,7 +4,7 @@
 The week view component for react-native.
 
 * Supported in Android and iOS
-* Many user interactions supported: **drag and drop events**, swipe through pages, event press, grid press, etc
+* Many user interactions supported: **drag and drop events**, edit events, swipe through pages, event press, grid press, etc
 * Customizable styles
 * Multiple locale support
 
@@ -14,6 +14,7 @@ The week view component for react-native.
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Basic usage](#basic-usage)
+- [Example use cases](#example-use-cases)
 - [Full API](#full-api)
   - [Props](#props)
   - [Event Item](#event-item)
@@ -23,7 +24,6 @@ The week view component for react-native.
   - [Custom Day header component](#custom-day-header-component)
   - [Locales customization](#locales-customization)
   - [Custom RefreshComponent](#custom-refreshcomponent)
-- [Example use cases](#example-use-cases)
 - [Known issues](#known-issues)
 - [Contributors](#contributors)
 
@@ -74,6 +74,17 @@ const MyComponent = () => (
 
 ```
 
+
+## Example use cases
+
+See [dedicated docs](./docs/common-usages.md) with common usages and example code.
+
+- [Drag and drop events](./docs/common-usages.md#drag-and-drop-events)
+- [Press the grid to create an event](./docs/common-usages.md#press-the-grid-to-create-an-event)
+- [Press an event and drag for editing](./docs/common-usages.md#press-an-event-and-drag-for-editing)
+- [Timetable](./docs/common-usages.md#fixed-week-timetable)
+
+
 ## Full API
 
 ### Props
@@ -90,10 +101,13 @@ const MyComponent = () => (
 | `onSwipePrev`                          | _Function:_ `(date) => {}`                                   | `null`                              | Callback when week-view is swiped to previous week/days, same signature as `onSwipeNext`.                                                                                                                                                                                                                                                                                                                                                                                           |
 | `onGridClick`                          | _Function:_ `(pressEvent, startHour, date) => {}`            | `null`                              | Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [react-native-gesture-handler touch events](https://docs.swmansion.com/react-native-gesture-handler/docs/api/gestures/touch-events) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. |
 | `onGridLongPress`                      | _Function:_ `(pressEvent, startHour, date) => {}`            | `null`                              | Callback when the grid view is long-pressed. Same signature as `onGridClick`                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `onDragEvent`                          | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null`                              | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.**                                                                                                            |
 | `onDayPress`                           | _Function:_ `(date, formattedDate) => {}`                    | `null`                              | Callback when a day from the header is pressed.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `onMonthPress`                         | _Function:_ `(date, formattedDate) => {}`                    | `null`                              | Callback when the month at the top left (title) is pressed.                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `onTimeScrolled`                       | _Function:_ `(dateWithTime) => {}`                           | `null`                              | Callback when the agenda is scrolled vertically.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `onDragEvent`                          | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null`                              | Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.**                                                                                                            |
+| `onEditEvent`                          | _Function:_ `(event, newStartDate, newEndDate) => update DB` | `null`                              | Callback when an event item is edited by dragging its borders.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `editingEvent`                         | _Number_                                                     | String                              | null_                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `null`                      | id indicating the event currently being edited. |
+| `editEventConfig`                      | _{bottom: bool, top: bool, left: bool, right: bool}_         | null_                               | `{bottom: true}`                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Sides allowed to be edited. |
 | **_Week-view <br> customizations_**    |
 | `startHour`                            | _Number_, in hours                                           | `8` (8 am)                          | Vertical position of the week-view in the first render (vertically in the agenda).                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `weekStartsOn`                         | _Number_                                                     | `1` (Monday)                        | First day of the week, i.e. day to show at the left of the week-view (0 is Sunday, 1 is Monday, and so on). Only useful when `numberOfDays === 7` or `fixedHorizontally` is true.                                                                                                                                                                                                                                                                                                   |
@@ -244,14 +258,6 @@ const MyRefreshComponent = ({ style }) => (
   RefreshComponent={MyRefreshComponent}
 />
 ```
-
-## Example use cases
-
-See [dedicated docs](./docs/common-usages.md) with common usages and example code.
-
-- [Drag and drop events](./docs/common-usages.md#drag-and-drop-events)
-- [Press the grid to create an event](./docs/common-usages.md#press-or-longpress-the-grid-to-create-an-event)
-- [Fixed week (timetable)](./docs/common-usages.md#fixed-week-timetable)
 
 
 ## Known issues

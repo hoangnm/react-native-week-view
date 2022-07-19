@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
-import Event from '../Event/Event';
+import Event, { EditEventConfigPropType } from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
@@ -507,6 +507,9 @@ export default class WeekView extends Component {
       formatTimeLabel,
       onGridClick,
       onGridLongPress,
+      onEditEvent,
+      editEventConfig,
+      editingEvent,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -639,6 +642,9 @@ export default class WeekView extends Component {
                     onDragEvent={onDragEvent}
                     pageWidth={pageWidth}
                     dayWidth={dayWidth}
+                    onEditEvent={onEditEvent}
+                    editingEventId={editingEvent}
+                    editEventConfig={editEventConfig}
                   />
                 );
               }}
@@ -687,6 +693,9 @@ WeekView.propTypes = {
   onEventLongPress: PropTypes.func,
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
+  editingEvent: PropTypes.number,
+  onEditEvent: PropTypes.func,
+  editEventConfig: EditEventConfigPropType,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
