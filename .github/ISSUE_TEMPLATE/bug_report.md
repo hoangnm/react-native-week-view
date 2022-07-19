@@ -2,19 +2,19 @@
 name: Bug report
 about: Create a report to help us improve
 title: 'BUG: '
-labels: 'type: bug', 'status: needs review'
+labels: ''
 assignees: ''
 
 ---
 
 **Describe the bug**
-_<< clear and concise description >>_
+_clear and concise description_
 
 **Visual demo**
-_<< Screenshots, videos or gifs to help explain your problem >>_
+_Screenshots, videos or gifs to help explain your problem_
 
 **Error message or traceback**
-_<< (if any) >>_
+_(if any)_
 
 **Steps To Reproduce**
   1.
@@ -22,13 +22,13 @@ _<< (if any) >>_
   ...
 
 **Expected behavior**
-_<< what you expected to happen >>_
+_what you expected to happen_
 
 **Environment:**
- - `react-native-week-view`: _<< e.g. version 0.16.0, master branch >>_
- - `react-native`: _<< version >>_
- - `react`: _<< version >>_
- - OS: _<< e.g. android 9, emulator >>_
+ - `react-native-week-view`: _e.g. version 0.16.0, master branch_
+ - `react-native`: _version_
+ - `react`: _version_
+ - OS: _e.g. android 9, emulator_
 
 **Additional context**
-_<< Add any other context about the problem here >>_
+_Add any other context about the problem here_
