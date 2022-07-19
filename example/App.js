@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useState, useReducer, useRef, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -81,27 +81,93 @@ const sampleFixedEvents = [
 
 // For debugging purposes
 const showFixedComponent = false;
+const INITIAL_EVENTS = showFixedComponent ? sampleFixedEvents : sampleEvents;
 
 const MyRefreshComponent = ({style}) => (
   // Just an example
   <ActivityIndicator style={style} color="red" size="large" />
 );
 
-class App extends React.Component {
-  state = {
-    events: showFixedComponent ? sampleFixedEvents : sampleEvents,
-    selectedDate: new Date(),
-    numberOfDays: 7,
+const EDIT_EVENT_CONFIG = {
+  top: true,
+  bottom: true,
+  left: true,
+  right: true,
+};
+
+const eventsReducer = (prevEvents, actionPayload) => {
+  const {event, newStartDate, newEndDate} = actionPayload;
+  return [
+    ...prevEvents.filter(e => e.id !== event.id),
+    {
+      ...event,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    },
+  ];
+};
+
+const onDayPress = (date, formattedDate) => {
+  console.log('Day: ', date, formattedDate);
+};
+
+const onMonthPress = (date, formattedDate) => {
+  console.log('Month: ', date, formattedDate);
+};
+
+const onTimeScrolled = date => {
+  console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
+};
+
+const App = ({}) => {
+  const componentRef = useRef(null);
+
+  const [events, updateEvent] = useReducer(eventsReducer, INITIAL_EVENTS);
+
+  const onDragEvent = useCallback(
+    (event, newStartDate, newEndDate) => {
+      updateEvent({event, newStartDate, newEndDate});
+    },
+    [updateEvent],
+  );
+
+  const onEditEvent = useCallback(
+    (event, newStartDate, newEndDate) => {
+      console.log('Editing: ', event.id, newStartDate, newEndDate);
+      updateEvent({event, newStartDate, newEndDate});
+    },
+    [updateEvent],
+  );
+
+  const [editingEvent, setEditEvent] = useState(null);
+
+  const handleLongPressEvent = event => {
+    if (editingEvent == null) {
+      setEditEvent(event.id);
+    } else {
+      setEditEvent(null);
+    }
   };
 
-  onEventPress = ({id, color, startDate, endDate}) => {
+  const handlePressEvent = event => {
+    if (editingEvent != null) {
+      setEditEvent(null);
+      return;
+    }
+
+    const {id, color, startDate, endDate} = event;
     Alert.alert(
-      `event ${color} - ${id}`,
+      `Event press ${color} - ${id}`,
       `start: ${startDate}\nend: ${endDate}`,
     );
   };
 
-  onGridClick = (event, startHour, date) => {
+  const handlePressGrid = (event, startHour, date) => {
+    if (editingEvent != null) {
+      setEditEvent(null);
+      return;
+    }
+
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // zero-based
     const day = date.getDate();
@@ -112,72 +178,45 @@ class App extends React.Component {
     Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
   };
 
-  onDragEvent = (event, newStartDate, newEndDate) => {
-    // Here you should update the event in your DB with the new date and hour
-    this.setState({
-      events: [
-        ...this.state.events.filter(e => e.id !== event.id),
-        {
-          ...event,
-          startDate: newStartDate,
-          endDate: newEndDate,
-        },
-      ],
-    });
-  };
-
-  onDayPress = (date, formattedDate) => {
-    console.log('Day: ', date, formattedDate);
-  };
-
-  onMonthPress = (date, formattedDate) => {
-    console.log('Month: ', date, formattedDate);
-  };
-
-  onTimeScrolled = date => {
-    console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
-  };
-
-  render() {
-    const {events, selectedDate, numberOfDays} = this.state;
-    return (
-      <>
-        <StatusBar barStyle="dark-content" />
-        <SafeAreaView style={styles.container}>
-          <WeekView
-            ref={r => {
-              this.componentRef = r;
-            }}
-            events={events}
-            selectedDate={selectedDate}
-            numberOfDays={numberOfDays}
-            onEventPress={this.onEventPress}
-            onGridClick={this.onGridClick}
-            headerStyle={styles.header}
-            headerTextStyle={styles.headerText}
-            hourTextStyle={styles.hourText}
-            eventContainerStyle={styles.eventContainer}
-            gridColumnStyle={styles.gridColumn}
-            gridRowStyle={styles.gridRow}
-            formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
-            hoursInDisplay={12}
-            timeStep={60}
-            startHour={8}
-            fixedHorizontally={showFixedComponent}
-            showTitle={!showFixedComponent}
-            showNowLine
-            onDragEvent={this.onDragEvent}
-            isRefreshing={false}
-            RefreshComponent={MyRefreshComponent}
-            onDayPress={this.onDayPress}
-            onMonthPress={this.onMonthPress}
-            onTimeScrolled={this.onTimeScrolled}
-          />
-        </SafeAreaView>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={styles.container}>
+        <WeekView
+          ref={componentRef}
+          events={events}
+          selectedDate={new Date()}
+          numberOfDays={7}
+          onEventPress={handlePressEvent}
+          onEventLongPress={handleLongPressEvent}
+          onGridClick={handlePressGrid}
+          headerStyle={styles.header}
+          headerTextStyle={styles.headerText}
+          hourTextStyle={styles.hourText}
+          eventContainerStyle={styles.eventContainer}
+          gridColumnStyle={styles.gridColumn}
+          gridRowStyle={styles.gridRow}
+          formatDateHeader={showFixedComponent ? 'ddd' : 'ddd DD'}
+          hoursInDisplay={12}
+          timeStep={60}
+          startHour={15}
+          fixedHorizontally={showFixedComponent}
+          showTitle={!showFixedComponent}
+          showNowLine
+          onDragEvent={onDragEvent}
+          isRefreshing={false}
+          RefreshComponent={MyRefreshComponent}
+          onDayPress={onDayPress}
+          onMonthPress={onMonthPress}
+          onTimeScrolled={onTimeScrolled}
+          editingEvent={editingEvent}
+          onEditEvent={onEditEvent}
+          editEventConfig={EDIT_EVENT_CONFIG}
+        />
+      </SafeAreaView>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

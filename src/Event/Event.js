@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -11,10 +11,33 @@ import Animated, {
   runOnJS,
   useDerivedValue,
 } from 'react-native-reanimated';
-import styles from './Event.styles';
+import styles, { circleStyles } from './Event.styles';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
+
+const SIDES = ['bottom', 'top', 'left', 'right'];
+
+const Circle = ({ side }) => (
+  <View
+    style={circleStyles[side]}
+    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+  />
+);
+
+const Circles = ({ isEditing, editEventConfig, buildCircleGesture }) =>
+  isEditing
+    ? SIDES.reduce((acc, side) => {
+        if (editEventConfig[side]) {
+          acc.push(
+            <GestureDetector key={side} gesture={buildCircleGesture(side)}>
+              <Circle side={side} />
+            </GestureDetector>,
+          );
+        }
+        return acc;
+      }, [])
+    : [];
 
 const Event = ({
   event,
@@ -24,8 +47,12 @@ const Event = ({
   EventComponent,
   containerStyle,
   onDrag,
+  onEdit,
+  editingEventId,
+  editEventConfig,
 }) => {
-  const isDragEnabled = !!onDrag;
+  const isEditing = !!onEdit && editingEventId === event.id;
+  const isDragEnabled = !!onDrag && editingEventId == null;
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
@@ -51,6 +78,18 @@ const Event = ({
     [event, position, onDrag],
   );
 
+  const onEditRelease = useCallback(
+    (params) => onEdit && onEdit(event, params),
+    [event, onEdit],
+  );
+
+  const resizeByEdit = {
+    bottom: useSharedValue(0),
+    right: useSharedValue(0),
+    top: useSharedValue(0),
+    left: useSharedValue(0),
+  };
+
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
   const currentWidth = useSharedValue(position.width);
   const currentLeft = useSharedValue(position.left);
@@ -74,17 +113,22 @@ const Event = ({
         { translateX: translatedByDrag.value.x },
         { translateY: translatedByDrag.value.y },
       ],
-      width: currentWidth.value,
-      left: currentLeft.value,
-      top: currentTop.value,
-      height: currentHeight.value,
+      width:
+        currentWidth.value + resizeByEdit.right.value - resizeByEdit.left.value,
+      left: currentLeft.value + resizeByEdit.left.value,
+      top: currentTop.value + resizeByEdit.top.value,
+      height:
+        currentHeight.value +
+        resizeByEdit.bottom.value -
+        resizeByEdit.top.value,
       opacity: withSpring(currentOpacity.value),
     };
   });
 
   useAnimatedReaction(
     () => position,
-    ({ top, left, height, width }) => {
+    (newPosition) => {
+      const { top, left, height, width } = newPosition;
       if (currentTop.value !== top) {
         currentTop.value = withTiming(top, {
           duration: UPDATE_EVENT_ANIMATION_DURATION,
@@ -173,6 +217,69 @@ const Event = ({
     pressGesture,
   );
 
+  const buildCircleGesture = (side) =>
+    Gesture.Pan()
+      .onUpdate((panEvt) => {
+        const { translationX, translationY } = panEvt;
+        const { height, width } = position;
+        switch (side) {
+          case 'top':
+            if (translationY < height) {
+              resizeByEdit.top.value = translationY;
+            }
+            break;
+          case 'bottom':
+            if (translationY > -height) {
+              resizeByEdit.bottom.value = translationY;
+            }
+            break;
+          case 'left':
+            if (translationX < width) {
+              resizeByEdit.left.value = translationX;
+            }
+            break;
+          case 'right':
+            if (translationX > -width) {
+              resizeByEdit.right.value = translationX;
+            }
+            break;
+          default:
+        }
+      })
+      .onEnd((panEvt, success) => {
+        if (!success) {
+          resizeByEdit[side].value = 0;
+          return;
+        }
+        const resizedAmount = resizeByEdit[side].value;
+        resizeByEdit[side].value = 0;
+
+        const params = {};
+        switch (side) {
+          case 'top':
+            currentTop.value += resizedAmount;
+            currentHeight.value -= resizedAmount;
+            params.top = currentTop.value;
+            break;
+          case 'bottom':
+            currentHeight.value += resizedAmount;
+            params.bottom = currentTop.value + currentHeight.value;
+            break;
+          case 'left':
+            currentLeft.value += resizedAmount;
+            currentWidth.value -= resizedAmount;
+            params.left = currentLeft.value;
+            break;
+          case 'right':
+            currentWidth.value += resizedAmount;
+            params.right = currentLeft.value + currentWidth.value;
+            break;
+          default:
+        }
+
+        runOnJS(onEditRelease)(params);
+      });
+
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View
@@ -194,10 +301,22 @@ const Event = ({
         ) : (
           <Text style={styles.description}>{event.description}</Text>
         )}
+        <Circles
+          isEditing={isEditing}
+          editEventConfig={editEventConfig}
+          buildCircleGesture={buildCircleGesture}
+        />
       </Animated.View>
     </GestureDetector>
   );
 };
+
+export const EditEventConfigPropType = PropTypes.shape({
+  left: PropTypes.bool,
+  top: PropTypes.bool,
+  right: PropTypes.bool,
+  bottom: PropTypes.bool,
+});
 
 export const eventPropType = PropTypes.shape({
   color: PropTypes.string,
@@ -222,6 +341,8 @@ Event.propTypes = {
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   onDrag: PropTypes.func,
+  onEdit: PropTypes.func,
+  editingEventId: PropTypes.number,
 };
 
 export default Event;

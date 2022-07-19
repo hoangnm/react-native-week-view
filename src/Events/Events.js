@@ -225,6 +225,40 @@ class Events extends PureComponent {
     onDragEvent(event, newStartDate, newEndDate);
   };
 
+  handleEditEvent = (event, params) => {
+    const { onEditEvent } = this.props;
+    if (!onEditEvent) {
+      return;
+    }
+    if (!params || Object.keys(params).length === 0) {
+      return;
+    }
+
+    let newStartDate = moment(event.startDate);
+    let newEndDate = moment(event.endDate);
+
+    if (params.left != null) {
+      const daysToLeft = this.xToDayIndex(params.left);
+      newStartDate = newStartDate.add(daysToLeft, 'days');
+    }
+    if (params.right != null) {
+      const movedRight = this.xToDayIndex(params.right);
+      newEndDate = newEndDate.add(movedRight, 'days');
+    }
+    if (params.top != null) {
+      newStartDate = newStartDate
+        .startOf('day')
+        .seconds(this.topToSecondsInDay(params.top));
+    }
+    if (params.bottom != null) {
+      newEndDate = newEndDate
+        .startOf('day')
+        .seconds(this.topToSecondsInDay(params.bottom));
+    }
+
+    onEditEvent(event, newStartDate.toDate(), newEndDate.toDate());
+  };
+
   isToday = (dayIndex) => {
     const { initialDate } = this.props;
     const today = moment();
@@ -254,6 +288,9 @@ class Events extends PureComponent {
       pageWidth,
       timeLabelHeight,
       verticalResolution,
+      onEditEvent,
+      editingEventId,
+      editEventConfig,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -312,6 +349,9 @@ class Events extends PureComponent {
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
                     onDrag={onDragEvent && this.handleDragEvent}
+                    onEdit={onEditEvent && this.handleEditEvent}
+                    editingEventId={editingEventId}
+                    editEventConfig={editEventConfig}
                   />
                 );
               })}
@@ -365,6 +405,8 @@ Events.propTypes = {
   dayWidth: PropTypes.number.isRequired,
   verticalResolution: PropTypes.number.isRequired,
   timeLabelHeight: PropTypes.number.isRequired,
+  onEditEvent: PropTypes.func,
+  editingEventId: PropTypes.number,
 };
 
 export default Events;
