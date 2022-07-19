@@ -1,20 +1,20 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: 'Feature request:'
-labels: 'type: enhancement', 'status: needs review'
+title: ''
+labels: ''
 assignees: ''
 
 ---
 
-**Describe the feature you'd like**
-_<< Clear and concise description of what you want to happen >>_
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Visual demo**
-_<< Add screenshots, videos or gifs describing what you'd like to see >>_
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-**(optional) Is your feature request related to a specific problem?**
-_<< Describe your problem or use case. E.g. the user needs to edit the events when [...] >>_
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-**(optional) Additional context**
-_<< Any other context, alternative solutions you've considered, etc >>_
+**Additional context**
+Add any other context or screenshots about the feature request here.

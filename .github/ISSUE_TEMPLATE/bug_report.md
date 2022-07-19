@@ -1,34 +1,38 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: 'BUG: '
-labels: 'type: bug', 'status: needs review'
+title: ''
+labels: ''
 assignees: ''
 
 ---
 
 **Describe the bug**
-_<< clear and concise description >>_
+A clear and concise description of what the bug is.
 
-**Visual demo**
-_<< Screenshots, videos or gifs to help explain your problem >>_
-
-**Error message or traceback**
-_<< (if any) >>_
-
-**Steps To Reproduce**
-  1.
-  2.
-  ...
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
 **Expected behavior**
-_<< what you expected to happen >>_
+A clear and concise description of what you expected to happen.
 
-**Environment:**
- - `react-native-week-view`: _<< e.g. version 0.16.0, master branch >>_
- - `react-native`: _<< version >>_
- - `react`: _<< version >>_
- - OS: _<< e.g. android 9, emulator >>_
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
+
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
+
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
 
 **Additional context**
-_<< Add any other context about the problem here >>_
+Add any other context about the problem here.
