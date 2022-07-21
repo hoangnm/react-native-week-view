@@ -19,20 +19,32 @@ const areEventsOverlapped = (event1EndDate, event2StartDate) => {
 
 class Lane {
   constructor() {
-    this.latestDate = null;
-    this.stackKey = null;
     this.event2StackPosition = {};
-    this.length = 0;
+    this.latestDate = null;
+
+    this.resetStack();
   }
+
+  resetStack = () => {
+    this.currentStackLength = 0;
+    this.stackKey = null;
+  };
 
   addToStack = (event, eventIndex) => {
     this.latestDate =
       this.latestDate == null
         ? moment(event.endDate)
-        : moment.max(event.endDate, this.latestDate);
+        : moment.max(moment(event.endDate), this.latestDate);
     this.stackKey = event.stackKey || null;
-    this.event2StackPosition[eventIndex] = this.length;
-    this.length += 1;
+    this.event2StackPosition[eventIndex] = this.currentStackLength;
+    this.currentStackLength += 1;
+  };
+
+  addEvent = (event, eventIndex) => {
+    if (!areEventsOverlapped(this.latestDate, event.startDate)) {
+      this.resetStack();
+    }
+    this.addToStack(event, eventIndex);
   };
 }
 
@@ -40,7 +52,6 @@ const IGNORED_EVENTS_META = {
   lane: 0,
   nLanes: 1,
   stackPosition: 0,
-  nStacked: 1,
 };
 
 class OverlappedEventsHandler {
@@ -51,7 +62,7 @@ class OverlappedEventsHandler {
   }
 
   saveEventToLane = (event, eventIndex, laneIndex) => {
-    this.lanes[laneIndex].addToStack(event, eventIndex);
+    this.lanes[laneIndex].addEvent(event, eventIndex);
 
     this.event2LaneIndex[eventIndex] = laneIndex;
   };
@@ -127,7 +138,6 @@ class OverlappedEventsHandler {
       lane: laneIndex,
       nLanes: this.lanes.length,
       stackPosition: lane.event2StackPosition[eventIndex],
-      nStacked: lane.length,
     };
   };
 }

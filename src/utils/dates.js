@@ -28,7 +28,7 @@ export const getCurrentMonth = (date) => {
  */
 export const minutesInDay = (date) => {
   const dateObj = moment(date);
-  if (!dateObj.isValid()) return 0;
+  if (!dateObj || !dateObj.isValid()) return 0;
   return dateObj.hours() * 60 + dateObj.minutes();
 };
 

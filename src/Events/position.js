@@ -2,7 +2,7 @@ import { minutesInDay } from '../utils/dates';
 import { minutesInDayToTop, minutesToHeight } from '../utils/dimensions';
 
 const EVENT_HORIZONTAL_PADDING = 8; // percentage
-const STACK_OFFSET = 30; // percentage
+const STACK_OFFSET = 15; // percentage
 const MIN_ITEM_WIDTH = 4; // pixels
 const MIN_ITEM_PADDING = 2;
 
@@ -21,8 +21,7 @@ const computePaddedWidth = (track, dayWidth) => {
 
 const computeStackOffset = (track, dayWidth) => {
   const widthByLane = computeWidthByLane(track, dayWidth);
-  const widthByStacked = widthByLane / (track.nStacked || 1);
-  const stackOffset = (STACK_OFFSET * widthByStacked) / 100;
+  const stackOffset = (STACK_OFFSET * widthByLane) / 100;
   return stackOffset * (track.stackPosition || 0);
 };
 
@@ -36,7 +35,7 @@ export const computeLeft = (track, dayWidth) => {
   const widthByLane = computeWidthByLane(track, dayWidth);
   const stackOffset = computeStackOffset(track, dayWidth);
   const left = widthByLane * (track.lane || 0) + stackOffset;
-  return left;
+  return Math.min(left, dayWidth);
 };
 
 export const computeHeight = (box, verticalResolution) =>
