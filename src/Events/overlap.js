@@ -3,6 +3,12 @@ import moment from 'moment';
 
 const ALLOW_OVERLAP_SECONDS = 2;
 
+export const OVERLAP_METHOD = {
+  STACK: 'stack',
+  LANE: 'lane',
+  IGNORE: 'ignore',
+};
+
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   if (!event1EndDate || !event2StartDate) return false;
 
@@ -20,29 +26,43 @@ class Lane {
   }
 
   addToStack = (event, eventIndex) => {
-    this.latestDate = this.latestDate
-      ? moment.max(event.endDate, this.latestDate)
-      : event.endDate;
+    this.latestDate =
+      this.latestDate == null
+        ? moment(event.endDate)
+        : moment.max(event.endDate, this.latestDate);
     this.stackKey = event.stackKey || null;
     this.event2StackPosition[eventIndex] = this.length;
     this.length += 1;
   };
 }
 
+const IGNORED_EVENTS_META = {
+  lane: 0,
+  nLanes: 1,
+  stackPosition: 0,
+  nStacked: 1,
+};
+
 class OverlappedEventsHandler {
   constructor() {
     this.lanes = [];
-    this.lanesByKey = {};
     this.event2LaneIndex = {};
+    this.ignoredEvents = {};
   }
 
+  saveEventToLane = (event, eventIndex, laneIndex) => {
+    this.lanes[laneIndex].addToStack(event, eventIndex);
+
+    this.event2LaneIndex[eventIndex] = laneIndex;
+  };
+
   findFirstLaneNotOverlapping = (startDate) =>
-    this.lanes.findIndex((lane) =>
-      areEventsOverlapped(lane.latestDate, startDate),
+    this.lanes.findIndex(
+      (lane) => !areEventsOverlapped(lane.latestDate, startDate),
     );
 
   addToNextAvailableLane = (event, eventIndex) => {
-    let laneIndex = this.findFirstLaneNotOverlapping(event.ref.startDate);
+    let laneIndex = this.findFirstLaneNotOverlapping(event.startDate);
     if (laneIndex === -1) {
       this.lanes.push(new Lane());
       laneIndex = this.lanes.length - 1;
@@ -50,52 +70,53 @@ class OverlappedEventsHandler {
     this.saveEventToLane(event, eventIndex, laneIndex);
   };
 
-  getLaneByKeyWithOverlap = (stackKey, startDate) => {
-    const laneIndex = this.lanesByKey[stackKey];
-    if (laneIndex == null || !this.lanes[laneIndex]) {
-      return null;
-    }
-    if (!areEventsOverlapped(this.lanes[laneIndex].latestDate, startDate)) {
-      return laneIndex;
-    }
-    return null;
-  };
-
-  tryAddToStack = (event, eventIndex) => {
-    const laneIndex = this.getLaneByKeyWithOverlap(
-      event.ref.stackKey,
-      event.ref.startDate,
+  findLaneWithOverlapAndKey = (startDate, targetKey = null) =>
+    this.lanes.findIndex(
+      (lane) =>
+        (targetKey == null || targetKey === lane.stackKey) &&
+        areEventsOverlapped(lane.latestDate, startDate),
     );
-    if (laneIndex != null) {
+
+  addToNextMatchingStack = (event, eventIndex) => {
+    const laneIndex = this.findLaneWithOverlapAndKey(
+      event.startDate,
+      event.stackKey,
+    );
+    if (laneIndex !== -1) {
       this.saveEventToLane(event, eventIndex, laneIndex);
-      return true;
+    } else {
+      this.addToNextAvailableLane(event, eventIndex);
     }
-    return false;
   };
 
-  saveEventToLane = (event, eventIndex, laneIndex) => {
-    this.lanes[laneIndex].addToStack(event, eventIndex);
-
-    this.event2LaneIndex[eventIndex] = laneIndex;
-    this.lanesByKey[event.ref.stackKey] = laneIndex;
+  addAsIgnored = (eventIndex) => {
+    this.ignoredEvents[eventIndex] = true;
   };
 
   static buildFromOverlappedEvents = (events) => {
     const layout = new OverlappedEventsHandler();
 
-    (events || []).forEach((event, eventIndex) => {
-      if (event.ref.stackKey != null) {
-        const success = layout.tryAddToStack(event, eventIndex);
-        if (success) {
-          return;
-        }
+    (events || []).forEach(({ ref: event }, eventIndex) => {
+      switch (event.resolveOverlap) {
+        case OVERLAP_METHOD.STACK:
+          layout.addToNextMatchingStack(event, eventIndex);
+          break;
+        case OVERLAP_METHOD.IGNORE:
+          layout.addAsIgnored(eventIndex);
+          break;
+        case OVERLAP_METHOD.LANE:
+        default:
+          layout.addToNextAvailableLane(event, eventIndex);
+          break;
       }
-      layout.addToNextAvailableLane(event, eventIndex);
     });
     return layout;
   };
 
   getEventMeta = (eventIndex) => {
+    if (this.ignoredEvents[eventIndex]) {
+      return IGNORED_EVENTS_META;
+    }
     const laneIndex = this.event2LaneIndex[eventIndex];
     if (laneIndex == null || laneIndex > this.lanes.length) {
       // internal error
@@ -131,7 +152,7 @@ const addOverlappedToArray = (baseArr, overlappedArr) => {
     baseArr.push({
       ref,
       box,
-      path: layout.getEventMeta(eventIndex),
+      track: layout.getEventMeta(eventIndex),
     });
   });
 };

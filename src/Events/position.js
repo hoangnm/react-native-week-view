@@ -11,31 +11,31 @@ const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
     ? width - Math.max(MIN_ITEM_PADDING, (width * paddingPercentage) / 100)
     : width;
 
-const computeWidthByLane = (path, dayWidth) => dayWidth / (path.nLanes || 1);
+const computeWidthByLane = (track, dayWidth) => dayWidth / (track.nLanes || 1);
 
-const computePaddedWidth = (path, dayWidth) => {
-  const widthByLane = computeWidthByLane(path, dayWidth);
-  const paddingByLane = EVENT_HORIZONTAL_PADDING / (path.nLanes || 1);
+const computePaddedWidth = (track, dayWidth) => {
+  const widthByLane = computeWidthByLane(track, dayWidth);
+  const paddingByLane = EVENT_HORIZONTAL_PADDING / (track.nLanes || 1);
   return padItemWidth(widthByLane, paddingByLane);
 };
 
-const computeStackOffset = (path, dayWidth) => {
-  const widthByLane = computeWidthByLane(path, dayWidth);
-  const widthByStacked = widthByLane / (path.nStacked || 1);
+const computeStackOffset = (track, dayWidth) => {
+  const widthByLane = computeWidthByLane(track, dayWidth);
+  const widthByStacked = widthByLane / (track.nStacked || 1);
   const stackOffset = (STACK_OFFSET * widthByStacked) / 100;
-  return stackOffset * (path.stackPosition || 0);
+  return stackOffset * (track.stackPosition || 0);
 };
 
-export const computeWidth = (path, dayWidth) => {
+export const computeWidth = (track, dayWidth) => {
   const width =
-    computePaddedWidth(path, dayWidth) - computeStackOffset(path, dayWidth);
+    computePaddedWidth(track, dayWidth) - computeStackOffset(track, dayWidth);
   return Math.max(width, MIN_ITEM_WIDTH);
 };
 
-export const computeLeft = (path, dayWidth) => {
-  const widthByLane = computeWidthByLane(path, dayWidth);
-  const stackOffset = computeStackOffset(path, dayWidth);
-  const left = widthByLane * (path.lane || 0) + stackOffset;
+export const computeLeft = (track, dayWidth) => {
+  const widthByLane = computeWidthByLane(track, dayWidth);
+  const stackOffset = computeStackOffset(track, dayWidth);
+  const left = widthByLane * (track.lane || 0) + stackOffset;
   return left;
 };
 

@@ -221,15 +221,15 @@ class Events extends PureComponent {
                 />
               )}
               {eventsInSection.map((item) => {
-                const { ref: event, box, path = {} } = item;
+                const { ref: event, box, track = {} } = item;
                 return (
                   <Event
                     key={event.id}
                     event={event}
                     top={computeTop(box, verticalResolution, beginAgendaAt)}
                     height={computeHeight(box, verticalResolution)}
-                    left={computeLeft(path, dayWidth)}
-                    width={computeWidth(path, dayWidth)}
+                    left={computeLeft(track, dayWidth)}
+                    width={computeWidth(track, dayWidth)}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}

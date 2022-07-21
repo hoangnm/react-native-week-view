@@ -39,6 +39,7 @@ const makeBuilder = () => {
       endDate: generateDates(start + duration),
       color,
       stackKey: `evt-${stackKey}`,
+      resolveOverlap: 'stack',
       ...(more || {}),
     };
   };
@@ -52,13 +53,13 @@ const sampleEvents = [
 
   // This week
   buildEvent(0, 2, 'blue'),
-  buildEvent(1, 3, 'red'),
+  buildEvent(1, 3, 'red', {resolveOverlap: 'lane'}),
   buildEvent(-18, 4, 'green'),
 
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),
   buildEvent(24 * 7 - 48, 3, 'lightblue'),
-  buildEvent(24 * 7 + 6, 6, 'brown'),
+  buildEvent(24 * 7 + 6, 6, 'brown', {resolveOverlap: 'ignore'}),
 
   // Two more weeks
   buildEvent(48 * 7, 2, 'pink'),
