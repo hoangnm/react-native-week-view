@@ -14,9 +14,7 @@ describe('onDrag handler', () => {
   const TRANSLATION_X = 7;
   const TRANSLATION_Y = 52;
   const EVT_HEIGHT = 50;
-  const EVT_MIDDLE_ANCHOR = 20; // top-middle anchor
-
-  const EVT_WIDTH = EVT_MIDDLE_ANCHOR * 2;
+  const EVT_WIDTH = 40;
 
   const buildDragGesture = () => [
     // {}, // implicit BEGIN state
@@ -55,7 +53,7 @@ describe('onDrag handler', () => {
     expect(onDragMock).toHaveBeenCalledTimes(1);
     expect(onDragMock).toHaveBeenCalledWith(
       mockEvent,
-      INITIAL_LEFT + TRANSLATION_X + EVT_MIDDLE_ANCHOR, // final_left grab the evt by the anchor
+      INITIAL_LEFT + TRANSLATION_X,
       INITIAL_TOP + TRANSLATION_Y,
     );
   });

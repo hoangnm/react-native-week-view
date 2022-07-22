@@ -110,7 +110,8 @@ class Events extends PureComponent {
     }
 
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
-    const movedDays = this.xToDayIndex(newX);
+    const fingerMargin = this.props.dayWidth / 2;
+    const movedDays = this.xToDayIndex(newX + fingerMargin);
     const secondsInDay = this.topToSecondsInDay(newY);
 
     const newStartDate = moment(event.startDate)
@@ -215,6 +216,7 @@ class Events extends PureComponent {
           {totalEvents.map((eventsInSection, dayIndex) => (
             <View
               style={[styles.eventsColumn, gridColumnStyle]}
+              pointerEvents="box-none"
               key={`${initialDate}-${dayIndex}`}
             >
               {showNowLine && this.isToday(dayIndex) && (
