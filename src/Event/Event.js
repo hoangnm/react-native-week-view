@@ -92,9 +92,9 @@ const Event = ({
 
       const newX = left + dx;
       const newY = top + dy;
-      onDrag(event, newX, newY);
+      onDrag(event, newX, newY, width);
     },
-    [event, left, top, onDrag],
+    [event, left, top, width, onDrag],
   );
 
   const onEditRelease = useCallback(

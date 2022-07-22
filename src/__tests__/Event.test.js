@@ -55,6 +55,7 @@ describe('onDrag handler', () => {
       mockEvent,
       INITIAL_LEFT + TRANSLATION_X,
       INITIAL_TOP + TRANSLATION_Y,
+      EVT_WIDTH,
     );
   });
 });

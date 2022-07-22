@@ -103,15 +103,16 @@ class Events extends PureComponent {
     this.handleGridTouch(pressEvt, this.props.onGridLongPress);
   };
 
-  handleDragEvent = (event, newX, newY) => {
+  handleDragEvent = (event, newX, newY, eventWidth) => {
     const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
     }
 
+    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth / 2);
+
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
-    const fingerMargin = this.props.dayWidth / 2;
-    const movedDays = this.xToDayIndex(newX + fingerMargin);
+    const movedDays = this.xToDayIndex(newX + halfDayAnchor);
     const secondsInDay = this.topToSecondsInDay(newY);
 
     const newStartDate = moment(event.startDate)
