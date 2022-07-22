@@ -1,11 +1,15 @@
 import moment from 'moment';
-import { DATE_STR_FORMAT } from '../utils/dates';
+import { DATE_STR_FORMAT, minutesInDay } from '../utils/dates';
 
 /**
  * Creates an array of boxes that represent a standard event.
  * @param {EventItem} event
  */
 const unrollStandardEvent = (event) => {
+  if (!event.startDate || !event.endDate) {
+    return [];
+  }
+
   const startDate = moment(event.startDate);
   const endDate = moment(event.endDate);
 
@@ -26,6 +30,19 @@ const unrollStandardEvent = (event) => {
     });
   }
   return boxes;
+};
+
+const sanitizeEndDate = (startDate, endDate) => {
+  if (!startDate || !endDate) return null;
+
+  let end = moment(endDate);
+  if (end.isSameOrBefore(startDate)) return null;
+  if (minutesInDay(endDate) < minutesInDay(startDate)) {
+    // Edge case: endDate is in the future but above the startDate
+    end = end.subtract(1, 'days').endOf('day');
+  }
+
+  return end.toDate();
 };
 
 /**
@@ -66,14 +83,13 @@ const bucketEventsByDate = (events) => {
 
   events.forEach((event) => {
     switch (event.eventType) {
-      case 'block':
-        addEventToBucket(
-          event.startDate,
-          event,
-          event.startDate,
-          event.endDate,
-        );
+      case 'block': {
+        const boxEndDate = sanitizeEndDate(event.startDate, event.endDate);
+        if (boxEndDate != null) {
+          addEventToBucket(event.startDate, event, event.startDate, boxEndDate);
+        }
         break;
+      }
       case 'standard':
       default:
         unrollStandardEvent(
