@@ -144,7 +144,12 @@ class Events extends PureComponent {
       newStartDate = newStartDate.add(daysToLeft, 'days');
     }
     if (params.right != null) {
-      const movedRight = this.xToDayIndex(params.right);
+      const newRightIndex = this.xToDayIndex(params.right);
+      const prevRightIndex = moment(event.endDate).diff(
+        event.startDate,
+        'days',
+      );
+      const movedRight = newRightIndex - prevRightIndex;
       newEndDate = newEndDate.add(movedRight, 'days');
     }
     if (params.top != null) {
