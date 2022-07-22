@@ -221,15 +221,15 @@ class Events extends PureComponent {
                 />
               )}
               {eventsInSection.map((item) => {
-                const { ref: event, box, track = {} } = item;
+                const { ref: event, box, overlap = {} } = item;
                 return (
                   <Event
                     key={event.id}
                     event={event}
                     top={computeTop(box, verticalResolution, beginAgendaAt)}
                     height={computeHeight(box, verticalResolution)}
-                    left={computeLeft(track, dayWidth)}
-                    width={computeWidth(track, dayWidth)}
+                    left={computeLeft(overlap, dayWidth)}
+                    width={computeWidth(overlap, dayWidth)}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}

@@ -124,7 +124,7 @@ class OverlappedEventsHandler {
     return layout;
   };
 
-  getEventMeta = (eventIndex) => {
+  getEventOverlapMeta = (eventIndex) => {
     if (this.ignoredEvents[eventIndex]) {
       return IGNORED_EVENTS_META;
     }
@@ -162,7 +162,7 @@ const addOverlappedToArray = (baseArr, overlappedArr) => {
     baseArr.push({
       ref,
       box,
-      track: layout.getEventMeta(eventIndex),
+      overlap: layout.getEventOverlapMeta(eventIndex),
     });
   });
 };
