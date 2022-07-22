@@ -28,7 +28,7 @@ const sampleEvents = [
   // This week
   buildEvent(0, 2, 'blue'),
   buildEvent(1, 3, 'red', {resolveOverlap: 'lane'}),
-  buildEvent(-18, 4, 'green'),
+  buildEvent(-18, 48 + 5, 'green', {eventType: 'block'}),
 
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),

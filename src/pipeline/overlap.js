@@ -103,7 +103,11 @@ class OverlappedEventsHandler {
     const layout = new OverlappedEventsHandler();
 
     (events || []).forEach(({ ref: event }, eventIndex) => {
-      switch (event.resolveOverlap) {
+      const overlapMethod =
+        event.eventType === 'block'
+          ? OVERLAP_METHOD.IGNORE
+          : event.resolveOverlap;
+      switch (overlapMethod) {
         case OVERLAP_METHOD.STACK:
           layout.addToNextMatchingStack(event, eventIndex);
           break;

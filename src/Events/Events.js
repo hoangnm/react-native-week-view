@@ -236,7 +236,7 @@ class Events extends PureComponent {
                     top={computeTop(box, verticalResolution, beginAgendaAt)}
                     height={computeHeight(box, verticalResolution)}
                     left={computeLeft(overlap, dayWidth)}
-                    width={computeWidth(overlap, dayWidth)}
+                    width={computeWidth(box, overlap, dayWidth)}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
