@@ -163,6 +163,15 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 }
 ```
 
+* Extra fields for event overlap handling, [see usage details](docs/overlaps.md).
+
+| Extra `EventItem` fields | Type                                | Default  | Description                                                                                                                             |
+| ------------------------ | ----------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **_Event overlaps_**     |
+| `resolveOverlap`         | `'lane'` \| `'stack'` \| `'ignore'` | `'lane'` | Defines the method to resolve overlaps for that event.                                                                                  |
+| `stackKey`               | _String_                            | `null`   | Limit the events it can be stacked with. If is `null`, it can be stacked with any other event. Only useful if `resolveMethod = 'stack'` |
+
+
 ### Methods
 
 * **`goToDate(date, animated = true)`**: navigate to a custom date.
