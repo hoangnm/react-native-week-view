@@ -14,9 +14,13 @@
  *     top = verticalResolution * (time - beginAgendaAt) + CONTENT_TOP_PADDING
  *
  *
- * (2) Some functions __must__ be declared as worklets because they
- * are used with react-native-reanimated in useAnimatedStyle(),
- * useDerivedValue(), etc.
+ * (2) react-native-reanimated worklets:
+ *   - See: https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/worklets
+ *   - Some util functions here __must__ be declared as worklets because they are
+ *       used with rn-reanimated in useAnimatedStyle(), useDerivedValue(), etc.
+ *   - To declare a function as a worklet, start the function with the string `'worklet';`,
+ *       see examples below.
+
  */
 export const HEADER_HEIGHT = 50;
 export const CONTENT_TOP_PADDING = 16;
