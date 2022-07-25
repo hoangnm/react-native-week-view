@@ -5561,12 +5561,9 @@ react-native-reanimated@^2.8.0:
     setimmediate "^1.0.5"
     string-hash-64 "^1.0.3"
 
-"react-native-week-view@file:..":
-  version "0.18.0"
-  dependencies:
-    memoize-one "^5.1.1"
-    moment "^2.19.3"
-    prop-types "^15.7.2"
+"react-native-week-view@link:..":
+  version "0.0.0"
+  uid ""
 
 react-native@0.68.2:
   version "0.68.2"

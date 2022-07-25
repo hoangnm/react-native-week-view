@@ -11,17 +11,14 @@
     "test": "jest",
     "lint": "eslint .",
     "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/",
-    "install:buildlink": "cd .. && yarn link",
-    "install:rmlink": "yarn link react-native-week-view && rm ./node_modules/react-native-week-view",
-    "install:rmfile": "yarn install:buildlink && yarn install:rmlink",
-    "install:local": "yarn install:rmfile && yarn sync"
+    "install:local": "rm ./node_modules/react-native-week-view && yarn sync"
   },
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.68.2",
     "react-native-gesture-handler": "^2.4.1",
     "react-native-reanimated": "^2.8.0",
-    "react-native-week-view": "file:../"
+    "react-native-week-view": "link:../"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
