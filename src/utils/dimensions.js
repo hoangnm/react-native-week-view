@@ -69,8 +69,6 @@ export const minutesInDayToTop = (
  * @returns pixels
  */
 export const minutesToHeight = (minutesDelta, verticalResolution) => {
-  'worklet';
-
   return minutesDelta * verticalResolution;
 };
 
