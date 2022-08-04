@@ -1,4 +1,7 @@
 # Changelog
+
+Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
+
 ## 0.18.0 - 2202-07-21
 - Add press event to edit [#227](https://github.com/hoangnm/react-native-week-view/pull/227)
 ## 0.17.0 - 2022-07-14
