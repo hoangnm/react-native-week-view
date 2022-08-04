@@ -24,11 +24,13 @@ import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
   setLocale,
-  minutesToY,
-  yToSeconds,
-  computeWeekViewDimensions,
-  CONTENT_OFFSET,
-} from '../utils';
+} from '../utils/dates';
+import {
+  minutesInDayToTop,
+  topToSecondsInDay,
+  computeVerticalDimensions,
+  computeHorizontalDimensions,
+} from '../utils/dimensions';
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
@@ -68,14 +70,20 @@ export default class WeekView extends Component {
       props.prependMostRecent,
       props.fixedHorizontally,
     );
+    const { width: windowWidth, height: windowHeight } = Dimensions.get(
+      'window',
+    );
     this.state = {
       // currentMoment should always be the first date of the current page
       currentMoment: moment(initialDates[this.currentPageIndex]).toDate(),
       initialDates,
-      windowWidth: Dimensions.get('window').width,
+      windowWidth,
+      windowHeight,
     };
 
     setLocale(props.locale);
+
+    this.dimensions = {};
 
     // FlatList optimization
     this.windowSize = this.pageOffset * 2 + 1;
@@ -89,8 +97,12 @@ export default class WeekView extends Component {
       this.header.scrollToOffset({ offset: position.value, animated: false });
     });
 
-    this.windowListener = Dimensions.addEventListener('change', ({ window }) =>
-      this.setState({ windowWidth: window.width }),
+    this.windowListener = Dimensions.addEventListener(
+      'change',
+      ({ window }) => {
+        const { width: windowWidth, height: windowHeight } = window;
+        this.setState({ windowWidth, windowHeight });
+      },
     );
   }
 
@@ -153,8 +165,12 @@ export default class WeekView extends Component {
   scrollToTime = (minutes, options = {}) => {
     if (this.verticalAgenda) {
       const { animated = false } = options || {};
-      const { hoursInDisplay, beginAgendaAt } = this.props;
-      const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
+      const { beginAgendaAt } = this.props;
+      const top = minutesInDayToTop(
+        minutes,
+        this.dimensions.verticalResolution,
+        beginAgendaAt,
+      );
       this.verticalAgenda.scrollTo({
         y: top,
         x: 0,
@@ -174,7 +190,7 @@ export default class WeekView extends Component {
     }
     this.isScrollingVertical = false;
 
-    const { onTimeScrolled, hoursInDisplay, beginAgendaAt } = this.props;
+    const { onTimeScrolled, beginAgendaAt } = this.props;
 
     if (!onTimeScrolled) {
       return;
@@ -183,17 +199,17 @@ export default class WeekView extends Component {
     const {
       nativeEvent: { contentOffset },
     } = scrollEvent;
-    const { y: position } = contentOffset;
+    const { y: yPosition } = contentOffset;
 
-    const seconds = yToSeconds(
-      position - CONTENT_OFFSET,
-      hoursInDisplay,
+    const secondsInDay = topToSecondsInDay(
+      yPosition,
+      this.dimensions.verticalResolution,
       beginAgendaAt,
     );
 
     const date = moment(this.state.currentMoment)
       .startOf('day')
-      .seconds(seconds)
+      .seconds(secondsInDay)
       .toDate();
 
     onTimeScrolled(date);
@@ -473,8 +489,6 @@ export default class WeekView extends Component {
     return sortedEvents;
   });
 
-  updateDimensions = memoizeOne(computeWeekViewDimensions);
-
   getListItemLayout = (item, index) => {
     const pageWidth = this.dimensions.pageWidth || 0;
     return {
@@ -522,7 +536,12 @@ export default class WeekView extends Component {
       isRefreshing,
       RefreshComponent,
     } = this.props;
-    const { currentMoment, initialDates, windowWidth } = this.state;
+    const {
+      currentMoment,
+      initialDates,
+      windowWidth,
+      windowHeight,
+    } = this.state;
     const times = this.calculateTimes(
       timeStep,
       formatTimeLabel,
@@ -534,8 +553,21 @@ export default class WeekView extends Component {
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
 
-    this.dimensions = this.updateDimensions(windowWidth, numberOfDays);
-    const { pageWidth, dayWidth, timeLabelsWidth } = this.dimensions;
+    const {
+      pageWidth,
+      dayWidth,
+      timeLabelsWidth,
+    } = computeHorizontalDimensions(windowWidth, numberOfDays);
+
+    const {
+      timeLabelHeight,
+      resolution: verticalResolution,
+    } = computeVerticalDimensions(windowHeight, hoursInDisplay, timeStep);
+
+    this.dimensions = {
+      pageWidth,
+      verticalResolution,
+    };
 
     return (
       <GestureHandlerRootView style={styles.container}>
@@ -587,7 +619,10 @@ export default class WeekView extends Component {
         </View>
         {isRefreshing && RefreshComponent && (
           <RefreshComponent
-            style={[styles.loadingSpinner, { right: pageWidth / 2 }]}
+            style={[
+              styles.loadingSpinner,
+              { right: pageWidth / 2, top: windowHeight / 2 },
+            ]}
           />
         )}
         <ScrollView
@@ -603,8 +638,7 @@ export default class WeekView extends Component {
             <Times
               times={times}
               textStyle={hourTextStyle}
-              hoursInDisplay={hoursInDisplay}
-              timeStep={timeStep}
+              timeLabelHeight={timeLabelHeight}
               width={timeLabelsWidth}
             />
             <VirtualizedList
@@ -629,9 +663,8 @@ export default class WeekView extends Component {
                     onEventLongPress={onEventLongPress}
                     onGridClick={onGridClick}
                     onGridLongPress={onGridLongPress}
-                    hoursInDisplay={hoursInDisplay}
-                    timeStep={timeStep}
                     beginAgendaAt={beginAgendaAt}
+                    timeLabelHeight={timeLabelHeight}
                     EventComponent={EventComponent}
                     eventContainerStyle={eventContainerStyle}
                     gridRowStyle={gridRowStyle}
@@ -642,6 +675,7 @@ export default class WeekView extends Component {
                     onDragEvent={onDragEvent}
                     pageWidth={pageWidth}
                     dayWidth={dayWidth}
+                    verticalResolution={verticalResolution}
                     onEditEvent={onEditEvent}
                     editingEventId={editingEvent}
                     editEventConfig={editEventConfig}

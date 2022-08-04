@@ -1,6 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
@@ -10,16 +14,17 @@ import {
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
-  CONTENT_OFFSET,
-  getTimeLabelHeight,
-  yToSeconds,
-  minutesToY,
-} from '../utils';
-import { ViewWithTouchable } from '../utils-gestures';
+  minutesInDay,
+} from '../utils/dates';
+import {
+  minutesInDayToTop,
+  minutesToHeight,
+  topToSecondsInDay as topToSecondsInDayFromUtils,
+} from '../utils/dimensions';
+import { ViewWithTouchable } from '../utils/gestures';
 
 import styles from './Events.styles';
 
-const MINUTES_IN_HOUR = 60;
 const EVENT_HORIZONTAL_PADDING = 8; // percentage
 const MIN_ITEM_WIDTH = 4;
 const ALLOW_OVERLAP_SECONDS = 2;
@@ -29,34 +34,29 @@ const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
     ? width - Math.max(2, (width * paddingPercentage) / 100)
     : width;
 
+const getWidth = (box, dayWidth) => {
+  const dividedWidth = dayWidth / (box.nLanes || 1);
+  const dividedPadding = EVENT_HORIZONTAL_PADDING / (box.nLanes || 1);
+  const width = Math.max(
+    padItemWidth(dividedWidth, dividedPadding),
+    MIN_ITEM_WIDTH,
+  );
+  return width;
+};
+
+const getLeft = (box, dayWidth) => {
+  if (!box.lane || !box.nLanes) return 0;
+  const dividedWidth = dayWidth / box.nLanes;
+  return dividedWidth * box.lane;
+};
+
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   const endDate = moment(event1EndDate);
   endDate.subtract(ALLOW_OVERLAP_SECONDS, 'seconds');
   return endDate.isSameOrAfter(event2StartDate);
 };
 
-const getStyleForEvent = (
-  event,
-  regularItemWidth,
-  hoursInDisplay,
-  beginAgendaAt,
-) => {
-  const startDate = moment(event.startDate);
-  const minutes = startDate.hours() * MINUTES_IN_HOUR + startDate.minutes();
-  const top = minutesToY(minutes, hoursInDisplay, beginAgendaAt);
-
-  const deltaMinutes = moment(event.endDate).diff(event.startDate, 'minutes');
-  const height = minutesToY(deltaMinutes, hoursInDisplay);
-
-  return {
-    top: top + CONTENT_OFFSET,
-    left: 0,
-    height,
-    width: regularItemWidth,
-  };
-};
-
-const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
+const addOverlappedToArray = (baseArr, overlappedArr) => {
   // Given an array of overlapped events (with style), modifies their style to overlap them
   // and adds them to a (base) array of events.
   if (!overlappedArr) return;
@@ -101,62 +101,39 @@ const addOverlappedToArray = (baseArr, overlappedArr, itemWidth) => {
     nLanes = Object.keys(latestByLane).length;
     indexToLane = (index) => laneByEvent[index];
   }
-  const dividedWidth = itemWidth / nLanes;
-  const width = Math.max(
-    padItemWidth(dividedWidth, EVENT_HORIZONTAL_PADDING / nLanes),
-    MIN_ITEM_WIDTH,
-  );
 
   overlappedArr.forEach((eventWithStyle, index) => {
-    const { ref, box, style } = eventWithStyle;
+    const { ref, box } = eventWithStyle;
     baseArr.push({
       ref,
-      box,
-      style: {
-        ...style,
-        width,
-        left: dividedWidth * indexToLane(index),
+      box: {
+        ...box,
+        nLanes,
+        lane: indexToLane(index),
       },
     });
   });
 };
 
-const getEventsWithPosition = (
-  totalEvents,
-  dayWidth,
-  hoursInDisplay,
-  beginAgendaAt,
-) => {
-  const paddedDayWidth = padItemWidth(dayWidth);
+const resolveEventOverlaps = (totalEvents) => {
   return totalEvents.map((events) => {
     let overlappedSoFar = []; // Store events overlapped until now
     let lastDate = null;
-    const eventsWithStyle = events.reduce((accumulated, { ref, box }) => {
-      const style = getStyleForEvent(
-        box,
-        paddedDayWidth,
-        hoursInDisplay,
-        beginAgendaAt,
-      );
-      const eventWithStyle = {
-        ref,
-        box,
-        style,
-      };
-
+    const resolvedEvents = events.reduce((accumulated, eventWithMeta) => {
+      const { box } = eventWithMeta;
       if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
-        overlappedSoFar.push(eventWithStyle);
+        overlappedSoFar.push(eventWithMeta);
         const endDate = moment(box.endDate);
         lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
       } else {
-        addOverlappedToArray(accumulated, overlappedSoFar, dayWidth);
-        overlappedSoFar = [eventWithStyle];
+        addOverlappedToArray(accumulated, overlappedSoFar);
+        overlappedSoFar = [eventWithMeta];
         lastDate = moment(box.endDate);
       }
       return accumulated;
     }, []);
-    addOverlappedToArray(eventsWithStyle, overlappedSoFar, dayWidth);
-    return eventsWithStyle;
+    addOverlappedToArray(resolvedEvents, overlappedSoFar);
+    return resolvedEvents;
   });
 };
 
@@ -164,10 +141,7 @@ const processEvents = (
   eventsByDate,
   initialDate,
   numberOfDays,
-  dayWidth,
-  hoursInDisplay,
   rightToLeft,
-  beginAgendaAt,
 ) => {
   // totalEvents stores events in each day of numberOfDays
   // example: [[event1, event2], [event3, event4], [event5]], each child array
@@ -178,33 +152,39 @@ const processEvents = (
     return eventsByDate[dateStr] || [];
   });
 
-  const totalEventsWithPosition = getEventsWithPosition(
-    totalEvents,
-    dayWidth,
-    hoursInDisplay,
-    beginAgendaAt,
-  );
-  return totalEventsWithPosition;
+  return resolveEventOverlaps(totalEvents);
+};
+
+const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
+  const heightStyle = useAnimatedStyle(() => ({
+    height: withTiming(timeLabelHeight),
+  }));
+  return times.map((time) => (
+    <Animated.View
+      key={`${initialDate}-${time}`}
+      style={[styles.timeRow, gridRowStyle, heightStyle]}
+    />
+  ));
 };
 
 class Events extends PureComponent {
+  topToSecondsInDay = (yValue) =>
+    topToSecondsInDayFromUtils(
+      yValue,
+      this.props.verticalResolution,
+      this.props.beginAgendaAt,
+    );
+
+  xToDayIndex = (xValue) => Math.floor(xValue / this.props.dayWidth);
+
   processEvents = memoizeOne(processEvents);
-
-  yToSeconds = (yValue) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-    return yToSeconds(yValue - CONTENT_OFFSET, hoursInDisplay, beginAgendaAt);
-  };
-
-  xToDayIndex = (xValue) => {
-    return Math.floor(xValue / this.props.dayWidth);
-  };
 
   handleGridTouch = (pressEvt, callback) => {
     if (!callback) {
       return;
     }
     const dayIndex = this.xToDayIndex(pressEvt.x);
-    const secondsInDay = this.yToSeconds(pressEvt.y);
+    const secondsInDay = this.topToSecondsInDay(pressEvt.y);
 
     const dateWithTime = moment(this.props.initialDate)
       .add(dayIndex, 'day')
@@ -228,10 +208,10 @@ class Events extends PureComponent {
     if (!onDragEvent) {
       return;
     }
-    // NOTE: The point (newX, newY) is in the eventsColumn coordinates
 
+    // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = this.xToDayIndex(newX);
-    const secondsInDay = this.yToSeconds(newY);
+    const secondsInDay = this.topToSecondsInDay(newY);
 
     const newStartDate = moment(event.startDate)
       .add(movedDays, 'days')
@@ -268,12 +248,12 @@ class Events extends PureComponent {
     if (params.top != null) {
       newStartDate = newStartDate
         .startOf('day')
-        .seconds(this.yToSeconds(params.top));
+        .seconds(this.topToSecondsInDay(params.top));
     }
     if (params.bottom != null) {
       newEndDate = newEndDate
         .startOf('day')
-        .seconds(this.yToSeconds(params.bottom));
+        .seconds(this.topToSecondsInDay(params.bottom));
     }
 
     onEditEvent(event, newStartDate.toDate(), newEndDate.toDate());
@@ -298,8 +278,6 @@ class Events extends PureComponent {
       gridColumnStyle,
       EventComponent,
       rightToLeft,
-      hoursInDisplay,
-      timeStep,
       beginAgendaAt,
       showNowLine,
       nowLineColor,
@@ -308,6 +286,8 @@ class Events extends PureComponent {
       onGridLongPress,
       dayWidth,
       pageWidth,
+      timeLabelHeight,
+      verticalResolution,
       onEditEvent,
       editingEventId,
       editEventConfig,
@@ -316,21 +296,17 @@ class Events extends PureComponent {
       eventsByDate,
       initialDate,
       numberOfDays,
-      dayWidth,
-      hoursInDisplay,
       rightToLeft,
-      beginAgendaAt,
     );
-    const timeSlotHeight = getTimeLabelHeight(hoursInDisplay, timeStep);
 
     return (
       <View style={[styles.container, { width: pageWidth }]}>
-        {times.map((time) => (
-          <View
-            key={`${initialDate}-${time}`}
-            style={[styles.timeRow, { height: timeSlotHeight }, gridRowStyle]}
-          />
-        ))}
+        <Lines
+          initialDate={initialDate}
+          times={times}
+          timeLabelHeight={timeLabelHeight}
+          gridRowStyle={gridRowStyle}
+        />
         <ViewWithTouchable
           style={styles.eventsContainer}
           onPress={onGridClick && this.handleGridPress}
@@ -344,26 +320,41 @@ class Events extends PureComponent {
               {showNowLine && this.isToday(dayIndex) && (
                 <NowLine
                   color={nowLineColor}
-                  hoursInDisplay={hoursInDisplay}
+                  verticalResolution={verticalResolution}
                   width={dayWidth}
                   beginAgendaAt={beginAgendaAt}
                 />
               )}
-              {eventsInSection.map((item) => (
-                <Event
-                  key={item.ref.id}
-                  event={item.ref}
-                  position={item.style}
-                  onPress={onEventPress}
-                  onLongPress={onEventLongPress}
-                  EventComponent={EventComponent}
-                  containerStyle={eventContainerStyle}
-                  onDrag={onDragEvent && this.handleDragEvent}
-                  onEdit={onEditEvent && this.handleEditEvent}
-                  editingEventId={editingEventId}
-                  editEventConfig={editEventConfig}
-                />
-              ))}
+              {eventsInSection.map((item) => {
+                const { ref: event, box } = item;
+                return (
+                  <Event
+                    key={event.id}
+                    event={event}
+                    position={{
+                      top: minutesInDayToTop(
+                        minutesInDay(box.startDate),
+                        verticalResolution,
+                        beginAgendaAt,
+                      ),
+                      height: minutesToHeight(
+                        minutesInDay(box.endDate) - minutesInDay(box.startDate),
+                        verticalResolution,
+                      ),
+                      left: getLeft(box, dayWidth),
+                      width: getWidth(box, dayWidth),
+                    }}
+                    onPress={onEventPress}
+                    onLongPress={onEventLongPress}
+                    EventComponent={EventComponent}
+                    containerStyle={eventContainerStyle}
+                    onDrag={onDragEvent && this.handleDragEvent}
+                    onEdit={onEditEvent && this.handleEditEvent}
+                    editingEventId={editingEventId}
+                    editEventConfig={editEventConfig}
+                  />
+                );
+              })}
             </View>
           ))}
         </ViewWithTouchable>
@@ -396,8 +387,6 @@ Events.propTypes = {
     ),
   ).isRequired,
   initialDate: PropTypes.string.isRequired,
-  hoursInDisplay: PropTypes.number.isRequired,
-  timeStep: PropTypes.number.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
   onEventLongPress: PropTypes.func,
@@ -410,9 +399,12 @@ Events.propTypes = {
   rightToLeft: PropTypes.bool,
   showNowLine: PropTypes.bool,
   nowLineColor: PropTypes.string,
+  beginAgendaAt: PropTypes.number,
   onDragEvent: PropTypes.func,
   pageWidth: PropTypes.number.isRequired,
   dayWidth: PropTypes.number.isRequired,
+  verticalResolution: PropTypes.number.isRequired,
+  timeLabelHeight: PropTypes.number.isRequired,
   onEditEvent: PropTypes.func,
   editingEventId: PropTypes.number,
 };

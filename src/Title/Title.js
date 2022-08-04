@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { getCurrentMonth, availableNumberOfDays } from '../utils';
+import { getCurrentMonth, availableNumberOfDays } from '../utils/dates';
 import styles from './Title.styles';
 
 const getFontSizeHeader = (numberOfDays) => {

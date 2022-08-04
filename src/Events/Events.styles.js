@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { CONTENT_OFFSET } from '../utils';
+import { CONTENT_TOP_PADDING } from '../utils/dimensions';
 
 const GREY_COLOR = '#E9EDF0';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: CONTENT_OFFSET,
+    paddingTop: CONTENT_TOP_PADDING,
   },
   timeRow: {
     borderTopWidth: 1,
