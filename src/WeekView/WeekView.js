@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
-import Event, { EditEventConfigPropType } from '../Event/Event';
+import { EditEventConfigPropType, eventPropType } from '../Event/Event';
 import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
@@ -716,7 +716,7 @@ export default class WeekView extends Component {
 }
 
 WeekView.propTypes = {
-  events: PropTypes.arrayOf(Event.propTypes.event),
+  events: PropTypes.arrayOf(eventPropType),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   weekStartsOn: PropTypes.number,
