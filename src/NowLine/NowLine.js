@@ -1,99 +1,76 @@
-import React from 'react';
-import { View, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
-import { minutesToY, CONTENT_OFFSET } from '../utils';
+import { minutesInDay } from '../utils/dates';
+import { minutesInDayToTop } from '../utils/dimensions';
 import styles from './NowLine.styles';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
 
-const getCurrentTop = (hoursInDisplay, beginAgendaAt) => {
-  const now = new Date();
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  return minutesToY(minutes, hoursInDisplay, beginAgendaAt) + CONTENT_OFFSET;
+const useMinutesNow = (updateEvery = UPDATE_EVERY_MILLISECONDS) => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const intervalCallbackId = setInterval(
+      () => setNow(new Date()),
+      updateEvery,
+    );
+
+    return () => intervalCallbackId && clearInterval(intervalCallbackId);
+  }, [setNow, updateEvery]);
+
+  return minutesInDay(now);
 };
 
-class NowLine extends React.Component {
-  constructor(props) {
-    super(props);
+const NowLine = ({ verticalResolution, beginAgendaAt, color, width }) => {
+  const minutesNow = useMinutesNow();
 
-    const { hoursInDisplay, beginAgendaAt } = this.props;
+  const currentTop = useDerivedValue(() =>
+    minutesInDayToTop(minutesNow, verticalResolution, beginAgendaAt),
+  );
 
-    this.initialTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
+  const animatedStyle = useAnimatedStyle(() => ({
+    top: withTiming(currentTop.value),
+  }));
 
-    this.state = {
-      currentTranslateY: new Animated.Value(0),
-    };
-
-    this.intervalCallbackId = null;
-  }
-
-  componentDidMount() {
-    this.intervalCallbackId = setInterval(() => {
-      this.updateLinePosition(1000);
-    }, UPDATE_EVERY_MILLISECONDS);
-  }
-
-  componentWillUnmount() {
-    if (this.intervalCallbackId) {
-      clearInterval(this.intervalCallbackId);
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.hoursInDisplay !== this.props.hoursInDisplay) {
-      this.updateLinePosition(500);
-    }
-  }
-
-  updateLinePosition = (animationDuration) => {
-    const { hoursInDisplay, beginAgendaAt } = this.props;
-
-    const newTop = getCurrentTop(hoursInDisplay, beginAgendaAt);
-    Animated.timing(this.state.currentTranslateY, {
-      toValue: newTop - this.initialTop,
-      duration: animationDuration,
-      useNativeDriver: true,
-      isInteraction: false,
-    }).start();
-  };
-
-  render() {
-    const { color, width } = this.props;
-
-    return (
-      <Animated.View
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          borderColor: color,
+          width,
+        },
+        animatedStyle,
+      ]}
+    >
+      <View
         style={[
-          styles.container,
+          styles.circle,
           {
-            top: this.initialTop,
-            transform: [{ translateY: this.state.currentTranslateY }],
-            borderColor: color,
-            width,
+            backgroundColor: color,
           },
         ]}
-      >
-        <View
-          style={[
-            styles.circle,
-            {
-              backgroundColor: color,
-            },
-          ]}
-        />
-      </Animated.View>
-    );
-  }
-}
+      />
+    </Animated.View>
+  );
+};
 
 NowLine.propTypes = {
   width: PropTypes.number.isRequired,
-  hoursInDisplay: PropTypes.number.isRequired,
+  verticalResolution: PropTypes.number.isRequired,
+  beginAgendaAt: PropTypes.number,
   color: PropTypes.string,
 };
 
 NowLine.defaultProps = {
   color: '#e53935',
+  beginAgendaAt: 0,
 };
 
 export default React.memo(NowLine);

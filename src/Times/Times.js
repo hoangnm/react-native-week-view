@@ -1,17 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import styles from './Times.styles';
-import { getTimeLabelHeight } from '../utils';
 
-const Times = ({ times, hoursInDisplay, timeStep, textStyle, width }) => {
-  const height = getTimeLabelHeight(hoursInDisplay, timeStep);
+const Times = ({ times, textStyle, width, timeLabelHeight }) => {
+  const lineStyle = useAnimatedStyle(() => ({
+    height: withTiming(timeLabelHeight),
+  }));
   return (
-    <View style={[styles.columnContainer, { width }]}>
+    <View style={[styles.container, { width }]}>
       {times.map((time) => (
-        <View key={time} style={[styles.label, { height }]}>
+        <Animated.View key={time} style={[styles.label, lineStyle]}>
           <Text style={[styles.text, textStyle]}>{time}</Text>
-        </View>
+        </Animated.View>
       ))}
     </View>
   );
@@ -19,10 +24,9 @@ const Times = ({ times, hoursInDisplay, timeStep, textStyle, width }) => {
 
 Times.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
-  hoursInDisplay: PropTypes.number.isRequired,
-  timeStep: PropTypes.number.isRequired,
   textStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   width: PropTypes.number.isRequired,
+  timeLabelHeight: PropTypes.number.isRequired,
 };
 
 export default React.memo(Times);

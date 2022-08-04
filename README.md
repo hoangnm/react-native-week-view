@@ -15,6 +15,7 @@ The week view component for react-native.
 - [Installation](#installation)
 - [Basic usage](#basic-usage)
 - [Example use cases](#example-use-cases)
+- [Changelog](#changelog)
 - [Full API](#full-api)
   - [Props](#props)
   - [Event Item](#event-item)
@@ -83,6 +84,12 @@ See [dedicated docs](./docs/common-usages.md) with common usages and example cod
 - [Press the grid to create an event](./docs/common-usages.md#press-the-grid-to-create-an-event)
 - [Press an event and drag for editing](./docs/common-usages.md#press-an-event-and-drag-for-editing)
 - [Timetable](./docs/common-usages.md#fixed-week-timetable)
+
+
+## Changelog
+
+API is still unstable, minor updates before v1.0.0 can include breaking changes, adhering to Semantic Versioning.
+See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 
 
 ## Full API
