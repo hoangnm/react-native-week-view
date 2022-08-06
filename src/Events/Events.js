@@ -374,12 +374,12 @@ class Events extends PureComponent {
   }
 }
 
-const GridRowPropType = PropTypes.shape({
+export const GridRowPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderTopWidth: PropTypes.number,
 });
 
-const GridColumnPropType = PropTypes.shape({
+export const GridColumnPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderLeftWidth: PropTypes.number,
 });

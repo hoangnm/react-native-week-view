@@ -15,7 +15,7 @@ import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
 import { EditEventConfigPropType, eventPropType } from '../Event/Event';
-import Events from '../Events/Events';
+import Events, { GridRowPropType, GridColumnPropType } from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
@@ -734,8 +734,8 @@ WeekView.propTypes = {
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
-  gridRowStyle: Events.propTypes.gridRowStyle,
-  gridColumnStyle: Events.propTypes.gridColumnStyle,
+  gridRowStyle: GridRowPropType,
+  gridColumnStyle: GridColumnPropType,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
