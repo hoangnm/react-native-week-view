@@ -92,13 +92,33 @@ export const topToSecondsInDay = (
   return secondsInDay + minutesOffset * 60;
 };
 
-const TIMES_WIDTH_PERCENTAGE = 18;
-const PAGE_WIDTH_PERCENTAGE = (100 - TIMES_WIDTH_PERCENTAGE) / 100;
+const DEFAULT_TIMES_WIDTH_PERCENTAGE = 18;
 
-export const computeHorizontalDimensions = (totalWidth, numberOfDays) => {
+/**
+ * A number in range 0..1 is parsed as a percentage,
+ * otherwise as the value itself (e.g. pixels).
+ *
+ * @param {Number} value
+ * @returns Number
+ */
+const resolveNumberAsPercentage = (value) => {
+  if (value > 0 && value < 1) {
+    return value * 100;
+  }
+  return value;
+};
+
+export const computeHorizontalDimensions = (
+  totalWidth,
+  numberOfDays,
+  timesColumnWidth = DEFAULT_TIMES_WIDTH_PERCENTAGE,
+) => {
+  const pageWidthPercentage =
+    (100 - resolveNumberAsPercentage(timesColumnWidth)) / 100;
+
   // Each day must have an equal width (integer pixels)
   const dayWidth = Math.floor(
-    (totalWidth * PAGE_WIDTH_PERCENTAGE) / numberOfDays,
+    (totalWidth * pageWidthPercentage) / numberOfDays,
   );
   const pageWidth = numberOfDays * dayWidth;
 

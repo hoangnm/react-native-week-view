@@ -511,6 +511,7 @@ export default class WeekView extends Component {
       DayHeaderComponent,
       TodayHeaderComponent,
       formatDateHeader,
+      timesColumnWidth,
       onEventPress,
       onEventLongPress,
       events,
@@ -557,7 +558,11 @@ export default class WeekView extends Component {
       pageWidth,
       dayWidth,
       timeLabelsWidth,
-    } = computeHorizontalDimensions(windowWidth, numberOfDays);
+    } = computeHorizontalDimensions(
+      windowWidth,
+      numberOfDays,
+      timesColumnWidth,
+    );
 
     const {
       timeLabelHeight,
@@ -719,6 +724,7 @@ WeekView.propTypes = {
   events: PropTypes.arrayOf(eventPropType),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
+  timesColumnWidth: PropTypes.number,
   weekStartsOn: PropTypes.number,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,

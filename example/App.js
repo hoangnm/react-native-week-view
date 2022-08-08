@@ -202,6 +202,7 @@ const App = ({}) => {
           startHour={15}
           fixedHorizontally={showFixedComponent}
           showTitle={!showFixedComponent}
+          timesColumnWidth={0.2}
           showNowLine
           onDragEvent={onDragEvent}
           isRefreshing={false}
