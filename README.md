@@ -149,14 +149,28 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 ### Event Item
 ```js
 {
+  // Basic fields:
   id: 1,
   description: 'Event',
   startDate: new Date(2021, 3, 15, 12, 0),
   endDate: new Date(2021, 3, 15, 12, 30),
   color: 'blue',
-  // ... more properties if needed,
+
+  // Special fields for extra features, details below. e.g.:
+  style: { borderColor: 'red' },
+
+  // ... your custom fields if needed,
 }
 ```
+
+#### Special fields
+
+There are some fields in the `EventItem` that provide extra features.
+
+| Extra `EventItem` fields | Type     | Default | Description                                     |
+| ------------------------ | -------- | ------- | ----------------------------------------------- |
+| `style`                  | `Object` | `null`  | Provide extra styling for that event container. |
+
 
 ### Methods
 

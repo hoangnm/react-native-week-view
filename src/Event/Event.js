@@ -293,6 +293,7 @@ const Event = ({
             backgroundColor: event.color || DEFAULT_COLOR,
           },
           containerStyle,
+          event.style,
           animatedStyles,
         ]}
       >
