@@ -96,7 +96,7 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 
 ### Props
 
-| Name                                   | Type                                                         | Default                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Prop name                              | Type                                                         | Default                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | -------------------------------------- | ------------------------------------------------------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `events`                               | _Array_                                                      | **required**                        | Events to display, in `Event Item` format ([see below](#event-item)).                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `selectedDate`                         | _Date_                                                       | **required**                        | Date to show the week-view in the first render. Note: changing this prop after the first render will not have any effect in the week-view; to actually move the week-view, use the `goToDate()` method, [see below](#methods).                                                                                                                                                                                                                                                      |
@@ -165,11 +165,14 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 
 #### Special fields
 
-There are some fields in the `EventItem` that provide extra features.
+There are some fields in the `EventItem` that provide extra customizations for each event.
 
-| Extra `EventItem` fields | Type     | Default | Description                                     |
-| ------------------------ | -------- | ------- | ----------------------------------------------- |
-| `style`                  | `Object` | `null`  | Provide extra styling for that event container. |
+| Extra `EventItem` fields | Type     | Default | Description                              |
+| ------------------------ | -------- | ------- | ---------------------------------------- |
+| `style`                  | `Object` | `null`  | Provide extra styling for the container. |
+| `disableDrag`            | `bool`   | `false` | Disables drag-and-drop interaction.      |
+| `disablePress`           | `bool`   | `false` | Disables onPress interaction.            |
+| `disableLongPress`       | `bool`   | `false` | Disables onLongPress interaction.        |
 
 
 ### Methods

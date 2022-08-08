@@ -59,6 +59,9 @@ const sampleEvents = [
     style: {
       borderWidth: 5,
     },
+    disableDrag: true,
+    disablePress: true,
+    disableLongPress: true,
   }),
   buildEvent(24 * 7 + 6, 6, 'brown'),
 
