@@ -53,17 +53,43 @@ const calculateTimesArray = (
   return times;
 };
 
+// FlatList configuration
+const PAGES_OFFSET = 2;
+const DEFAULT_WINDOW_SIZE = PAGES_OFFSET * 2 + 1;
+
+const calculatePagesDates = (
+  currentMoment,
+  numberOfDays,
+  weekStartsOn,
+  prependMostRecent,
+  fixedHorizontally,
+) => {
+  const initialDates = [];
+  const centralDate = moment(currentMoment);
+  if (numberOfDays === 7 || fixedHorizontally) {
+    centralDate.subtract(
+      // Ensure centralDate is before currentMoment
+      (centralDate.day() + 7 - weekStartsOn) % 7,
+      'days',
+    );
+  }
+  for (let i = -PAGES_OFFSET; i <= PAGES_OFFSET; i += 1) {
+    const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
+    initialDates.push(initialDate.format(DATE_STR_FORMAT));
+  }
+  return prependMostRecent ? initialDates.reverse() : initialDates;
+};
+
 export default class WeekView extends Component {
   constructor(props) {
     super(props);
     this.eventsGrid = null;
     this.verticalAgenda = null;
     this.header = null;
-    this.pageOffset = 2;
-    this.currentPageIndex = this.pageOffset;
+    this.currentPageIndex = PAGES_OFFSET;
     this.eventsGridScrollX = new Animated.Value(0);
 
-    const initialDates = this.calculatePagesDates(
+    const initialDates = calculatePagesDates(
       props.selectedDate,
       props.numberOfDays,
       props.weekStartsOn,
@@ -84,9 +110,6 @@ export default class WeekView extends Component {
     setLocale(props.locale);
 
     this.dimensions = {};
-
-    // FlatList optimization
-    this.windowSize = this.pageOffset * 2 + 1;
   }
 
   componentDidMount() {
@@ -117,7 +140,7 @@ export default class WeekView extends Component {
        * TODO: apply a better solution for the `currentMoment` and `initialDates` logic,
        * without using componentDidUpdate()
        */
-      const initialDates = this.calculatePagesDates(
+      const initialDates = calculatePagesDates(
         // eslint-disable-next-line react/no-access-state-in-setstate
         this.state.currentMoment,
         this.props.numberOfDays,
@@ -125,7 +148,7 @@ export default class WeekView extends Component {
         this.props.fixedHorizontally,
       );
 
-      this.currentPageIndex = this.pageOffset;
+      this.currentPageIndex = PAGES_OFFSET;
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
         {
@@ -134,7 +157,7 @@ export default class WeekView extends Component {
         },
         () => {
           this.eventsGrid.scrollToIndex({
-            index: this.pageOffset,
+            index: PAGES_OFFSET,
             animated: false,
           });
         },
@@ -291,8 +314,8 @@ export default class WeekView extends Component {
     // The final target will change (will be re-indexed) if pages are added in either direction
     let targetIndex = target;
 
-    const firstViewablePage = this.pageOffset;
-    const lastViewablePage = initialDates.length - this.pageOffset;
+    const firstViewablePage = PAGES_OFFSET;
+    const lastViewablePage = initialDates.length - PAGES_OFFSET;
 
     if (targetIndex < firstViewablePage) {
       const prependNeeded = firstViewablePage - targetIndex;
@@ -301,7 +324,7 @@ export default class WeekView extends Component {
         ...this.buildPages(initialDates[0], prependNeeded, false),
         ...initialDates,
       ];
-      targetIndex = this.pageOffset;
+      targetIndex = PAGES_OFFSET;
 
       newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
     } else if (targetIndex > lastViewablePage) {
@@ -315,7 +338,7 @@ export default class WeekView extends Component {
         ),
       ];
 
-      targetIndex = newState.initialDates.length - this.pageOffset;
+      targetIndex = newState.initialDates.length - PAGES_OFFSET;
 
       newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
     } else {
@@ -359,7 +382,7 @@ export default class WeekView extends Component {
       };
       let newStateCallback = () => {};
 
-      const buffer = this.pageOffset;
+      const buffer = PAGES_OFFSET;
       const pagesToStartOfList = newPageIndex;
       const pagesToEndOfList = initialDates.length - newPageIndex - 1;
 
@@ -419,29 +442,6 @@ export default class WeekView extends Component {
 
   headerRef = (ref) => {
     this.header = ref;
-  };
-
-  calculatePagesDates = (
-    currentMoment,
-    numberOfDays,
-    weekStartsOn,
-    prependMostRecent,
-    fixedHorizontally,
-  ) => {
-    const initialDates = [];
-    const centralDate = moment(currentMoment);
-    if (numberOfDays === 7 || fixedHorizontally) {
-      centralDate.subtract(
-        // Ensure centralDate is before currentMoment
-        (centralDate.day() + 7 - weekStartsOn) % 7,
-        'days',
-      );
-    }
-    for (let i = -this.pageOffset; i <= this.pageOffset; i += 1) {
-      const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
-      initialDates.push(initialDate.format(DATE_STR_FORMAT));
-    }
-    return prependMostRecent ? initialDates.reverse() : initialDates;
   };
 
   sortEventsByDate = memoizeOne((events) => {
@@ -535,6 +535,10 @@ export default class WeekView extends Component {
       onDayPress,
       isRefreshing,
       RefreshComponent,
+      windowSize,
+      initialNumToRender,
+      maxToRenderPerBatch,
+      updateCellsBatchingPeriod,
     } = this.props;
     const {
       currentMoment,
@@ -593,11 +597,12 @@ export default class WeekView extends Component {
             getItemCount={(data) => data.length}
             getItemLayout={this.getListItemLayout}
             keyExtractor={(item) => item}
-            initialScrollIndex={this.pageOffset}
+            initialScrollIndex={PAGES_OFFSET}
             extraData={dayWidth}
-            windowSize={this.windowSize}
-            initialNumToRender={this.windowSize}
-            maxToRenderPerBatch={this.pageOffset}
+            windowSize={windowSize}
+            initialNumToRender={initialNumToRender}
+            maxToRenderPerBatch={maxToRenderPerBatch}
+            updateCellsBatchingPeriod={updateCellsBatchingPeriod}
             renderItem={({ item }) => {
               return (
                 <Header
@@ -647,7 +652,7 @@ export default class WeekView extends Component {
               getItemCount={(data) => data.length}
               getItemLayout={this.getListItemLayout}
               keyExtractor={(item) => item}
-              initialScrollIndex={this.pageOffset}
+              initialScrollIndex={PAGES_OFFSET}
               scrollEnabled={!fixedHorizontally}
               onStartShouldSetResponderCapture={() => false}
               onMoveShouldSetResponderCapture={() => false}
@@ -701,9 +706,10 @@ export default class WeekView extends Component {
                 { useNativeDriver: false },
               )}
               ref={this.eventsGridRef}
-              windowSize={this.windowSize}
-              initialNumToRender={this.windowSize}
-              maxToRenderPerBatch={this.pageOffset}
+              windowSize={windowSize}
+              initialNumToRender={initialNumToRender}
+              maxToRenderPerBatch={maxToRenderPerBatch}
+              updateCellsBatchingPeriod={updateCellsBatchingPeriod}
               accessible
               accessibilityLabel="Grid with horizontal scroll"
               accessibilityHint="Grid with horizontal scroll"
@@ -758,6 +764,10 @@ WeekView.propTypes = {
   onDayPress: PropTypes.func,
   isRefreshing: PropTypes.bool,
   RefreshComponent: PropTypes.elementType,
+  windowSize: PropTypes.number,
+  initialNumToRender: PropTypes.number,
+  maxToRenderPerBatch: PropTypes.number,
+  updateCellsBatchingPeriod: PropTypes.number,
 };
 
 WeekView.defaultProps = {
@@ -774,4 +784,8 @@ WeekView.defaultProps = {
   rightToLeft: false,
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
+  windowSize: DEFAULT_WINDOW_SIZE,
+  initialNumToRender: DEFAULT_WINDOW_SIZE,
+  maxToRenderPerBatch: PAGES_OFFSET,
+  updateCellsBatchingPeriod: 50, // RN default
 };
