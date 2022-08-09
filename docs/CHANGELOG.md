@@ -2,9 +2,11 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
-## 0.19.0 - 2202-08-09
+## 0.20.0 - 2022-08-09
+- Add FlatList optimization props [#250](https://github.com/hoangnm/react-native-week-view/pull/250)
+## 0.19.0 - 2022-08-09
 - Support height responsiveness [#229](https://github.com/hoangnm/react-native-week-view/pull/229)
-## 0.18.0 - 2202-07-21
+## 0.18.0 - 2022-07-21
 - Add press event to edit [#227](https://github.com/hoangnm/react-native-week-view/pull/227)
 ## 0.17.0 - 2022-07-14
 - Breaking change: add [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation/) v2 and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation) v2 as peer dependencies. This change helps drag&drop smoother [#175](https://github.com/hoangnm/react-native-week-view/pull/175)
