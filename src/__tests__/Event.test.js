@@ -13,6 +13,7 @@ describe('onDrag handler', () => {
   const INITIAL_LEFT = 0;
   const TRANSLATION_X = 7;
   const TRANSLATION_Y = 52;
+  const EVT_HEIGHT = 50;
   const EVT_MIDDLE_ANCHOR = 20; // top-middle anchor
 
   const EVT_WIDTH = EVT_MIDDLE_ANCHOR * 2;
@@ -35,14 +36,17 @@ describe('onDrag handler', () => {
       endDate: new Date(2021, 1, 3, 12, 2),
     };
     const onDragMock = jest.fn(() => null);
-    const position = {
-      top: INITIAL_TOP,
-      left: INITIAL_LEFT,
-      width: EVT_WIDTH,
-      height: 50,
-    };
 
-    render(<Event event={mockEvent} onDrag={onDragMock} position={position} />);
+    render(
+      <Event
+        event={mockEvent}
+        onDrag={onDragMock}
+        top={INITIAL_TOP}
+        left={INITIAL_LEFT}
+        height={EVT_HEIGHT}
+        width={EVT_WIDTH}
+      />,
+    );
     fireGestureHandler(
       getByGestureTestId(`dragGesture-${targetId}`),
       buildDragGesture(),
