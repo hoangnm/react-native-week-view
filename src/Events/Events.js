@@ -19,13 +19,13 @@ import { topToSecondsInDay as topToSecondsInDayFromUtils } from '../utils/dimens
 import { ViewWithTouchable } from '../utils/gestures';
 
 import styles from './Events.styles';
-import resolveEventOverlaps from './overlap';
+import resolveEventOverlaps from '../pipeline/overlap';
 import {
   computeHeight,
   computeWidth,
   computeLeft,
   computeTop,
-} from './position';
+} from '../pipeline/position';
 
 const processEvents = (
   eventsByDate,
