@@ -9,7 +9,12 @@ import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
 import NowLine from '../NowLine/NowLine';
-import Event, { eventPropType } from '../Event/Event';
+import Event from '../Event/Event';
+import {
+  EventWithMetaPropType,
+  GridRowPropType,
+  GridColumnPropType,
+} from '../utils/types';
 import {
   calculateDaysArray,
   DATE_STR_FORMAT,
@@ -249,29 +254,10 @@ class Events extends PureComponent {
   }
 }
 
-export const GridRowPropType = PropTypes.shape({
-  borderColor: PropTypes.string,
-  borderTopWidth: PropTypes.number,
-});
-
-export const GridColumnPropType = PropTypes.shape({
-  borderColor: PropTypes.string,
-  borderLeftWidth: PropTypes.number,
-});
-
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
-  eventsByDate: PropTypes.objectOf(
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        ref: eventPropType.isRequired,
-        box: PropTypes.shape({
-          startDate: PropTypes.instanceOf(Date).isRequired,
-          endDate: PropTypes.instanceOf(Date).isRequired,
-        }),
-      }),
-    ),
-  ).isRequired,
+  eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(EventWithMetaPropType))
+    .isRequired,
   initialDate: PropTypes.string.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,

@@ -14,8 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
-import { EditEventConfigPropType, eventPropType } from '../Event/Event';
-import Events, { GridRowPropType, GridColumnPropType } from '../Events/Events';
+import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
@@ -32,6 +31,12 @@ import {
   computeVerticalDimensions,
   computeHorizontalDimensions,
 } from '../utils/dimensions';
+import {
+  GridRowPropType,
+  GridColumnPropType,
+  EditEventConfigPropType,
+  EventPropType,
+} from '../utils/types';
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
@@ -680,7 +685,7 @@ export default class WeekView extends Component {
 }
 
 WeekView.propTypes = {
-  events: PropTypes.arrayOf(eventPropType),
+  events: PropTypes.arrayOf(EventPropType),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   weekStartsOn: PropTypes.number,
