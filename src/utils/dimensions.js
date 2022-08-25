@@ -92,21 +92,44 @@ export const topToSecondsInDay = (
   return secondsInDay + minutesOffset * 60;
 };
 
-const TIMES_WIDTH_PERCENTAGE = 18;
-const PAGE_WIDTH_PERCENTAGE = (100 - TIMES_WIDTH_PERCENTAGE) / 100;
+const DEFAULT_TIMES_WIDTH_PERCENTAGE = 18;
 
-export const computeHorizontalDimensions = (totalWidth, numberOfDays) => {
-  // Each day must have an equal width (integer pixels)
-  const dayWidth = Math.floor(
-    (totalWidth * PAGE_WIDTH_PERCENTAGE) / numberOfDays,
-  );
-  const pageWidth = numberOfDays * dayWidth;
+/**
+ * Get the rawPageWidth configured by the timesColumnWidth prop.
+ *
+ * If timesColumnWidth is in range 0..1 is used as a fraction of the
+ * total-width, otherwise as the amount of points in the screen.
+ *
+ * @param {Number} weekViewWidth
+ * @param {Number} timesColumnWidth
+ * @returns Number
+ */
+const computeRawPageWidth = (weekViewWidth, timesColumnWidth) => {
+  if (timesColumnWidth > 0 && timesColumnWidth < 1) {
+    return weekViewWidth * (1 - timesColumnWidth);
+  }
+  if (timesColumnWidth > 0 && timesColumnWidth < weekViewWidth) {
+    return weekViewWidth - timesColumnWidth;
+  }
+  return (weekViewWidth * (100 - DEFAULT_TIMES_WIDTH_PERCENTAGE)) / 100;
+};
+
+export const computeHorizontalDimensions = (
+  totalWidth,
+  numberOfDays,
+  timesColumnWidth = DEFAULT_TIMES_WIDTH_PERCENTAGE,
+) => {
+  const rawPageWidth = computeRawPageWidth(totalWidth, timesColumnWidth);
+
+  // Each day must have an equal width (integer points)
+  const dayWidth = Math.floor(rawPageWidth / numberOfDays);
+  const exactPageWidth = numberOfDays * dayWidth;
 
   // Fill the full screen
-  const timeLabelsWidth = totalWidth - pageWidth;
+  const timeLabelsWidth = totalWidth - exactPageWidth;
 
   return {
-    pageWidth,
+    pageWidth: exactPageWidth,
     timeLabelsWidth,
     dayWidth,
   };
