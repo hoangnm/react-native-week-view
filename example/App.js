@@ -29,7 +29,7 @@ const generateDates = (hours, minutes) => {
 const makeBuilder = () => {
   let index = 0;
 
-  return (start, duration, color) => {
+  return (start, duration, color, more = {}) => {
     index += 1;
     return {
       id: index,
@@ -37,6 +37,7 @@ const makeBuilder = () => {
       startDate: generateDates(start),
       endDate: generateDates(start + duration),
       color,
+      ...(more || {}),
     };
   };
 };
@@ -54,7 +55,14 @@ const sampleEvents = [
 
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),
-  buildEvent(24 * 7 - 48, 3, 'lightblue'),
+  buildEvent(24 * 7 - 48, 3, 'lightblue', {
+    style: {
+      borderWidth: 5,
+    },
+    disableDrag: true,
+    disablePress: true,
+    disableLongPress: true,
+  }),
   buildEvent(24 * 7 + 6, 6, 'brown'),
 
   // Two more weeks
