@@ -69,7 +69,8 @@ const Event = ({
   editEventConfig,
 }) => {
   const isEditing = !!onEdit && editingEventId === event.id;
-  const isDragEnabled = !!onDrag && editingEventId == null;
+  const isDragEnabled =
+    !!onDrag && editingEventId == null && !event.disableDrag;
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
@@ -172,7 +173,7 @@ const Event = ({
     });
 
   const longPressGesture = Gesture.LongPress()
-    .enabled(!!onLongPress)
+    .enabled(!!onLongPress && !event.disableLongPress)
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -187,7 +188,7 @@ const Event = ({
     });
 
   const pressGesture = Gesture.Tap()
-    .enabled(!!onPress)
+    .enabled(!!onPress && !event.disablePress)
     .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
@@ -282,6 +283,7 @@ const Event = ({
             backgroundColor: event.color || DEFAULT_COLOR,
           },
           containerStyle,
+          event.style,
           animatedStyles,
         ]}
       >
@@ -316,6 +318,10 @@ export const eventPropType = PropTypes.shape({
   description: PropTypes.string,
   startDate: PropTypes.instanceOf(Date).isRequired,
   endDate: PropTypes.instanceOf(Date).isRequired,
+  style: PropTypes.object,
+  disableDrag: PropTypes.bool,
+  disablePress: PropTypes.bool,
+  disableLongPress: PropTypes.bool,
 });
 
 Event.propTypes = {

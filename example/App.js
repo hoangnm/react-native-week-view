@@ -32,7 +32,14 @@ const sampleEvents = [
 
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),
-  buildEvent(24 * 7 - 48, 3, 'lightblue'),
+  buildEvent(24 * 7 - 48, 3, 'lightblue', {
+    style: {
+      borderWidth: 5,
+    },
+    disableDrag: true,
+    disablePress: true,
+    disableLongPress: true,
+  }),
   buildEvent(24 * 7 + 6, 6, 'brown'),
 
   // Two more weeks
@@ -192,6 +199,7 @@ const App = ({}) => {
           startHour={15}
           fixedHorizontally={showFixedComponent}
           showTitle={!showFixedComponent}
+          timesColumnWidth={0.2}
           showNowLine
           onDragEvent={onDragEvent}
           isRefreshing={false}

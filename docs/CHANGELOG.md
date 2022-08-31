@@ -2,6 +2,8 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.21.0 - 2022-08-30
+- Add timesColumnWidth prop [#253](https://github.com/hoangnm/react-native-week-view/pull/253)
 ## 0.20.0 - 2022-08-09
 - Add FlatList optimization props [#250](https://github.com/hoangnm/react-native-week-view/pull/250)
 ## 0.19.0 - 2022-08-09

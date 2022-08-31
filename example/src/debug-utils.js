@@ -12,7 +12,7 @@ export const generateDates = (hours, minutes) => {
 export const makeBuilder = () => {
   let index = 0;
 
-  return (start, duration, color) => {
+  return (start, duration, color, more = {}) => {
     index += 1;
     return {
       id: index,
@@ -20,6 +20,7 @@ export const makeBuilder = () => {
       startDate: generateDates(start),
       endDate: generateDates(start + duration),
       color,
+      ...(more || {}),
     };
   };
 };
