@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 
 import WeekView, {createFixedWeekDate} from 'react-native-week-view';
-import {buildDateCycler, makeBuilder} from './src/debug-utils';
+import {buildDateCycler, makeBuilder} from './debug-utils';
 
 const buildEvent = makeBuilder();
 
@@ -100,13 +100,14 @@ const onTimeScrolled = date => {
   console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
 };
 
-// Debug navigating through dates
+// Use this to manually debug navigate through dates
+// eslint-disable-next-line no-unused-vars
 const dateCycler = buildDateCycler([
   // // Example:
   // // selectedDate={new Date(2022, 7, 14)}
-  new Date(2022, 7, 23),
-  new Date(2022, 7, 18),
-  new Date(2022, 7, 2),
+  // new Date(2022, 7, 20),
+  // new Date(2022, 7, 18),
+  // new Date(2022, 7, 2),
 ]);
 
 const App = ({}) => {
@@ -169,10 +170,12 @@ const App = ({}) => {
   };
 
   const onMonthPress = useCallback((date, formattedDate) => {
-    if (!componentRef || !componentRef.current) {
-      return;
-    }
-    componentRef.current.goToDate(dateCycler.next());
+    // // Debug navigating through dates:
+    // if (componentRef && componentRef.current) {
+    //   componentRef.current.goToDate(dateCycler.next());
+    // }
+
+    console.log('Month: ', date, formattedDate);
   }, []);
 
   return (
@@ -182,8 +185,8 @@ const App = ({}) => {
         <WeekView
           ref={componentRef}
           events={events}
-          selectedDate={new Date(2022, 7, 14)}
-          numberOfDays={1}
+          selectedDate={new Date()}
+          numberOfDays={7}
           onEventPress={handlePressEvent}
           onEventLongPress={handleLongPressEvent}
           onGridClick={handlePressGrid}
