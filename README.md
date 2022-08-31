@@ -125,6 +125,7 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 | `timeStep`                                                                   | _Number_, in minutes                                         | `60`                                | Number of minutes to use as step in the time labels at the left. Increasing this number will increase the vertical space between grid lines.                                                                                                                                                                                                                                                                                                                                        |
 | `formatDateHeader`                                                           | _String_                                                     | `"MMM D"` (e.g. "Apr 3")            | Formatter for dates in the header. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/).                                                                                                                                                                                                                                                                                                                                                                |
 | `formatTimeLabel`                                                            | _String_                                                     | `"H:mm"` (24 hours)                 | Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or `"h:mm a"` for lowercase. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/).                                                                                                                                                                                                                                                                                         |
+| `timesColumnWidth`                                                           | _Number_                                                     | `0.18` (18% of screen-width)        | Customize the width of the times column at the left. If the value is in range `0..1` indicates a percentage of the screen width (e.g. 0.18 --> 18%). Otherwise is the amount of pixels (e.g. 40 pixels).                                                                                                                                                                                                                                                                            |
 | `EventComponent`                                                             | _ReactComponent_                                             | `Text`                              | Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [sub-section below](#custom-eventcomponent) for details on the component.                                                                                                                                                                                                                                                                                                      |
 | `TodayHeaderComponent`                                                       | _ReactComponent_                                             | `null`                              | Custom component to highlight today in the header (by default, *today* looks the same than every day). See details in [sub-section below](#custom-day-components)                                                                                                                                                                                                                                                                                                                   |
 | `DayHeaderComponent`                                                         | _ReactComponent_                                             | `null`                              | Custom component to show each day in the header. If provided, overrides `TodayHeaderComponent`. See details in [sub-section below](#custom-day-components)                                                                                                                                                                                                                                                                                                                          |
@@ -154,19 +155,33 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 ### Event Item
 ```js
 {
+  // Basic fields:
   id: 1,
   description: 'Event',
   startDate: new Date(2021, 3, 15, 12, 0),
   endDate: new Date(2021, 3, 15, 12, 30),
   color: 'blue',
-  // ... more properties if needed,
+
+  // Special fields for extra features, details below. e.g.:
+  style: { borderColor: 'red' },
+
+  // ... your custom fields if needed,
 }
 ```
 
-* Extra fields for event overlap handling, [see usage details](docs/overlaps.md).
+#### Special fields
+
+There are some fields in the `EventItem` that provide extra customizations for each event.
+* Style per event
+* Disable user interactions (e.g. drag, press)
+* Event overlap handling [see more details](docs/overlaps.md).
 
 | Extra `EventItem` fields | Type                                | Default  | Description                                                                                                                             |
 | ------------------------ | ----------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `style`                  | `Object`                            | `null`   | Provide extra styling for the container.                                                                                                |
+| `disableDrag`            | `bool`                              | `false`  | Disables drag-and-drop interaction.                                                                                                     |
+| `disablePress`           | `bool`                              | `false`  | Disables onPress interaction.                                                                                                           |
+| `disableLongPress`       | `bool`                              | `false`  | Disables onLongPress interaction.                                                                                                       |
 | **_Event overlaps_**     |
 | `resolveOverlap`         | `'lane'` \| `'stack'` \| `'ignore'` | `'lane'` | Defines the method to resolve overlaps for that event.                                                                                  |
 | `stackKey`               | _String_                            | `null`   | Limit the events it can be stacked with. If is `null`, it can be stacked with any other event. Only useful if `resolveMethod = 'stack'` |

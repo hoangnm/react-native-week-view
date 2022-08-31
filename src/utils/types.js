@@ -13,6 +13,10 @@ export const EventPropType = PropTypes.shape({
   description: PropTypes.string,
   startDate: PropTypes.instanceOf(Date).isRequired,
   endDate: PropTypes.instanceOf(Date).isRequired,
+  style: PropTypes.object,
+  disableDrag: PropTypes.bool,
+  disablePress: PropTypes.bool,
+  disableLongPress: PropTypes.bool,
 });
 
 export const EventWithMetaPropType = PropTypes.shape({
