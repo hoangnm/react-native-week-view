@@ -16,34 +16,8 @@ import {
 } from 'react-native';
 
 import WeekView, {createFixedWeekDate} from 'react-native-week-view';
+import {buildDateCycler, makeBuilder} from './debug-utils';
 
-const generateDates = (hours, minutes) => {
-  const date = new Date();
-  date.setHours(date.getHours() + hours);
-  if (minutes != null) {
-    date.setMinutes(minutes);
-  }
-  return date;
-};
-
-const makeBuilder = () => {
-  let index = 0;
-
-  return (start, duration, color, more = {}) => {
-    index += 1;
-    const stackKey = index % 2 === 0 ? 'A' : 'B';
-    return {
-      id: index,
-      description: `Event ${index}`,
-      startDate: generateDates(start),
-      endDate: generateDates(start + duration),
-      color,
-      stackKey: `evt-${stackKey}`,
-      resolveOverlap: 'stack',
-      ...(more || {}),
-    };
-  };
-};
 const buildEvent = makeBuilder();
 
 const sampleEvents = [
@@ -122,13 +96,19 @@ const onDayPress = (date, formattedDate) => {
   console.log('Day: ', date, formattedDate);
 };
 
-const onMonthPress = (date, formattedDate) => {
-  console.log('Month: ', date, formattedDate);
-};
-
 const onTimeScrolled = date => {
   console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
 };
+
+// Use this to manually debug navigate through dates
+// eslint-disable-next-line no-unused-vars
+const dateCycler = buildDateCycler([
+  // // Example:
+  // // selectedDate={new Date(2022, 7, 14)}
+  // new Date(2022, 7, 20),
+  // new Date(2022, 7, 18),
+  // new Date(2022, 7, 2),
+]);
 
 const App = ({}) => {
   const componentRef = useRef(null);
@@ -188,6 +168,15 @@ const App = ({}) => {
 
     Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
   };
+
+  const onMonthPress = useCallback((date, formattedDate) => {
+    // // Debug navigating through dates:
+    // if (componentRef && componentRef.current) {
+    //   componentRef.current.goToDate(dateCycler.next());
+    // }
+
+    console.log('Month: ', date, formattedDate);
+  }, []);
 
   return (
     <>
