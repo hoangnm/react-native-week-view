@@ -251,7 +251,7 @@ export default class WeekView extends Component {
         .add((index + 1) * deltaDays, 'days')
         .format(DATE_STR_FORMAT),
     );
-    return newPages;
+    return appending ? newPages : newPages.reverse();
   };
 
   goToDate = (targetDate, animated = true) => {
