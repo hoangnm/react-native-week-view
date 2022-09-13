@@ -163,7 +163,6 @@ const Event = ({
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
-    .activateAfterLongPress(dragAfterLongPress)
     .onTouchesDown(() => {
       dragStatus.value = DRAG_STATUS.PRESSING;
     })
@@ -192,6 +191,12 @@ const Event = ({
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;
     });
+
+  /** Wrapper to work with rngh < 2.6.0 */
+  const wrappedDragGesture =
+    dragAfterLongPress > 0
+      ? dragGesture.activateAfterLongPress(dragAfterLongPress)
+      : dragGesture;
 
   const longPressGesture = Gesture.LongPress()
     .enabled(
@@ -226,7 +231,7 @@ const Event = ({
     });
 
   const composedGesture = Gesture.Race(
-    dragGesture,
+    wrappedDragGesture,
     longPressGesture,
     pressGesture,
   );
