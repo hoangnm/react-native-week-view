@@ -92,7 +92,7 @@ export const topToSecondsInDay = (
   return secondsInDay + minutesOffset * 60;
 };
 
-const DEFAULT_TIMES_WIDTH_PERCENTAGE = 18;
+const DEFAULT_TIMES_WIDTH_PERCENTAGE = 0.18;
 
 /**
  * Get the rawPageWidth configured by the timesColumnWidth prop.
