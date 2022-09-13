@@ -24,7 +24,7 @@
   ],
   "homepage": "https://github.com/hoangnm/react-native-week-view#readme",
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint src",
     "test": "jest"
   },
   "dependencies": {
