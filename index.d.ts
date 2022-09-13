@@ -9,6 +9,10 @@ export interface WeekViewEvent extends Record<string, any> {
   startDate: Date;
   endDate: Date;
   color: string;
+  style?: StyleProp<ViewStyle>;
+  disableDrag?: boolean;
+  disablePress?: boolean;
+  disableLongPress?: boolean;
 }
 
 export interface HeaderComponentProps {
