@@ -189,16 +189,6 @@ export interface WeekViewProps {
 
   // Other props (patch RN bugs)
   prependMostRecent?: boolean;
-
-
-
-
-
-
-
-
-
-
 }
 
 declare const WeekView: React.ComponentType<WeekViewProps>;
