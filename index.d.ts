@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { Moment } from 'moment';
 
-export interface Event extends Record<string, any> {
+export interface WeekViewEvent extends Record<string, any> {
   id: number;
   description: string;
   startDate: Date;
@@ -18,7 +18,7 @@ export interface HeaderComponentProps {
 }
 
 export interface EventComponentProps {
-  event: Event;
+  event: WeekViewEvent;
   position: {
     top: number;
     left: number;
@@ -28,7 +28,7 @@ export interface EventComponentProps {
 }
 
 export interface WeekViewProps {
-  events: Event[];
+  events: WeekViewEvent[];
   selectedDate: Date;
   numberOfDays: 1 | 3 | 5 | 7;
 
@@ -37,13 +37,13 @@ export interface WeekViewProps {
    * Callback when an event item is pressed, receives the event-item pressed
    * @param event
    */
-  onEventPress?: (event: Event) => void;
+  onEventPress?: (event: WeekViewEvent) => void;
 
   /**
    * Callback when an event item is long pressed, same signature as onEventPress
    * @param event
    */
-  onEventLongPress?: (event: Event) => void;
+  onEventLongPress?: (event: WeekViewEvent) => void;
 
   /**
    * Callback when week-view is swiped to next week/days,
@@ -113,7 +113,7 @@ export interface WeekViewProps {
    * @param newStartDate
    * @param newEndDate
    */
-  onDragEvent?(event: Event, newStartDate: Date, newEndDate: Date): void;
+  onDragEvent?(event: WeekViewEvent, newStartDate: Date, newEndDate: Date): void;
 
   /**
    * Callback when an event item is edited by dragging its borders.
@@ -121,7 +121,7 @@ export interface WeekViewProps {
    * @param newStartDate
    * @param newEndDate
    */
-  onEditEvent?(event: Event, newStartDate: Date, newEndDate: Date): void;
+  onEditEvent?(event: WeekViewEvent, newStartDate: Date, newEndDate: Date): void;
 
   editEventConfig?: { bottom: boolean; top: boolean; left: boolean; right: boolean; };
 
