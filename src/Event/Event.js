@@ -53,6 +53,12 @@ const Circles = ({ isEditing, editEventConfig, buildCircleGesture }) =>
       }, [])
     : [];
 
+const DRAG_STATUS = {
+  STATIC: 0,
+  PRESSING: 1,
+  MOVING: 2,
+};
+
 const Event = ({
   event,
   top,
@@ -67,8 +73,12 @@ const Event = ({
   onEdit,
   editingEventId,
   editEventConfig,
+  dragEventConfig,
 }) => {
-  const isEditing = !!onEdit && editingEventId === event.id;
+  const dragAfterLongPress =
+    (dragEventConfig && dragEventConfig.afterLongPressDuration) || 0;
+  const isEditing =
+    dragAfterLongPress === 0 && !!onEdit && editingEventId === event.id;
   const isDragEnabled =
     !!onDrag && editingEventId == null && !event.disableDrag;
 
@@ -114,12 +124,19 @@ const Event = ({
   const currentTop = useCurrentDimension(top);
   const currentHeight = useCurrentDimension(height);
 
-  const isDragging = useSharedValue(false);
+  const dragStatus = useSharedValue(DRAG_STATUS.STATIC);
   const isPressing = useSharedValue(false);
   const isLongPressing = useSharedValue(false);
 
   const currentOpacity = useDerivedValue(() => {
-    if (isDragging.value || isPressing.value || isLongPressing.value) {
+    if (dragAfterLongPress !== 0 && dragStatus.value === DRAG_STATUS.MOVING) {
+      return 0.2;
+    }
+    if (
+      isPressing.value ||
+      isLongPressing.value ||
+      dragStatus.value !== DRAG_STATUS.STATIC
+    ) {
       return 0.5;
     }
     return 1;
@@ -146,8 +163,12 @@ const Event = ({
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
+    .activateAfterLongPress(dragAfterLongPress)
     .onTouchesDown(() => {
-      isDragging.value = true;
+      dragStatus.value = DRAG_STATUS.PRESSING;
+    })
+    .onStart(() => {
+      dragStatus.value = DRAG_STATUS.MOVING;
     })
     .onUpdate((e) => {
       translatedByDrag.value = {
@@ -169,11 +190,13 @@ const Event = ({
       runOnJS(onDragRelease)(translationX, translationY);
     })
     .onFinalize(() => {
-      isDragging.value = false;
+      dragStatus.value = DRAG_STATUS.STATIC;
     });
 
   const longPressGesture = Gesture.LongPress()
-    .enabled(!!onLongPress && !event.disableLongPress)
+    .enabled(
+      dragAfterLongPress === 0 && !!onLongPress && !event.disableLongPress,
+    )
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -312,6 +335,10 @@ export const EditEventConfigPropType = PropTypes.shape({
   bottom: PropTypes.bool,
 });
 
+export const DragEventConfigPropType = PropTypes.shape({
+  afterLongPressDuration: PropTypes.number,
+});
+
 export const eventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -334,6 +361,7 @@ Event.propTypes = {
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
+  dragEventConfig: DragEventConfigPropType,
   onDrag: PropTypes.func,
   onEdit: PropTypes.func,
   editingEventId: PropTypes.number,
