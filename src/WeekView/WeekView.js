@@ -59,11 +59,10 @@ const mod = (num, divider) => ((num % divider) + divider) % divider;
 
 /** TODO */
 const getRawOffset = (newDayOffset, options = {}) => {
-  // Compute day-offset
-  const { offset: userOffset = null } = options || {};
-  if (userOffset != null) {
-    // the user wants to see targetDate at <offset> from the edge
-    return newDayOffset - userOffset;
+  const { left: distanceToLeft = null } = options || {};
+  if (distanceToLeft != null) {
+    // the user wants to see targetDate at <distanceToLeft> from the edge
+    return newDayOffset - distanceToLeft;
   }
   return newDayOffset;
 };
