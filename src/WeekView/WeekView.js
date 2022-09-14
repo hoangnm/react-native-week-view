@@ -25,6 +25,7 @@ import {
   availableNumberOfDays,
   setLocale,
 } from '../utils/dates';
+import { mod } from '../utils/misc';
 import {
   minutesInDayToTop,
   topToSecondsInDay,
@@ -53,12 +54,7 @@ const calculateTimesArray = (
   return times;
 };
 
-// TODO: move to utils
-// Module operator
-const mod = (num, divider) => ((num % divider) + divider) % divider;
-
-/** TODO */
-const getRawOffset = (newDayOffset, options = {}) => {
+const getRawDayOffset = (newDayOffset, options = {}) => {
   const { left: distanceToLeft = null } = options || {};
   if (distanceToLeft != null) {
     // the user wants to see targetDate at <distanceToLeft> from the edge
@@ -67,26 +63,40 @@ const getRawOffset = (newDayOffset, options = {}) => {
   return newDayOffset;
 };
 
+const getPageStartDate = (
+  selectedDate,
+  numberOfDays,
+  pageStartAtOptions = {},
+) => {
+  const { left: distanceToLeft = null, weekday = null } =
+    pageStartAtOptions || {};
+  if (distanceToLeft != null) {
+    // the user wants to see selectedDate at <distanceToLeft> from the left edge
+    return moment(selectedDate).subtract(distanceToLeft, 'day');
+  }
+  if (weekday != null) {
+    const date = moment(selectedDate);
+    return date.subtract(
+      // Ensure centralDate is before currentMoment
+      (date.day() + numberOfDays - weekday) % numberOfDays,
+      'days',
+    );
+  }
+  return moment(selectedDate);
+};
+
 // FlatList configuration
 const PAGES_OFFSET = 2;
 const DEFAULT_WINDOW_SIZE = PAGES_OFFSET * 2 + 1;
 
 const calculatePagesDates = (
-  currentMoment,
+  selectedDate,
   numberOfDays,
-  weekStartsOn,
+  pageStartAt,
   prependMostRecent,
-  fixedHorizontally,
 ) => {
   const initialDates = [];
-  const centralDate = moment(currentMoment);
-  if (numberOfDays === 7 || fixedHorizontally) {
-    centralDate.subtract(
-      // Ensure centralDate is before currentMoment
-      (centralDate.day() + 7 - weekStartsOn) % 7,
-      'days',
-    );
-  }
+  const centralDate = getPageStartDate(selectedDate, numberOfDays, pageStartAt);
   for (let i = -PAGES_OFFSET; i <= PAGES_OFFSET; i += 1) {
     const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
     initialDates.push(initialDate.format(DATE_STR_FORMAT));
@@ -106,9 +116,8 @@ export default class WeekView extends Component {
     const initialDates = calculatePagesDates(
       props.selectedDate,
       props.numberOfDays,
-      props.weekStartsOn,
+      props.pageStartAt,
       props.prependMostRecent,
-      props.fixedHorizontally,
     );
     const { width: windowWidth, height: windowHeight } = Dimensions.get(
       'window',
@@ -158,8 +167,8 @@ export default class WeekView extends Component {
         // eslint-disable-next-line react/no-access-state-in-setstate
         this.state.currentMoment,
         this.props.numberOfDays,
+        this.props.pageStartAt,
         this.props.prependMostRecent,
-        this.props.fixedHorizontally,
       );
 
       this.currentPageIndex = PAGES_OFFSET;
@@ -292,7 +301,7 @@ export default class WeekView extends Component {
     }
 
     // Adjust offset
-    const rawShiftOffset = getRawOffset(newDayOffset, options);
+    const rawShiftOffset = getRawDayOffset(newDayOffset, options);
     const overflowPages = Math.floor(rawShiftOffset / numberOfDays);
     const targetDayOffset = mod(rawShiftOffset, numberOfDays);
 
@@ -843,12 +852,17 @@ export default class WeekView extends Component {
   }
 }
 
+const PageStartAtOptionsPropType = PropTypes.shape({
+  left: PropTypes.number,
+  weekday: PropTypes.number,
+});
+
 WeekView.propTypes = {
   events: PropTypes.arrayOf(eventPropType),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   timesColumnWidth: PropTypes.number,
-  weekStartsOn: PropTypes.number,
+  pageStartAt: PageStartAtOptionsPropType,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onTimeScrolled: PropTypes.func,
@@ -897,7 +911,6 @@ WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
-  weekStartsOn: 1,
   timeStep: 60,
   beginAgendaAt: 0,
   endAgendaAt: MINUTES_IN_DAY,
