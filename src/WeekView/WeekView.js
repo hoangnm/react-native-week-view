@@ -33,6 +33,9 @@ import {
   computeHorizontalDimensions,
 } from '../utils/dimensions';
 
+/** For some reason, this sign is necessary in all cases. */
+const VIEW_OFFSET_SIGN = -1;
+
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
   minutesStep,
@@ -435,7 +438,7 @@ export default class WeekView extends Component {
     const viewOffset =
       targetDayOffset == null
         ? undefined
-        : -this.dimensions.dayWidth * dayOffset;
+        : VIEW_OFFSET_SIGN * this.dimensions.dayWidth * dayOffset;
 
     const [moveToIndex, newState] = this.computeParamsToGoToIndex(
       targetPageIndex,
@@ -514,7 +517,7 @@ export default class WeekView extends Component {
         const scrollToCurrentIndexAndOffset = () =>
           this.eventsGrid.scrollToIndex({
             index: this.currentPageIndex,
-            viewOffset: -dayOffset * dayWidth,
+            viewOffset: VIEW_OFFSET_SIGN * dayOffset * dayWidth,
             animated: false,
           });
         newStateCallback = () => setTimeout(scrollToCurrentIndexAndOffset, 0);
