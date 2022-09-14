@@ -27,6 +27,11 @@ export interface EventComponentProps {
   };
 }
 
+export interface PageStartAtOptions {
+  left: number;
+  weekday: number;
+}
+
 export interface WeekViewProps {
   events: WeekViewEvent[];
   selectedDate: Date;
@@ -134,13 +139,22 @@ export interface WeekViewProps {
   startHour?: number
 
   /**
-   * First day of the week, i.e. day to show at the left of the week-view
-   * (0 is Sunday, 1 is Monday, and so on). Only useful when numberOfDays === 7
-   * or fixedHorizontally is true.
+   * Indicates what date to show in the top-left corner.
    *
-   * Default value: 1 (Monday)
+   * If `left = value` provided, the `selectedDate` will appear
+   * at `value` days from the left.
+   *
+   * If `weekday = value` _(e.g. tuesday = 2)_ is provided,
+   * the latest tuesday will appear in the left.
    */
-  weekStartsOn?: number;
+  pageStartAt?: PageStartAtOptions;
+
+  /**
+   * When `true`, the component can scroll horizontally one day at the time.
+   * When `false`, the horizontal scroll can only be done one page
+   * at the time (i.e. `numberOfDays` at the time).
+   */
+  allowScrollByOneDay?: boolean;
 
   /**
    * Show or hide the selected month and year in the top-left corner (a.k.a the title).
