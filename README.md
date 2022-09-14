@@ -184,9 +184,11 @@ There are some fields in the `EventItem` that provide extra customizations for e
 
 ### Methods
 
-* **`goToDate(date, animated = true)`**: navigate to a custom date.
-* **`goToNextPage(animated = true)`**: navigate to the next page (to the future).
-* **`goToPrevPage(animated = true)`**: navigate to the previous page (to the past).
+* **`goToDate(date, {animated = true, left: number = null})`**: navigate to a custom date. If `left = value` is provided, the target `date` will appear at `value` days from the left.
+* **`goToNextDay({animated = true})`**: navigate to the next day (to the future).
+* **`goToPrevDay({animated = true})`**: navigate to the previous day (to the past).
+* **`goToNextPage({animated = true})`**: navigate to the next page (to the future).
+* **`goToPrevPage({animated = true})`**: navigate to the previous page (to the past).
 * **`scrollToTime(minutes, options = { animated = false })`**: scroll vertically to a time in the day, provided in minutes. For example, scroll to 13:00 hrs: `ref.scrollToTime(13 * 60)`.
 
 To save a reference to the component:
