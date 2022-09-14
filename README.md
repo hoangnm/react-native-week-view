@@ -184,7 +184,7 @@ There are some fields in the `EventItem` that provide extra customizations for e
 
 ### Methods
 
-* **`goToDate(date, {animated = true, left: number = null})`**: navigate to a custom date. If `left = value` is provided, the target `date` will appear at `value` days from the left.
+* **`goToDate(date, {animated = true, left: number = null})`**: navigate to a custom date. If `left = value` is provided, the target `date` will appear at `value` days from the left (e.g. use `left = 0` to show `date` at the most left).
 * **`goToNextDay({animated = true})`**: navigate to the next day (to the future).
 * **`goToPrevDay({animated = true})`**: navigate to the previous day (to the past).
 * **`goToNextPage({animated = true})`**: navigate to the next page (to the future).
