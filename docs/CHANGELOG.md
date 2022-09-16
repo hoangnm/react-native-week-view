@@ -2,6 +2,9 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.23.0 - 2022-09-14
+- Add typescript support and fix some minor bugs [#262](https://github.com/hoangnm/react-native-week-view/pull/262)
+- Fix broken goToDate [#257](https://github.com/hoangnm/react-native-week-view/pull/257)
 ## 0.22.0 - 2022-09-02
 - Add support for styles and disable drag/pass per event [#254](https://github.com/hoangnm/react-native-week-view/pull/254)
 ## 0.21.0 - 2022-08-30
