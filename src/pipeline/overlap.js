@@ -1,13 +1,8 @@
 /* eslint-disable max-classes-per-file */
 import moment from 'moment';
+import { OVERLAP_METHOD } from '../utils/types';
 
 const ALLOW_OVERLAP_SECONDS = 2;
-
-export const OVERLAP_METHOD = {
-  STACK: 'stack',
-  LANE: 'lane',
-  IGNORE: 'ignore',
-};
 
 const areEventsOverlapped = (event1EndDate, event2StartDate) => {
   if (!event1EndDate || !event2StartDate) return false;

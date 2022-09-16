@@ -7,6 +7,16 @@ export const EditEventConfigPropType = PropTypes.shape({
   bottom: PropTypes.bool,
 });
 
+export const OVERLAP_METHOD = {
+  STACK: 'stack',
+  LANE: 'lane',
+  IGNORE: 'ignore',
+};
+
+export const ResolveOverlapPropType = PropTypes.oneOf(
+  Object.values(OVERLAP_METHOD),
+);
+
 export const EventPropType = PropTypes.shape({
   color: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -17,6 +27,8 @@ export const EventPropType = PropTypes.shape({
   disableDrag: PropTypes.bool,
   disablePress: PropTypes.bool,
   disableLongPress: PropTypes.bool,
+  resolveOverlap: ResolveOverlapPropType,
+  stackKey: PropTypes.string,
 });
 
 export const EventWithMetaPropType = PropTypes.shape({
