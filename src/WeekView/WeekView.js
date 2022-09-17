@@ -292,7 +292,7 @@ export default class WeekView extends Component {
       return;
     }
     const { initialDates } = this.state;
-    const { numberOfDays, allowScrollByOneDay } = this.props;
+    const { numberOfDays, allowScrollByDay } = this.props;
 
     // Compute target index
     const startOfPage = moment(initialDates[this.currentPageIndex]).startOf(
@@ -304,7 +304,7 @@ export default class WeekView extends Component {
     const targetPageIndex =
       this.currentPageIndex + deltaIndex * this.getSignToTheFuture();
 
-    if (!allowScrollByOneDay) {
+    if (!allowScrollByDay) {
       this.goToPageIndex(targetPageIndex, null, options);
       return;
     }
@@ -427,17 +427,17 @@ export default class WeekView extends Component {
    *
    * @param {Number} targetPageIndex between (-infinity, infinity) indicating target page.
    * @param {Number} targetDayOffset day offset inside a page.
-   *     Only used if allowScrollByOneDay is true.
+   *     Only used if allowScrollByDay is true.
    */
   goToPageIndex = (targetPageIndex, targetDayOffset, options = {}) => {
-    const { allowScrollByOneDay } = this.props;
-    if (targetPageIndex === this.currentPageIndex && !allowScrollByOneDay) {
-      // If allowScrollByOneDay is false, cannot scroll through offsets
+    const { allowScrollByDay } = this.props;
+    if (targetPageIndex === this.currentPageIndex && !allowScrollByDay) {
+      // If allowScrollByDay is false, cannot scroll through offsets
       return;
     }
 
     const dayOffset =
-      !allowScrollByOneDay || targetDayOffset == null
+      !allowScrollByDay || targetDayOffset == null
         ? this.getCurrentDayOffset()
         : targetDayOffset;
 
@@ -601,7 +601,7 @@ export default class WeekView extends Component {
       beginAgendaAt,
       endAgendaAt,
       formatTimeLabel,
-      allowScrollByOneDay,
+      allowScrollByDay,
       onGridClick,
       onGridLongPress,
       onEditEvent,
@@ -661,7 +661,7 @@ export default class WeekView extends Component {
       verticalResolution,
     };
 
-    const horizontalScrollProps = allowScrollByOneDay
+    const horizontalScrollProps = allowScrollByDay
       ? {
           decelerationRate: 'fast',
           snapToInterval: dayWidth,
@@ -848,7 +848,7 @@ WeekView.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
-  allowScrollByOneDay: PropTypes.bool,
+  allowScrollByDay: PropTypes.bool,
   timeStep: PropTypes.number,
   beginAgendaAt: PropTypes.number,
   endAgendaAt: PropTypes.number,
@@ -881,7 +881,7 @@ WeekView.defaultProps = {
   timeStep: 60,
   beginAgendaAt: 0,
   endAgendaAt: MINUTES_IN_DAY,
-  allowScrollByOneDay: false,
+  allowScrollByDay: false,
   formatTimeLabel: 'H:mm',
   startHour: 8,
   showTitle: true,

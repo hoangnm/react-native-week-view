@@ -174,7 +174,7 @@ export interface WeekViewProps {
    * When `false`, the horizontal scroll can only be done one page
    * at the time (i.e. `numberOfDays` at the time).
    */
-  allowScrollByOneDay?: boolean;
+  allowScrollByDay?: boolean;
 
   /**
    * Show or hide the selected month and year in the top-left corner (a.k.a the title).
