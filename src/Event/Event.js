@@ -12,6 +12,11 @@ import Animated, {
   useDerivedValue,
 } from 'react-native-reanimated';
 import styles, { circleStyles } from './Event.styles';
+import {
+  EventPropType,
+  EditEventConfigPropType,
+  DragEventConfigPropType,
+} from '../utils/types';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
@@ -333,31 +338,8 @@ const Event = ({
   );
 };
 
-export const EditEventConfigPropType = PropTypes.shape({
-  left: PropTypes.bool,
-  top: PropTypes.bool,
-  right: PropTypes.bool,
-  bottom: PropTypes.bool,
-});
-
-export const DragEventConfigPropType = PropTypes.shape({
-  afterLongPressDuration: PropTypes.number,
-});
-
-export const eventPropType = PropTypes.shape({
-  color: PropTypes.string,
-  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  description: PropTypes.string,
-  startDate: PropTypes.instanceOf(Date).isRequired,
-  endDate: PropTypes.instanceOf(Date).isRequired,
-  style: PropTypes.object,
-  disableDrag: PropTypes.bool,
-  disablePress: PropTypes.bool,
-  disableLongPress: PropTypes.bool,
-});
-
 Event.propTypes = {
-  event: eventPropType.isRequired,
+  event: EventPropType.isRequired,
   top: PropTypes.number.isRequired,
   left: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
@@ -370,6 +352,7 @@ Event.propTypes = {
   onDrag: PropTypes.func,
   onEdit: PropTypes.func,
   editingEventId: PropTypes.number,
+  editEventConfig: EditEventConfigPropType,
 };
 
 export default React.memo(Event);

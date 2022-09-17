@@ -10,7 +10,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../package.json ./node_modules/react-native-week-view/",
+    "sync": "/usr/bin/rsync -v -a ../src ../index.js ../index.d.ts ../package.json ./node_modules/react-native-week-view/",
     "install:local": "rm ./node_modules/react-native-week-view && yarn sync"
   },
   "dependencies": {

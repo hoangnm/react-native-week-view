@@ -14,16 +14,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
-import {
-  EditEventConfigPropType,
-  eventPropType,
-  DragEventConfigPropType,
-} from '../Event/Event';
-import Events, { GridRowPropType, GridColumnPropType } from '../Events/Events';
+import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
 import styles from './WeekView.styles';
+import bucketEventsByDate from '../pipeline/box';
 import {
   DATE_STR_FORMAT,
   availableNumberOfDays,
@@ -35,6 +31,13 @@ import {
   computeVerticalDimensions,
   computeHorizontalDimensions,
 } from '../utils/dimensions';
+import {
+  GridRowPropType,
+  GridColumnPropType,
+  EditEventConfigPropType,
+  EventPropType,
+  DragEventConfigPropType,
+} from '../utils/types';
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
@@ -448,50 +451,7 @@ export default class WeekView extends Component {
     this.header = ref;
   };
 
-  sortEventsByDate = memoizeOne((events) => {
-    // Stores the events hashed by their date
-    // For example: { "2020-02-03": [event1, event2, ...] }
-    // If an event spans through multiple days, adds the event multiple times
-    const sortedEvents = {};
-    events.forEach((event) => {
-      const startDate = moment(event.startDate);
-      const endDate = moment(event.endDate);
-
-      for (
-        let date = moment(startDate);
-        date.isSameOrBefore(endDate, 'days');
-        date.add(1, 'days')
-      ) {
-        // Calculate actual start and end dates
-        const startOfDay = moment(date).startOf('day');
-        const endOfDay = moment(date).endOf('day');
-
-        // The event box is limited to the start and end of the day
-        const boxStartDate = moment.max(startDate, startOfDay).toDate();
-        const boxEndDate = moment.min(endDate, endOfDay).toDate();
-
-        // Add to object
-        const dateStr = date.format(DATE_STR_FORMAT);
-        if (!sortedEvents[dateStr]) {
-          sortedEvents[dateStr] = [];
-        }
-        sortedEvents[dateStr].push({
-          ref: event,
-          box: {
-            startDate: boxStartDate,
-            endDate: boxEndDate,
-          },
-        });
-      }
-    });
-    // For each day, sort the events by the minute (in-place)
-    Object.keys(sortedEvents).forEach((date) => {
-      sortedEvents[date].sort((a, b) => {
-        return moment(a.box.startDate).diff(b.box.startDate, 'minutes');
-      });
-    });
-    return sortedEvents;
-  });
+  bucketEventsByDate = memoizeOne(bucketEventsByDate);
 
   getListItemLayout = (item, index) => {
     const pageWidth = this.dimensions.pageWidth || 0;
@@ -558,7 +518,7 @@ export default class WeekView extends Component {
       beginAgendaAt,
       endAgendaAt,
     );
-    const eventsByDate = this.sortEventsByDate(events);
+    const eventsByDate = this.bucketEventsByDate(events);
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);
@@ -733,7 +693,7 @@ export default class WeekView extends Component {
 }
 
 WeekView.propTypes = {
-  events: PropTypes.arrayOf(eventPropType),
+  events: PropTypes.arrayOf(EventPropType),
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   timesColumnWidth: PropTypes.number,
