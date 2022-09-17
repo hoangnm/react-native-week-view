@@ -80,6 +80,10 @@ const EDIT_EVENT_CONFIG = {
   right: true,
 };
 
+const PAGE_START_AT = {
+  weekday: 1,
+};
+
 const eventsReducer = (prevEvents, actionPayload) => {
   const {event, newStartDate, newEndDate} = actionPayload;
   return [
@@ -187,6 +191,7 @@ const App = ({}) => {
           events={events}
           selectedDate={new Date()}
           numberOfDays={7}
+          pageStartAt={PAGE_START_AT}
           onEventPress={handlePressEvent}
           onEventLongPress={handleLongPressEvent}
           onGridClick={handlePressGrid}

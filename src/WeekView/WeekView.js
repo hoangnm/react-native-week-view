@@ -37,6 +37,7 @@ import {
   GridColumnPropType,
   EditEventConfigPropType,
   EventPropType,
+  PageStartAtOptionsPropType,
 } from '../utils/types';
 
 /** For some reason, this sign is necessary in all cases. */
@@ -817,11 +818,6 @@ export default class WeekView extends Component {
     );
   }
 }
-
-const PageStartAtOptionsPropType = PropTypes.shape({
-  left: PropTypes.number,
-  weekday: PropTypes.number,
-});
 
 WeekView.propTypes = {
   events: PropTypes.arrayOf(EventPropType),
