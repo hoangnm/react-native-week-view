@@ -156,7 +156,7 @@ const myEvents = [
     startDate: new Date(2022, 6, 20, 6, 0),
     endDate: new Date(2022, 6, 21, 9, 0),
     color: 'steelblue',
-    eventType: 'block',
+    eventKind: 'block',
   },
   {
     id: 4,
@@ -164,7 +164,7 @@ const myEvents = [
     startDate: new Date(2022, 6, 20, 19, 0),
     endDate: new Date(2022, 6, 24, 23, 0),
     color: 'darkred',
-    eventType: 'block',
+    eventKind: 'block',
   },
 ]
 ```

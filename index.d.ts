@@ -8,7 +8,7 @@ export interface WeekViewEvent extends Record<string, any> {
   description: string;
   startDate: Date;
   endDate: Date;
-  eventType: 'block' | 'standard';
+  eventKind: 'block' | 'standard';
   resolveOverlap: 'stack' | 'lane' | 'ignore';
   stackKey: string;
   color: string;

@@ -17,12 +17,12 @@ export const ResolveOverlapPropType = PropTypes.oneOf(
   Object.values(OVERLAP_METHOD),
 );
 
-export const EVENT_TYPES = {
+export const EVENT_KINDS = {
   BLOCK: 'block',
   STANDARD: 'standard',
 };
 
-export const EventTypePropType = PropTypes.oneOf(Object.values(EVENT_TYPES));
+export const EventKindPropType = PropTypes.oneOf(Object.values(EVENT_KINDS));
 
 export const EventPropType = PropTypes.shape({
   color: PropTypes.string,
@@ -34,7 +34,7 @@ export const EventPropType = PropTypes.shape({
   disableDrag: PropTypes.bool,
   disablePress: PropTypes.bool,
   disableLongPress: PropTypes.bool,
-  eventType: EventTypePropType,
+  eventKind: EventKindPropType,
   resolveOverlap: ResolveOverlapPropType,
   stackKey: PropTypes.string,
 });

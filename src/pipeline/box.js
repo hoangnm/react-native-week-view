@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { DATE_STR_FORMAT, minutesInDay } from '../utils/dates';
-import { EVENT_TYPES, OVERLAP_METHOD } from '../utils/types';
+import { EVENT_KINDS, OVERLAP_METHOD } from '../utils/types';
 
 /**
  * Creates an array of boxes that represent a standard event.
@@ -87,22 +87,22 @@ const bucketEventsByDate = (events) => {
         startDate: new Date(boxStartDate.getTime()),
         endDate: new Date(boxEndDate.getTime()),
         background:
-          eventRef.eventType === EVENT_TYPES.BLOCK ||
+          eventRef.eventKind === EVENT_KINDS.BLOCK ||
           eventRef.resolveOverlap === OVERLAP_METHOD.IGNORE,
       },
     });
   };
 
   events.forEach((event) => {
-    switch (event.eventType) {
-      case EVENT_TYPES.BLOCK: {
+    switch (event.eventKind) {
+      case EVENT_KINDS.BLOCK: {
         const boxEndDate = sanitizeEndDate(event.startDate, event.endDate);
         if (boxEndDate != null) {
           addEventToBucket(event.startDate, event, event.startDate, boxEndDate);
         }
         break;
       }
-      case EVENT_TYPES.STANDARD:
+      case EVENT_KINDS.STANDARD:
       default:
         unrollStandardEvent(
           event,

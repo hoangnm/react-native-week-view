@@ -185,7 +185,7 @@ There are some fields in the `EventItem` that provide extra customizations for e
 | `disablePress`           | `bool`                              | `false`  | Disables onPress interaction.                                                                                                           |
 | `disableLongPress`       | `bool`                              | `false`  | Disables onLongPress interaction.                                                                                                       |
 | **_Block-like events_**  |
-| `eventType`              | `'block'` \| `'standard'`           | `'standard'` | Defines the type of event                                                                                                           |
+| `eventKind`              | `'block'` \| `'standard'`           | `'standard'` | Defines the type of event                                                                                                           |
 | **_Event overlaps_**     |
 | `resolveOverlap`         | `'lane'` \| `'stack'` \| `'ignore'` | `'lane'` | Defines the method to resolve overlaps for that event.                                                                                  |
 | `stackKey`               | _String_                            | `null`   | Limit the events it can be stacked with. If is `null`, it can be stacked with any other event. Only useful if `resolveMethod = 'stack'` |
