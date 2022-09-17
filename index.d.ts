@@ -2,12 +2,19 @@ import React from 'react';
 import { StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { Moment } from 'moment';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface WeekViewEvent extends Record<string, any> {
   id: number;
   description: string;
   startDate: Date;
   endDate: Date;
+  resolveOverlap: 'stack' | 'lane' | 'ignore';
+  stackKey: string;
   color: string;
+  style?: StyleProp<ViewStyle>;
+  disableDrag?: boolean;
+  disablePress?: boolean;
+  disableLongPress?: boolean;
 }
 
 export interface HeaderComponentProps {
@@ -118,7 +125,11 @@ export interface WeekViewProps {
    * @param newStartDate
    * @param newEndDate
    */
-  onDragEvent?(event: WeekViewEvent, newStartDate: Date, newEndDate: Date): void;
+  onDragEvent?(
+    event: WeekViewEvent,
+    newStartDate: Date,
+    newEndDate: Date,
+  ): void;
 
   /**
    * Callback when an event item is edited by dragging its borders.
@@ -126,9 +137,18 @@ export interface WeekViewProps {
    * @param newStartDate
    * @param newEndDate
    */
-  onEditEvent?(event: WeekViewEvent, newStartDate: Date, newEndDate: Date): void;
+  onEditEvent?(
+    event: WeekViewEvent,
+    newStartDate: Date,
+    newEndDate: Date,
+  ): void;
 
-  editEventConfig?: { bottom: boolean; top: boolean; left: boolean; right: boolean; };
+  editEventConfig?: {
+    bottom: boolean;
+    top: boolean;
+    left: boolean;
+    right: boolean;
+  };
 
   // Week-view customizations
   /**
@@ -136,7 +156,7 @@ export interface WeekViewProps {
    *
    * Default value: 8 (8 am)
    */
-  startHour?: number
+  startHour?: number;
 
   /**
    * Indicates what date to show in the top-left corner.
@@ -199,7 +219,6 @@ export interface WeekViewProps {
   initialNumToRender?: number;
   maxToRenderPerBatch?: number;
   updateCellsBatchingPeriod?: number;
-
 
   // Other props (patch RN bugs)
   prependMostRecent?: boolean;

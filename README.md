@@ -173,13 +173,19 @@ See [CHANGELOG.md](docs/CHANGELOG.md) for details.
 #### Special fields
 
 There are some fields in the `EventItem` that provide extra customizations for each event.
+* Style per event
+* Disable user interactions (e.g. drag, press)
+* Event overlap handling [see more details](docs/overlaps.md).
 
-| Extra `EventItem` fields | Type     | Default | Description                              |
-| ------------------------ | -------- | ------- | ---------------------------------------- |
-| `style`                  | `Object` | `null`  | Provide extra styling for the container. |
-| `disableDrag`            | `bool`   | `false` | Disables drag-and-drop interaction.      |
-| `disablePress`           | `bool`   | `false` | Disables onPress interaction.            |
-| `disableLongPress`       | `bool`   | `false` | Disables onLongPress interaction.        |
+| Extra `EventItem` fields | Type                                | Default  | Description                                                                                                                             |
+| ------------------------ | ----------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `style`                  | `Object`                            | `null`   | Provide extra styling for the container.                                                                                                |
+| `disableDrag`            | `bool`                              | `false`  | Disables drag-and-drop interaction.                                                                                                     |
+| `disablePress`           | `bool`                              | `false`  | Disables onPress interaction.                                                                                                           |
+| `disableLongPress`       | `bool`                              | `false`  | Disables onLongPress interaction.                                                                                                       |
+| **_Event overlaps_**     |
+| `resolveOverlap`         | `'lane'` \| `'stack'` \| `'ignore'` | `'lane'` | Defines the method to resolve overlaps for that event.                                                                                  |
+| `stackKey`               | _String_                            | `null`   | Limit the events it can be stacked with. If is `null`, it can be stacked with any other event. Only useful if `resolveMethod = 'stack'` |
 
 
 ### Methods

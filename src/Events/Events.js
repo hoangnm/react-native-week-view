@@ -9,146 +9,28 @@ import moment from 'moment';
 import memoizeOne from 'memoize-one';
 
 import NowLine from '../NowLine/NowLine';
-import Event, { eventPropType } from '../Event/Event';
+import Event from '../Event/Event';
+import {
+  EventWithMetaPropType,
+  GridRowPropType,
+  GridColumnPropType,
+} from '../utils/types';
 import {
   calculateDaysArray,
   DATE_STR_FORMAT,
   availableNumberOfDays,
-  minutesInDay,
 } from '../utils/dates';
-import {
-  minutesInDayToTop,
-  minutesToHeight,
-  topToSecondsInDay as topToSecondsInDayFromUtils,
-} from '../utils/dimensions';
+import { topToSecondsInDay as topToSecondsInDayFromUtils } from '../utils/dimensions';
 import { ViewWithTouchable } from '../utils/gestures';
 
 import styles from './Events.styles';
-
-const EVENT_HORIZONTAL_PADDING = 8; // percentage
-const MIN_ITEM_WIDTH = 4;
-const ALLOW_OVERLAP_SECONDS = 2;
-
-const padItemWidth = (width, paddingPercentage = EVENT_HORIZONTAL_PADDING) =>
-  paddingPercentage > 0
-    ? width - Math.max(2, (width * paddingPercentage) / 100)
-    : width;
-
-const computeWidth = (box, dayWidth) => {
-  const dividedWidth = dayWidth / (box.nLanes || 1);
-  const dividedPadding = EVENT_HORIZONTAL_PADDING / (box.nLanes || 1);
-  const width = Math.max(
-    padItemWidth(dividedWidth, dividedPadding),
-    MIN_ITEM_WIDTH,
-  );
-  return width;
-};
-
-const computeLeft = (box, dayWidth) => {
-  if (!box.lane || !box.nLanes) return 0;
-  const dividedWidth = dayWidth / box.nLanes;
-  return dividedWidth * box.lane;
-};
-
-const computeHeight = (box, verticalResolution) =>
-  minutesToHeight(
-    minutesInDay(box.endDate) - minutesInDay(box.startDate),
-    verticalResolution,
-  );
-
-const computeTop = (box, verticalResolution, beginAgendaAt) =>
-  minutesInDayToTop(
-    minutesInDay(box.startDate),
-    verticalResolution,
-    beginAgendaAt,
-  );
-
-const areEventsOverlapped = (event1EndDate, event2StartDate) => {
-  const endDate = moment(event1EndDate);
-  endDate.subtract(ALLOW_OVERLAP_SECONDS, 'seconds');
-  return endDate.isSameOrAfter(event2StartDate);
-};
-
-const addOverlappedToArray = (baseArr, overlappedArr) => {
-  // Given an array of overlapped events (with style), modifies their style to overlap them
-  // and adds them to a (base) array of events.
-  if (!overlappedArr) return;
-
-  const nOverlapped = overlappedArr.length;
-  if (nOverlapped === 0) {
-    return;
-  }
-  if (nOverlapped === 1) {
-    baseArr.push(overlappedArr[0]);
-    return;
-  }
-
-  let nLanes;
-  let indexToLane;
-  if (nOverlapped === 2) {
-    nLanes = nOverlapped;
-    indexToLane = (index) => index;
-  } else {
-    // Distribute events in multiple lanes
-    const maxLanes = nOverlapped;
-    const latestByLane = {};
-    const laneByEvent = {};
-    overlappedArr.forEach((event, index) => {
-      for (let lane = 0; lane < maxLanes; lane += 1) {
-        const lastEvtInLaneIndex = latestByLane[lane];
-        const lastEvtInLane =
-          (lastEvtInLaneIndex || lastEvtInLaneIndex === 0) &&
-          overlappedArr[lastEvtInLaneIndex];
-        if (
-          !lastEvtInLane ||
-          !areEventsOverlapped(lastEvtInLane.box.endDate, event.box.startDate)
-        ) {
-          // Place in this lane
-          latestByLane[lane] = index;
-          laneByEvent[index] = lane;
-          break;
-        }
-      }
-    });
-
-    nLanes = Object.keys(latestByLane).length;
-    indexToLane = (index) => laneByEvent[index];
-  }
-
-  overlappedArr.forEach((eventWithStyle, index) => {
-    const { ref, box } = eventWithStyle;
-    baseArr.push({
-      ref,
-      box: {
-        ...box,
-        nLanes,
-        lane: indexToLane(index),
-      },
-    });
-  });
-};
-
-const resolveEventOverlaps = (totalEvents) => {
-  return totalEvents.map((events) => {
-    let overlappedSoFar = []; // Store events overlapped until now
-    let lastDate = null;
-    const resolvedEvents = events.reduce((accumulated, eventWithMeta) => {
-      const { box } = eventWithMeta;
-      if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
-        overlappedSoFar.push(eventWithMeta);
-        const endDate = moment(box.endDate);
-        lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
-      } else {
-        addOverlappedToArray(accumulated, overlappedSoFar);
-        overlappedSoFar = [eventWithMeta];
-        lastDate = moment(box.endDate);
-      }
-      return accumulated;
-    }, []);
-    addOverlappedToArray(resolvedEvents, overlappedSoFar);
-    return resolvedEvents;
-  });
-};
+import resolveEventOverlaps from '../pipeline/overlap';
+import {
+  computeHeight,
+  computeWidth,
+  computeLeft,
+  computeTop,
+} from '../pipeline/position';
 
 const processEvents = (
   eventsByDate,
@@ -160,12 +42,10 @@ const processEvents = (
   // example: [[event1, event2], [event3, event4], [event5]], each child array
   // is events for specific day in range
   const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
-  const totalEvents = dates.map((date) => {
+  return dates.map((date) => {
     const dateStr = date.format(DATE_STR_FORMAT);
-    return eventsByDate[dateStr] || [];
+    return resolveEventOverlaps(eventsByDate[dateStr] || []);
   });
-
-  return resolveEventOverlaps(totalEvents);
 };
 
 const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
@@ -346,15 +226,15 @@ class Events extends PureComponent {
                 />
               )}
               {eventsInSection.map((item) => {
-                const { ref: event, box } = item;
+                const { ref: event, box, overlap = {} } = item;
                 return (
                   <Event
                     key={event.id}
                     event={event}
                     top={computeTop(box, verticalResolution, beginAgendaAt)}
-                    left={computeLeft(box, dayWidth)}
                     height={computeHeight(box, verticalResolution)}
-                    width={computeWidth(box, dayWidth)}
+                    left={computeLeft(overlap, dayWidth)}
+                    width={computeWidth(overlap, dayWidth)}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
@@ -374,29 +254,10 @@ class Events extends PureComponent {
   }
 }
 
-export const GridRowPropType = PropTypes.shape({
-  borderColor: PropTypes.string,
-  borderTopWidth: PropTypes.number,
-});
-
-export const GridColumnPropType = PropTypes.shape({
-  borderColor: PropTypes.string,
-  borderLeftWidth: PropTypes.number,
-});
-
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
-  eventsByDate: PropTypes.objectOf(
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        ref: eventPropType.isRequired,
-        box: PropTypes.shape({
-          startDate: PropTypes.instanceOf(Date).isRequired,
-          endDate: PropTypes.instanceOf(Date).isRequired,
-        }),
-      }),
-    ),
-  ).isRequired,
+  eventsByDate: PropTypes.objectOf(PropTypes.arrayOf(EventWithMetaPropType))
+    .isRequired,
   initialDate: PropTypes.string.isRequired,
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   onEventPress: PropTypes.func,
