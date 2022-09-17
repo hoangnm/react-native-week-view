@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { DATE_STR_FORMAT, minutesInDay } from '../utils/dates';
+import { EVENT_TYPES, OVERLAP_METHOD } from '../utils/types';
 
 /**
  * Creates an array of boxes that represent a standard event.
@@ -45,6 +46,14 @@ const sanitizeEndDate = (startDate, endDate) => {
   return end.toDate();
 };
 
+const eventsWithMetaSorter = (evtA, evtB) => {
+  const backgroundDiff = evtB.box.background - evtA.box.background;
+  if (backgroundDiff !== 0) {
+    return backgroundDiff;
+  }
+  return moment(evtA.box.startDate).diff(evtB.box.startDate, 'minutes');
+};
+
 /**
  * Stores the events hashed by their date.
  * Each bucket has the events sorted by date (by the minute)
@@ -77,20 +86,23 @@ const bucketEventsByDate = (events) => {
       box: {
         startDate: new Date(boxStartDate.getTime()),
         endDate: new Date(boxEndDate.getTime()),
+        background:
+          eventRef.eventType === EVENT_TYPES.BLOCK ||
+          eventRef.resolveOverlap === OVERLAP_METHOD.IGNORE,
       },
     });
   };
 
   events.forEach((event) => {
     switch (event.eventType) {
-      case 'block': {
+      case EVENT_TYPES.BLOCK: {
         const boxEndDate = sanitizeEndDate(event.startDate, event.endDate);
         if (boxEndDate != null) {
           addEventToBucket(event.startDate, event, event.startDate, boxEndDate);
         }
         break;
       }
-      case 'standard':
+      case EVENT_TYPES.STANDARD:
       default:
         unrollStandardEvent(
           event,
@@ -103,9 +115,7 @@ const bucketEventsByDate = (events) => {
 
   Object.keys(sortedEvents).forEach((date) => {
     // NOTE: sorting in place
-    sortedEvents[date].sort((a, b) => {
-      return moment(a.box.startDate).diff(b.box.startDate, 'minutes');
-    });
+    sortedEvents[date].sort(eventsWithMetaSorter);
   });
   return sortedEvents;
 };
