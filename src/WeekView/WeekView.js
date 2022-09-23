@@ -449,6 +449,9 @@ export default class WeekView extends Component {
       ...styles.header,
       width: CONTAINER_WIDTH - insets?.left - insets?.right,
     };
+    const calendarDayHeaderStyle = {
+      width: CONTAINER_WIDTH - insets?.left - insets?.right,
+    };
     const loadingSpinnerStyle = {
       ...styles.loadingSpinner,
       right: (CONTAINER_WIDTH - insets?.left - insets?.right) / 2,
@@ -481,7 +484,7 @@ export default class WeekView extends Component {
             initialScrollIndex={this.pageOffset}
             renderItem={({ item }) => {
               return (
-                <View key={item} style={calendarHeaderStyle}>
+                <View key={item} style={numberOfDays === 1 ? calendarDayHeaderStyle : calendarHeaderStyle}>
                   <Header
                     style={headerStyle}
                     textStyle={headerTextStyle}
