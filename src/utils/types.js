@@ -39,6 +39,10 @@ export const EventWithMetaPropType = PropTypes.shape({
   }).isRequired,
 });
 
+export const DragEventConfigPropType = PropTypes.shape({
+  afterLongPressDuration: PropTypes.number,
+});
+
 export const GridRowPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderTopWidth: PropTypes.number,

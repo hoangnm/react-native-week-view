@@ -36,6 +36,7 @@ import {
   GridColumnPropType,
   EditEventConfigPropType,
   EventPropType,
+  DragEventConfigPropType,
 } from '../utils/types';
 
 const MINUTES_IN_DAY = 60 * 24;
@@ -494,6 +495,7 @@ export default class WeekView extends Component {
       fixedHorizontally,
       showNowLine,
       nowLineColor,
+      dragEventConfig,
       onDragEvent,
       onMonthPress,
       onDayPress,
@@ -652,6 +654,7 @@ export default class WeekView extends Component {
                     onEditEvent={onEditEvent}
                     editingEventId={editingEvent}
                     editEventConfig={editEventConfig}
+                    dragEventConfig={dragEventConfig}
                   />
                 );
               }}
@@ -705,6 +708,7 @@ WeekView.propTypes = {
   editingEvent: PropTypes.number,
   onEditEvent: PropTypes.func,
   editEventConfig: EditEventConfigPropType,
+  dragEventConfig: DragEventConfigPropType,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,

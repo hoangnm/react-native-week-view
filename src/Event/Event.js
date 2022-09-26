@@ -12,7 +12,11 @@ import Animated, {
   useDerivedValue,
 } from 'react-native-reanimated';
 import styles, { circleStyles } from './Event.styles';
-import { EventPropType, EditEventConfigPropType } from '../utils/types';
+import {
+  EventPropType,
+  EditEventConfigPropType,
+  DragEventConfigPropType,
+} from '../utils/types';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
@@ -54,6 +58,12 @@ const Circles = ({ isEditing, editEventConfig, buildCircleGesture }) =>
       }, [])
     : [];
 
+const DRAG_STATUS = {
+  STATIC: 0,
+  PRESSING: 1,
+  MOVING: 2,
+};
+
 const Event = ({
   event,
   top,
@@ -68,8 +78,12 @@ const Event = ({
   onEdit,
   editingEventId,
   editEventConfig,
+  dragEventConfig,
 }) => {
-  const isEditing = !!onEdit && editingEventId === event.id;
+  const dragAfterLongPress =
+    (dragEventConfig && dragEventConfig.afterLongPressDuration) || 0;
+  const isEditing =
+    dragAfterLongPress === 0 && !!onEdit && editingEventId === event.id;
   const isDragEnabled =
     !!onDrag && editingEventId == null && !event.disableDrag;
 
@@ -115,12 +129,19 @@ const Event = ({
   const currentTop = useCurrentDimension(top);
   const currentHeight = useCurrentDimension(height);
 
-  const isDragging = useSharedValue(false);
+  const dragStatus = useSharedValue(DRAG_STATUS.STATIC);
   const isPressing = useSharedValue(false);
   const isLongPressing = useSharedValue(false);
 
   const currentOpacity = useDerivedValue(() => {
-    if (isDragging.value || isPressing.value || isLongPressing.value) {
+    if (dragAfterLongPress !== 0 && dragStatus.value === DRAG_STATUS.MOVING) {
+      return 0.2;
+    }
+    if (
+      isPressing.value ||
+      isLongPressing.value ||
+      dragStatus.value !== DRAG_STATUS.STATIC
+    ) {
       return 0.5;
     }
     return 1;
@@ -148,7 +169,10 @@ const Event = ({
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
     .onTouchesDown(() => {
-      isDragging.value = true;
+      dragStatus.value = DRAG_STATUS.PRESSING;
+    })
+    .onStart(() => {
+      dragStatus.value = DRAG_STATUS.MOVING;
     })
     .onUpdate((e) => {
       translatedByDrag.value = {
@@ -170,11 +194,25 @@ const Event = ({
       runOnJS(onDragRelease)(translationX, translationY);
     })
     .onFinalize(() => {
-      isDragging.value = false;
+      dragStatus.value = DRAG_STATUS.STATIC;
     });
 
+  /**
+   * Wrapper for RNGH version compatibility.
+   *
+   * Only RNGH >= 2.6.0 supports `activateAfterLongPress()`,
+   * i.e. if using RNGH < 2.6.0, user must provide `dragAfterLongPress = 0`
+   * and no errors are thrown.
+   */
+  const wrappedDragGesture =
+    dragAfterLongPress > 0
+      ? dragGesture.activateAfterLongPress(dragAfterLongPress)
+      : dragGesture;
+
   const longPressGesture = Gesture.LongPress()
-    .enabled(!!onLongPress && !event.disableLongPress)
+    .enabled(
+      dragAfterLongPress === 0 && !!onLongPress && !event.disableLongPress,
+    )
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -204,7 +242,7 @@ const Event = ({
     });
 
   const composedGesture = Gesture.Race(
-    dragGesture,
+    wrappedDragGesture,
     longPressGesture,
     pressGesture,
   );
@@ -316,6 +354,7 @@ Event.propTypes = {
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
+  dragEventConfig: DragEventConfigPropType,
   onDrag: PropTypes.func,
   onEdit: PropTypes.func,
   editingEventId: PropTypes.number,

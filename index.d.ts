@@ -127,6 +127,16 @@ export interface WeekViewProps {
   ): void;
 
   /**
+   * If provided, events are draggable only after being long pressed
+   * for some time.
+   * **Requires rn-gesture-handler v2.6.0 or higher.**
+   * Disables the `onLongPress` callback.
+   */
+  dragEventConfig?: {
+    afterLongPressDuration: number;
+  };
+
+  /**
    * Callback when an event item is edited by dragging its borders.
    * @param event
    * @param newStartDate
