@@ -197,7 +197,13 @@ const Event = ({
       dragStatus.value = DRAG_STATUS.STATIC;
     });
 
-  /** Wrapper to work with rngh < 2.6.0 */
+  /**
+   * Wrapper for RNGH version compatibility.
+   *
+   * Only RNGH >= 2.6.0 supports `activateAfterLongPress()`,
+   * i.e. if using RNGH < 2.6.0, user must provide `dragAfterLongPress = 0`
+   * and no errors are thrown.
+   */
   const wrappedDragGesture =
     dragAfterLongPress > 0
       ? dragGesture.activateAfterLongPress(dragAfterLongPress)
