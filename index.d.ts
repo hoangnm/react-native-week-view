@@ -202,7 +202,7 @@ export interface WeekViewProps {
 
   // Style props
   headerStyle?: StyleProp<ViewStyle>;
-  headerTextStyle?: StyleProp<ViewStyle>;
+  headerTextStyle?: StyleProp<TextStyle>;
   hourTextStyle?: StyleProp<TextStyle>;
   eventContainerStyle?: StyleProp<ViewStyle>;
 
