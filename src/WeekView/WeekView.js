@@ -38,6 +38,7 @@ import {
   EditEventConfigPropType,
   EventPropType,
   PageStartAtOptionsPropType,
+  DragEventConfigPropType,
 } from '../utils/types';
 
 /** For some reason, this sign is necessary in all cases. */
@@ -614,6 +615,7 @@ export default class WeekView extends Component {
       fixedHorizontally,
       showNowLine,
       nowLineColor,
+      dragEventConfig,
       onDragEvent,
       onMonthPress,
       onDayPress,
@@ -781,6 +783,7 @@ export default class WeekView extends Component {
                     onEditEvent={onEditEvent}
                     editingEventId={editingEvent}
                     editEventConfig={editEventConfig}
+                    dragEventConfig={dragEventConfig}
                   />
                 );
               }}
@@ -835,6 +838,7 @@ WeekView.propTypes = {
   editingEvent: PropTypes.number,
   onEditEvent: PropTypes.func,
   editEventConfig: EditEventConfigPropType,
+  dragEventConfig: DragEventConfigPropType,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,

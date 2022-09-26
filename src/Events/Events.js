@@ -191,6 +191,7 @@ class Events extends PureComponent {
       onEditEvent,
       editingEventId,
       editEventConfig,
+      dragEventConfig,
     } = this.props;
     const totalEvents = this.processEvents(
       eventsByDate,
@@ -243,6 +244,7 @@ class Events extends PureComponent {
                     onEdit={onEditEvent && this.handleEditEvent}
                     editingEventId={editingEventId}
                     editEventConfig={editEventConfig}
+                    dragEventConfig={dragEventConfig}
                   />
                 );
               })}
