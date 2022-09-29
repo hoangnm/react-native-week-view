@@ -7,13 +7,13 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+**Bug description:**
 _clear and concise description_
 
-**Visual demo**
+**Visual demo:**
 _Screenshots, videos or gifs to help explain your problem_
 
-**Code**
+**Code to reproduce**
 ```js
 // Example:
 <WeekView
@@ -30,7 +30,7 @@ _Screenshots, videos or gifs to help explain your problem_
  - `react`: _version X_
  - OS: android / iOS
 
-**Additional context**
-* error message or traceback (if any)
-* steps to reproduce
-*
+**Additional context (optional):**
+* Error message or traceback (if any)
+* Steps to reproduce
+* ...
