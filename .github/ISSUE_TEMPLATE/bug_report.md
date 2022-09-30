@@ -7,28 +7,30 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+**Bug description:**
 _clear and concise description_
 
-**Visual demo**
+**Visual demo:**
 _Screenshots, videos or gifs to help explain your problem_
 
-**Error message or traceback**
-_(if any)_
-
-**Steps To Reproduce**
-  1.
-  2.
-  ...
-
-**Expected behavior**
-_what you expected to happen_
+**Code to reproduce**
+```js
+// Example:
+<WeekView
+  events={[]}
+  selectedDate={new Date()}
+  numberOfDays={7}
+  // ... other props
+/>
+```
 
 **Environment:**
- - `react-native-week-view`: _e.g. version 0.16.0, master branch_
- - `react-native`: _version_
- - `react`: _version_
- - OS: _e.g. android 9, emulator_
+ - `react-native-week-view`: _version X_
+ - `react-native`: _version X_
+ - `react`: _version X_
+ - OS: android / iOS
 
-**Additional context**
-_Add any other context about the problem here_
+**Additional context (optional):**
+* Error message or traceback (if any)
+* Steps to reproduce
+* ...
