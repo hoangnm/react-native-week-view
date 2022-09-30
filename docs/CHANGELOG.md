@@ -2,6 +2,9 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.25.0 - 2022-09-30
+- Fix incorrect headerTextStyle type [#270](https://github.com/hoangnm/react-native-week-view/pull/270)
+- Add drag-config: afterLongPress [#264](https://github.com/hoangnm/react-native-week-view/pull/264)
 ## 0.24.0 - 2022-09-24
 - Improve TS + ESLint [#265](https://github.com/hoangnm/react-native-week-view/pull/265)
 - Add support for stacking events [#255](https://github.com/hoangnm/react-native-week-view/pull/255)
