@@ -2,6 +2,8 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.25.1 - 2022-09-30
+- Support react version from 16.8 [#273](https://github.com/hoangnm/react-native-week-view/pull/273)
 ## 0.25.0 - 2022-09-30
 - Fix incorrect headerTextStyle type [#270](https://github.com/hoangnm/react-native-week-view/pull/270)
 - Add drag-config: afterLongPress [#264](https://github.com/hoangnm/react-native-week-view/pull/264)
