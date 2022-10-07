@@ -52,3 +52,8 @@ export const GridColumnPropType = PropTypes.shape({
   borderColor: PropTypes.string,
   borderLeftWidth: PropTypes.number,
 });
+
+export const PageStartAtOptionsPropType = PropTypes.shape({
+  left: PropTypes.number,
+  weekday: PropTypes.number,
+});

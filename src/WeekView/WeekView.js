@@ -25,6 +25,7 @@ import {
   availableNumberOfDays,
   setLocale,
 } from '../utils/dates';
+import { mod } from '../utils/misc';
 import {
   minutesInDayToTop,
   topToSecondsInDay,
@@ -36,8 +37,12 @@ import {
   GridColumnPropType,
   EditEventConfigPropType,
   EventPropType,
+  PageStartAtOptionsPropType,
   DragEventConfigPropType,
 } from '../utils/types';
+
+/** For some reason, this sign is necessary in all cases. */
+const VIEW_OFFSET_SIGN = -1;
 
 const MINUTES_IN_DAY = 60 * 24;
 const calculateTimesArray = (
@@ -60,26 +65,49 @@ const calculateTimesArray = (
   return times;
 };
 
+const getRawDayOffset = (newDayOffset, options = {}) => {
+  const { left: distanceToLeft = null } = options || {};
+  if (distanceToLeft != null) {
+    // the user wants to see targetDate at <distanceToLeft> from the edge
+    return newDayOffset - distanceToLeft;
+  }
+  return newDayOffset;
+};
+
+const getPageStartDate = (
+  selectedDate,
+  numberOfDays,
+  pageStartAtOptions = {},
+) => {
+  const { left: distanceToLeft = null, weekday = null } =
+    pageStartAtOptions || {};
+  if (distanceToLeft != null) {
+    // the user wants to see selectedDate at <distanceToLeft> from the left edge
+    return moment(selectedDate).subtract(distanceToLeft, 'day');
+  }
+  if (weekday != null) {
+    const date = moment(selectedDate);
+    return date.subtract(
+      // Ensure centralDate is before currentMoment
+      (date.day() + numberOfDays - weekday) % numberOfDays,
+      'days',
+    );
+  }
+  return moment(selectedDate);
+};
+
 // FlatList configuration
 const PAGES_OFFSET = 2;
 const DEFAULT_WINDOW_SIZE = PAGES_OFFSET * 2 + 1;
 
 const calculatePagesDates = (
-  currentMoment,
+  selectedDate,
   numberOfDays,
-  weekStartsOn,
+  pageStartAt,
   prependMostRecent,
-  fixedHorizontally,
 ) => {
   const initialDates = [];
-  const centralDate = moment(currentMoment);
-  if (numberOfDays === 7 || fixedHorizontally) {
-    centralDate.subtract(
-      // Ensure centralDate is before currentMoment
-      (centralDate.day() + 7 - weekStartsOn) % 7,
-      'days',
-    );
-  }
+  const centralDate = getPageStartDate(selectedDate, numberOfDays, pageStartAt);
   for (let i = -PAGES_OFFSET; i <= PAGES_OFFSET; i += 1) {
     const initialDate = moment(centralDate).add(numberOfDays * i, 'd');
     initialDates.push(initialDate.format(DATE_STR_FORMAT));
@@ -99,9 +127,8 @@ export default class WeekView extends Component {
     const initialDates = calculatePagesDates(
       props.selectedDate,
       props.numberOfDays,
-      props.weekStartsOn,
+      props.pageStartAt,
       props.prependMostRecent,
-      props.fixedHorizontally,
     );
     const { width: windowWidth, height: windowHeight } = Dimensions.get(
       'window',
@@ -151,8 +178,8 @@ export default class WeekView extends Component {
         // eslint-disable-next-line react/no-access-state-in-setstate
         this.state.currentMoment,
         this.props.numberOfDays,
+        this.props.pageStartAt,
         this.props.prependMostRecent,
-        this.props.fixedHorizontally,
       );
 
       this.currentPageIndex = PAGES_OFFSET;
@@ -261,99 +288,184 @@ export default class WeekView extends Component {
     return appending ? newPages : newPages.reverse();
   };
 
-  goToDate = (targetDate, animated = true) => {
+  goToDate = (targetDate, options) => {
+    const targetDateMoment = moment(targetDate);
+    if (!targetDateMoment || !targetDateMoment.isValid()) {
+      return;
+    }
     const { initialDates } = this.state;
-    const { numberOfDays } = this.props;
+    const { numberOfDays, allowScrollByDay } = this.props;
 
-    const currentDate = moment(initialDates[this.currentPageIndex]).startOf(
+    // Compute target index
+    const startOfPage = moment(initialDates[this.currentPageIndex]).startOf(
       'day',
     );
-    const deltaDay = moment(targetDate).startOf('day').diff(currentDate, 'day');
+    const deltaDay = targetDateMoment.startOf('day').diff(startOfPage, 'day');
     const deltaIndex = Math.floor(deltaDay / numberOfDays);
-    const signToTheFuture = this.getSignToTheFuture();
-    const targetIndex = this.currentPageIndex + deltaIndex * signToTheFuture;
+    const newDayOffset = mod(deltaDay, numberOfDays);
+    const targetPageIndex =
+      this.currentPageIndex + deltaIndex * this.getSignToTheFuture();
 
-    this.goToPageIndex(targetIndex, animated);
-  };
+    if (!allowScrollByDay) {
+      this.goToPageIndex(targetPageIndex, null, options);
+      return;
+    }
 
-  goToNextPage = (animated = true) => {
+    // Adjust offset
+    const rawShiftOffset = getRawDayOffset(newDayOffset, options);
+    const overflowPages = Math.floor(rawShiftOffset / numberOfDays);
+    const targetDayOffset = mod(rawShiftOffset, numberOfDays);
+
     this.goToPageIndex(
-      this.currentPageIndex + 1 * this.getSignToTheFuture(),
-      animated,
+      targetPageIndex + overflowPages,
+      targetDayOffset,
+      options,
     );
   };
 
-  goToPrevPage = (animated = true) => {
+  goToNextPage = (options) =>
     this.goToPageIndex(
-      this.currentPageIndex - 1 * this.getSignToTheFuture(),
-      animated,
+      this.currentPageIndex + this.getSignToTheFuture(),
+      null,
+      options,
+    );
+
+  goToPrevPage = (options) =>
+    this.goToPageIndex(
+      this.currentPageIndex - this.getSignToTheFuture(),
+      null,
+      options,
+    );
+
+  goToNextDay = (options) =>
+    this.goToDate(moment(this.state.currentMoment).add(1, 'day'), options);
+
+  goToPrevDay = (options) =>
+    this.goToDate(moment(this.state.currentMoment).add(-1, 'day'), options);
+
+  /**
+   * Computes the targetIndex and newState for a goToPage operation.
+   *
+   * Helper for goToPageIndex() method.
+   * Notice a new targetIndex is returned, while the dayOffset is handled outside of this method.
+   *
+   * @param {Number} targetPageIndex index between (-infinity, infinity) indicating target page.
+   * @param {Number} targetDayOffset day offset inside a page.
+   * @returns [reindexedTargetIndex, newState]
+   */
+  computeParamsToGoToIndex = (targetPageIndex, targetDayOffset) => {
+    /** helper for readability */
+    const date2State = (dateStr) =>
+      moment(dateStr).add(targetDayOffset, 'day').toDate();
+
+    const { initialDates: oldPages } = this.state;
+    const firstViewablePage = PAGES_OFFSET;
+    const lastViewablePage = oldPages.length - PAGES_OFFSET;
+
+    if (targetPageIndex < firstViewablePage) {
+      const firstPageDate = oldPages[0];
+      const prependNeeded = firstViewablePage - targetPageIndex;
+
+      const newPages = [
+        ...this.buildPages(firstPageDate, prependNeeded, false),
+        ...oldPages,
+      ];
+      const reIndexedTargetPage = PAGES_OFFSET;
+
+      return [
+        reIndexedTargetPage,
+        {
+          initialDates: newPages,
+          currentMoment: date2State(newPages[reIndexedTargetPage]),
+        },
+      ];
+    }
+    if (targetPageIndex > lastViewablePage) {
+      const lastPageDate = oldPages[oldPages.length - 1];
+      const appendNeeded = targetPageIndex - lastViewablePage;
+
+      const newPages = [
+        ...oldPages,
+        ...this.buildPages(lastPageDate, appendNeeded, true),
+      ];
+
+      const reIndexedTargetPage = newPages.length - PAGES_OFFSET;
+
+      return [
+        reIndexedTargetPage,
+        {
+          initialDates: newPages,
+          currentMoment: date2State(newPages[reIndexedTargetPage]),
+        },
+      ];
+    }
+    return [
+      targetPageIndex,
+      {
+        currentMoment: date2State(oldPages[targetPageIndex]),
+      },
+    ];
+  };
+
+  /**
+   * Computes the left-offset displayed in the current date.
+   *
+   * Helper method used in goToPageIndex()
+   * */
+  getCurrentDayOffset = () => {
+    const { initialDates, currentMoment } = this.state;
+
+    return moment(currentMoment).diff(
+      initialDates[this.currentPageIndex],
+      'day',
     );
   };
 
   /**
-   * Moves the view to a pageIndex.
+   * Navigates the view to a pageIndex and (optional) dayOffset.
    *
-   * Add more pages (if necessary), scrolls the VirtualizedList to the new index,
+   * Adds more pages (if necessary), scrolls the List to the new index,
    * and updates this.currentPageIndex.
    *
-   * @param {Number} target index between (-infinity, infinity) indicating target page.
-   * @param {bool} animated
-   * @returns
+   * @param {Number} targetPageIndex between (-infinity, infinity) indicating target page.
+   * @param {Number} targetDayOffset day offset inside a page.
+   *     Only used if allowScrollByDay is true.
    */
-  goToPageIndex = (target, animated = true) => {
-    if (target === this.currentPageIndex) {
+  goToPageIndex = (targetPageIndex, targetDayOffset, options = {}) => {
+    const { allowScrollByDay } = this.props;
+    if (targetPageIndex === this.currentPageIndex && !allowScrollByDay) {
+      // If allowScrollByDay is false, cannot scroll through offsets
       return;
     }
 
-    const { initialDates } = this.state;
+    const dayOffset =
+      !allowScrollByDay || targetDayOffset == null
+        ? this.getCurrentDayOffset()
+        : targetDayOffset;
 
-    const scrollTo = (moveToIndex) => {
-      this.eventsGrid.scrollToIndex({
-        index: moveToIndex,
-        animated,
-      });
-      this.currentPageIndex = moveToIndex;
-    };
+    const viewOffset =
+      targetDayOffset == null
+        ? undefined
+        : VIEW_OFFSET_SIGN * this.dimensions.dayWidth * dayOffset;
 
-    const newState = {};
-    let newStateCallback = () => {};
+    const [moveToIndex, newState] = this.computeParamsToGoToIndex(
+      targetPageIndex,
+      targetDayOffset || 0,
+    );
 
-    // The final target will change (will be re-indexed) if pages are added in either direction
-    let targetIndex = target;
+    const { animated = true } = options || {};
 
-    const firstViewablePage = PAGES_OFFSET;
-    const lastViewablePage = initialDates.length - PAGES_OFFSET;
-
-    if (targetIndex < firstViewablePage) {
-      const prependNeeded = firstViewablePage - targetIndex;
-
-      newState.initialDates = [
-        ...this.buildPages(initialDates[0], prependNeeded, false),
-        ...initialDates,
-      ];
-      targetIndex = PAGES_OFFSET;
-
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else if (targetIndex > lastViewablePage) {
-      const appendNeeded = targetIndex - lastViewablePage;
-      newState.initialDates = [
-        ...initialDates,
-        ...this.buildPages(
-          initialDates[initialDates.length - 1],
-          appendNeeded,
-          true,
-        ),
-      ];
-
-      targetIndex = newState.initialDates.length - PAGES_OFFSET;
-
-      newStateCallback = () => setTimeout(() => scrollTo(targetIndex), 0);
-    } else {
-      scrollTo(targetIndex);
-    }
-
-    newState.currentMoment = moment(initialDates[targetIndex]).toDate();
-    this.setState(newState, newStateCallback);
+    this.setState(newState, () =>
+      // setTimeout is used to force calling scroll after UI is updated
+      setTimeout(() => {
+        this.eventsGrid.scrollToIndex({
+          index: moveToIndex,
+          viewOffset,
+          animated,
+        });
+        this.currentPageIndex = moveToIndex;
+      }, 0),
+    );
   };
 
   scrollBegun = () => {
@@ -371,19 +483,25 @@ export default class WeekView extends Component {
       nativeEvent: { contentOffset },
     } = event;
     const { x: position } = contentOffset;
-    const { pageWidth } = this.dimensions;
-    const { initialDates } = this.state;
+    const { pageWidth, dayWidth } = this.dimensions;
+    const { initialDates, currentMoment: oldMoment } = this.state;
 
     const newPageIndex = Math.round(position / pageWidth);
+    const dayOffset = Math.round((position % pageWidth) / dayWidth);
     const movedPages = newPageIndex - this.currentPageIndex;
     this.currentPageIndex = newPageIndex;
 
-    if (movedPages === 0) {
+    const newMoment = moment(initialDates[newPageIndex])
+      .add(dayOffset, 'd')
+      .toDate();
+
+    const movedDays = moment(newMoment).diff(oldMoment, 'd');
+
+    if (movedDays === 0) {
       return;
     }
 
     InteractionManager.runAfterInteractions(() => {
-      const newMoment = moment(initialDates[this.currentPageIndex]).toDate();
       const newState = {
         currentMoment: newMoment,
       };
@@ -404,12 +522,13 @@ export default class WeekView extends Component {
         // After prepending, it needs to scroll to fix its position,
         // to mantain visible content position (mvcp)
         this.currentPageIndex += prependNeeded;
-        const scrollToCurrentIndex = () =>
+        const scrollToCurrentIndexAndOffset = () =>
           this.eventsGrid.scrollToIndex({
             index: this.currentPageIndex,
+            viewOffset: VIEW_OFFSET_SIGN * dayOffset * dayWidth,
             animated: false,
           });
-        newStateCallback = () => setTimeout(scrollToCurrentIndex, 0);
+        newStateCallback = () => setTimeout(scrollToCurrentIndexAndOffset, 0);
       } else if (movedPages > 0 && pagesToEndOfList < buffer) {
         const appendNeeded = buffer - pagesToEndOfList;
         newState.initialDates = [
@@ -428,7 +547,7 @@ export default class WeekView extends Component {
         onSwipePrev: onSwipeToThePast,
         onSwipeNext: onSwipeToTheFuture,
       } = this.props;
-      const movedForward = movedPages > 0;
+      const movedForward = movedDays > 0;
       const callback =
         this.isAppendingTheFuture() === movedForward
           ? onSwipeToTheFuture
@@ -484,6 +603,7 @@ export default class WeekView extends Component {
       beginAgendaAt,
       endAgendaAt,
       formatTimeLabel,
+      allowScrollByDay,
       onGridClick,
       onGridLongPress,
       onEditEvent,
@@ -539,9 +659,19 @@ export default class WeekView extends Component {
     } = computeVerticalDimensions(windowHeight, hoursInDisplay, timeStep);
 
     this.dimensions = {
+      dayWidth,
       pageWidth,
       verticalResolution,
     };
+
+    const horizontalScrollProps = allowScrollByDay
+      ? {
+          decelerationRate: 'fast',
+          snapToInterval: dayWidth,
+        }
+      : {
+          pagingEnabled: true,
+        };
 
     return (
       <GestureHandlerRootView style={styles.container}>
@@ -557,7 +687,6 @@ export default class WeekView extends Component {
           />
           <VirtualizedList
             horizontal
-            pagingEnabled
             inverted={horizontalInverted}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
@@ -659,7 +788,8 @@ export default class WeekView extends Component {
                 );
               }}
               horizontal
-              pagingEnabled
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...horizontalScrollProps}
               inverted={horizontalInverted}
               onMomentumScrollBegin={this.scrollBegun}
               onMomentumScrollEnd={this.scrollEnded}
@@ -697,7 +827,7 @@ WeekView.propTypes = {
   formatDateHeader: PropTypes.string,
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   timesColumnWidth: PropTypes.number,
-  weekStartsOn: PropTypes.number,
+  pageStartAt: PageStartAtOptionsPropType,
   onSwipeNext: PropTypes.func,
   onSwipePrev: PropTypes.func,
   onTimeScrolled: PropTypes.func,
@@ -718,6 +848,7 @@ WeekView.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   locale: PropTypes.string,
   hoursInDisplay: PropTypes.number,
+  allowScrollByDay: PropTypes.bool,
   timeStep: PropTypes.number,
   beginAgendaAt: PropTypes.number,
   endAgendaAt: PropTypes.number,
@@ -747,10 +878,10 @@ WeekView.defaultProps = {
   events: [],
   locale: 'en',
   hoursInDisplay: 6,
-  weekStartsOn: 1,
   timeStep: 60,
   beginAgendaAt: 0,
   endAgendaAt: MINUTES_IN_DAY,
+  allowScrollByDay: false,
   formatTimeLabel: 'H:mm',
   startHour: 8,
   showTitle: true,
