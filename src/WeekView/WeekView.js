@@ -503,11 +503,7 @@ export default class WeekView extends Component {
         onSwipePrev: onSwipeToThePast,
         onSwipeNext: onSwipeToTheFuture,
       } = this.props;
-      const movedForward = movedDays > 0;
-      const callback =
-        this.isAppendingTheFuture() === movedForward
-          ? onSwipeToTheFuture
-          : onSwipeToThePast;
+      const callback = movedDays > 0 ? onSwipeToTheFuture : onSwipeToThePast;
       if (callback) {
         callback(newMoment);
       }
