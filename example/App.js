@@ -104,9 +104,9 @@ const onDayPress = (date, formattedDate) => {
   console.log('Day: ', date, formattedDate);
 };
 
-const onTimeScrolled = date => {
-  console.log(`New start time: ${date.getHours()}:${date.getMinutes()}`);
-};
+const onSwipeNext = d => console.log('Swipe next', d.toDateString());
+const onSwipePrev = d => console.log('Swipe prev', d.toDateString());
+const onTimeScrolled = d => console.log('Time scrolled', d.toTimeString());
 
 // Use this to manually debug navigate through dates
 // eslint-disable-next-line no-unused-vars
@@ -219,6 +219,8 @@ const App = ({}) => {
           onDayPress={onDayPress}
           onMonthPress={onMonthPress}
           onTimeScrolled={onTimeScrolled}
+          onSwipeNext={onSwipeNext}
+          onSwipePrev={onSwipePrev}
           editingEvent={editingEvent}
           onEditEvent={onEditEvent}
           editEventConfig={EDIT_EVENT_CONFIG}

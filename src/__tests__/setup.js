@@ -9,3 +9,7 @@ jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 // Needed when using setTimeout (when showNowLine=true)
 jest.useFakeTimers();
+
+jest.mock('react-native/Libraries/Interaction/InteractionManager', () => ({
+  runAfterInteractions: jest.fn((task) => task()),
+}));
