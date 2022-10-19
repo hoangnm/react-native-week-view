@@ -577,6 +577,8 @@ export default class WeekView extends Component {
       initialNumToRender,
       maxToRenderPerBatch,
       updateCellsBatchingPeriod,
+      removeClippedSubviews,
+      disableVirtualization,
     } = this.props;
     const {
       currentMoment,
@@ -654,6 +656,8 @@ export default class WeekView extends Component {
             initialNumToRender={initialNumToRender}
             maxToRenderPerBatch={maxToRenderPerBatch}
             updateCellsBatchingPeriod={updateCellsBatchingPeriod}
+            removeClippedSubviews={removeClippedSubviews}
+            disableVirtualization={disableVirtualization}
             renderItem={({ item }) => {
               return (
                 <Header
@@ -763,6 +767,8 @@ export default class WeekView extends Component {
               initialNumToRender={initialNumToRender}
               maxToRenderPerBatch={maxToRenderPerBatch}
               updateCellsBatchingPeriod={updateCellsBatchingPeriod}
+              removeClippedSubviews={removeClippedSubviews}
+              disableVirtualization={disableVirtualization}
               accessible
               accessibilityLabel="Grid with horizontal scroll"
               accessibilityHint="Grid with horizontal scroll"
@@ -824,6 +830,8 @@ WeekView.propTypes = {
   initialNumToRender: PropTypes.number,
   maxToRenderPerBatch: PropTypes.number,
   updateCellsBatchingPeriod: PropTypes.number,
+  removeClippedSubviews: PropTypes.bool,
+  disableVirtualization: PropTypes.bool,
 };
 
 WeekView.defaultProps = {
@@ -844,4 +852,6 @@ WeekView.defaultProps = {
   initialNumToRender: DEFAULT_WINDOW_SIZE,
   maxToRenderPerBatch: PAGES_OFFSET,
   updateCellsBatchingPeriod: 50, // RN default
+  removeClippedSubviews: true,
+  disableVirtualization: false,
 };

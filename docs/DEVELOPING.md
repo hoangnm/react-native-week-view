@@ -32,12 +32,16 @@ After each change, run `yarn sync` and reload the app.
 
 ### Profile performance on android
 
-See general guides here: https://reactnative.dev/docs/profiling#profiling-android-ui-performance-with-systrace
+* General RN guides: https://reactnative.dev/docs/profiling#profiling-android-ui-performance-with-systrace
+* Systrace [was deprecated in android-SDK platform-tools v33.0.1](https://developer.android.com/studio/releases/platform-tools#3301_march_2022). Instead, try one of:
+  * Android profiler: https://developer.android.com/studio/profile/android-profiler
+  * Android gpu inspector: https://developer.android.com/agi/start
+  * Perfetto: https://perfetto.dev/docs/
 
-Run the following:
+* To use systrace, run the following:
 ```sh
 cd example
-yarn android:release # Install release version (__DEV__ === false)
+yarn android:release # evaluate performance in release version (__DEV__ === false)
 
 # Open the app in the emulator
 
