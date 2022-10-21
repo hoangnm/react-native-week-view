@@ -2,9 +2,13 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.27.0 - 2022-10-21
+
+- Expose VirtualizedList props [#280](https://github.com/hoangnm/react-native-week-view/pull/280)
+
 ## 0.26.0 - 2022-10-14
 
-- Feature: allow scrolling 1 day at the time [#266)](https://github.com/hoangnm/react-native-week-view/pull/266)
+- Feature: allow scrolling 1 day at the time [#266](https://github.com/hoangnm/react-native-week-view/pull/266)
 
 ## 0.25.1 - 2022-09-30
 
