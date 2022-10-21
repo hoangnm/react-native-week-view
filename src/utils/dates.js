@@ -32,6 +32,11 @@ export const minutesInDay = (date) => {
   return dateObj.hours() * 60 + dateObj.minutes();
 };
 
+export const daysInBetweenInclusive = (startDate, endDate) => {
+  if (!startDate || !endDate) return 0;
+  return moment(endDate).diff(startDate, 'days') + 1;
+};
+
 export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
   const dates = [];
   for (let i = 0; i < numberOfDays; i += 1) {

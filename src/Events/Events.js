@@ -103,14 +103,16 @@ class Events extends PureComponent {
     this.handleGridTouch(pressEvt, this.props.onGridLongPress);
   };
 
-  handleDragEvent = (event, newX, newY) => {
+  handleDragEvent = (event, newX, newY, eventWidth) => {
     const { onDragEvent } = this.props;
     if (!onDragEvent) {
       return;
     }
 
+    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth / 2);
+
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
-    const movedDays = this.xToDayIndex(newX);
+    const movedDays = this.xToDayIndex(newX + halfDayAnchor);
     const secondsInDay = this.topToSecondsInDay(newY);
 
     const newStartDate = moment(event.startDate)
@@ -142,7 +144,12 @@ class Events extends PureComponent {
       newStartDate = newStartDate.add(daysToLeft, 'days');
     }
     if (params.right != null) {
-      const movedRight = this.xToDayIndex(params.right);
+      const newRightIndex = this.xToDayIndex(params.right);
+      const prevRightIndex = moment(event.endDate).diff(
+        event.startDate,
+        'days',
+      );
+      const movedRight = newRightIndex - prevRightIndex;
       newEndDate = newEndDate.add(movedRight, 'days');
     }
     if (params.top != null) {
@@ -216,6 +223,7 @@ class Events extends PureComponent {
           {totalEvents.map((eventsInSection, dayIndex) => (
             <View
               style={[styles.eventsColumn, gridColumnStyle]}
+              pointerEvents="box-none"
               key={`${initialDate}-${dayIndex}`}
             >
               {showNowLine && this.isToday(dayIndex) && (
@@ -235,7 +243,7 @@ class Events extends PureComponent {
                     top={computeTop(box, verticalResolution, beginAgendaAt)}
                     height={computeHeight(box, verticalResolution)}
                     left={computeLeft(overlap, dayWidth)}
-                    width={computeWidth(overlap, dayWidth)}
+                    width={computeWidth(box, overlap, dayWidth)}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}

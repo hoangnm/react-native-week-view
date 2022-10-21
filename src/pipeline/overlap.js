@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import moment from 'moment';
-import { OVERLAP_METHOD } from '../utils/types';
+import { EVENT_KINDS, OVERLAP_METHOD } from '../utils/types';
 
 const ALLOW_OVERLAP_SECONDS = 2;
 
@@ -103,7 +103,11 @@ class OverlappedEventsHandler {
     const layout = new OverlappedEventsHandler();
 
     (events || []).forEach(({ ref: event }, eventIndex) => {
-      switch (event.resolveOverlap) {
+      const overlapMethod =
+        event.eventKind === EVENT_KINDS.BLOCK
+          ? OVERLAP_METHOD.IGNORE
+          : event.resolveOverlap;
+      switch (overlapMethod) {
         case OVERLAP_METHOD.STACK:
           layout.addToNextMatchingStack(event, eventIndex);
           break;

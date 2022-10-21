@@ -1,4 +1,4 @@
-import { minutesInDay } from '../utils/dates';
+import { minutesInDay, daysInBetweenInclusive } from '../utils/dates';
 import { minutesInDayToTop, minutesToHeight } from '../utils/dimensions';
 
 const EVENT_HORIZONTAL_PADDING = 8 / 100;
@@ -19,9 +19,10 @@ const computeStackOffset = (overlap, dayWidth) => {
   return widthByLane * STACK_OFFSET_FRACTION * (overlap.stackPosition || 0);
 };
 
-export const computeWidth = (overlap, dayWidth) => {
+export const computeWidth = (box, overlap, dayWidth) => {
+  const nDays = daysInBetweenInclusive(box.startDate, box.endDate);
   const width =
-    computeWidthByLane(overlap, dayWidth) -
+    computeWidthByLane(overlap, dayWidth) * nDays -
     computeHorizontalPadding(overlap, dayWidth) -
     computeStackOffset(overlap, dayWidth);
   return Math.max(width, MIN_ITEM_WIDTH);
