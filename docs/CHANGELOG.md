@@ -2,6 +2,10 @@
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
 
+## 0.28.0 - 2022-11-08
+
+- Feature: blocks-like events [#267](https://github.com/hoangnm/react-native-week-view/pull/267)
+
 ## 0.27.0 - 2022-10-21
 
 - Expose VirtualizedList props [#280](https://github.com/hoangnm/react-native-week-view/pull/280)
