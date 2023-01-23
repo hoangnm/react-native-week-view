@@ -45,6 +45,7 @@ import {
   calculatePagesDates,
   getRawDayOffset,
   DEFAULT_WINDOW_SIZE,
+  filterEvents,
 } from '../utils/pages';
 
 /** For some reason, this sign is necessary in all cases. */
@@ -592,7 +593,14 @@ export default class WeekView extends Component {
       beginAgendaAt,
       endAgendaAt,
     );
-    const eventsByDate = this.bucketEventsByDate(events);
+
+    const eventsByDate = this.bucketEventsByDate(
+      filterEvents(
+        events,
+        initialDates[this.currentPageIndex - 1],
+        initialDates[this.currentPageIndex + 1],
+      ),
+    );
     const horizontalInverted =
       (prependMostRecent && !rightToLeft) ||
       (!prependMostRecent && rightToLeft);

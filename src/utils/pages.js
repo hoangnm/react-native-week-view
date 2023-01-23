@@ -52,3 +52,10 @@ export const calculatePagesDates = (
   }
   return prependMostRecent ? initialDates.reverse() : initialDates;
 };
+
+export const filterEvents = (events, from, to) => {
+  const filteredEvents = events.filter((event) => {
+    return moment(event.startDate).isBetween(moment(from), moment(to));
+  });
+  return filteredEvents;
+};
