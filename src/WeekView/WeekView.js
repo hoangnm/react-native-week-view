@@ -46,6 +46,7 @@ import {
   getRawDayOffset,
   DEFAULT_WINDOW_SIZE,
 } from '../utils/pages';
+import { RunGesturesOnJSContext } from '../utils/gestures';
 
 /** For some reason, this sign is necessary in all cases. */
 const VIEW_OFFSET_SIGN = -1;
@@ -579,6 +580,7 @@ export default class WeekView extends Component {
       updateCellsBatchingPeriod,
       removeClippedSubviews,
       disableVirtualization,
+      runOnJS,
     } = this.props;
     const {
       currentMoment,
@@ -701,78 +703,80 @@ export default class WeekView extends Component {
               timeLabelHeight={timeLabelHeight}
               width={timeLabelsWidth}
             />
-            <VirtualizedList
-              data={initialDates}
-              getItem={(data, index) => data[index]}
-              getItemCount={(data) => data.length}
-              getItemLayout={this.getListItemLayout}
-              keyExtractor={(item) => item}
-              initialScrollIndex={PAGES_OFFSET}
-              scrollEnabled={!fixedHorizontally}
-              onStartShouldSetResponderCapture={() => false}
-              onMoveShouldSetResponderCapture={() => false}
-              onResponderTerminationRequest={() => false}
-              renderItem={({ item }) => {
-                return (
-                  <Events
-                    times={times}
-                    eventsByDate={eventsByDate}
-                    initialDate={item}
-                    numberOfDays={numberOfDays}
-                    onEventPress={onEventPress}
-                    onEventLongPress={onEventLongPress}
-                    onGridClick={onGridClick}
-                    onGridLongPress={onGridLongPress}
-                    beginAgendaAt={beginAgendaAt}
-                    timeLabelHeight={timeLabelHeight}
-                    EventComponent={EventComponent}
-                    eventContainerStyle={eventContainerStyle}
-                    gridRowStyle={gridRowStyle}
-                    gridColumnStyle={gridColumnStyle}
-                    rightToLeft={rightToLeft}
-                    showNowLine={showNowLine}
-                    nowLineColor={nowLineColor}
-                    onDragEvent={onDragEvent}
-                    pageWidth={pageWidth}
-                    dayWidth={dayWidth}
-                    verticalResolution={verticalResolution}
-                    onEditEvent={onEditEvent}
-                    editingEventId={editingEvent}
-                    editEventConfig={editEventConfig}
-                    dragEventConfig={dragEventConfig}
-                  />
-                );
-              }}
-              horizontal
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...horizontalScrollProps}
-              inverted={horizontalInverted}
-              onMomentumScrollBegin={this.scrollBegun}
-              onMomentumScrollEnd={this.scrollEnded}
-              scrollEventThrottle={32}
-              onScroll={Animated.event(
-                [
-                  {
-                    nativeEvent: {
-                      contentOffset: {
-                        x: this.eventsGridScrollX,
+            <RunGesturesOnJSContext.Provider value={runOnJS}>
+              <VirtualizedList
+                data={initialDates}
+                getItem={(data, index) => data[index]}
+                getItemCount={(data) => data.length}
+                getItemLayout={this.getListItemLayout}
+                keyExtractor={(item) => item}
+                initialScrollIndex={PAGES_OFFSET}
+                scrollEnabled={!fixedHorizontally}
+                onStartShouldSetResponderCapture={() => false}
+                onMoveShouldSetResponderCapture={() => false}
+                onResponderTerminationRequest={() => false}
+                renderItem={({ item }) => {
+                  return (
+                    <Events
+                      times={times}
+                      eventsByDate={eventsByDate}
+                      initialDate={item}
+                      numberOfDays={numberOfDays}
+                      onEventPress={onEventPress}
+                      onEventLongPress={onEventLongPress}
+                      onGridClick={onGridClick}
+                      onGridLongPress={onGridLongPress}
+                      beginAgendaAt={beginAgendaAt}
+                      timeLabelHeight={timeLabelHeight}
+                      EventComponent={EventComponent}
+                      eventContainerStyle={eventContainerStyle}
+                      gridRowStyle={gridRowStyle}
+                      gridColumnStyle={gridColumnStyle}
+                      rightToLeft={rightToLeft}
+                      showNowLine={showNowLine}
+                      nowLineColor={nowLineColor}
+                      onDragEvent={onDragEvent}
+                      pageWidth={pageWidth}
+                      dayWidth={dayWidth}
+                      verticalResolution={verticalResolution}
+                      onEditEvent={onEditEvent}
+                      editingEventId={editingEvent}
+                      editEventConfig={editEventConfig}
+                      dragEventConfig={dragEventConfig}
+                    />
+                  );
+                }}
+                horizontal
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...horizontalScrollProps}
+                inverted={horizontalInverted}
+                onMomentumScrollBegin={this.scrollBegun}
+                onMomentumScrollEnd={this.scrollEnded}
+                scrollEventThrottle={32}
+                onScroll={Animated.event(
+                  [
+                    {
+                      nativeEvent: {
+                        contentOffset: {
+                          x: this.eventsGridScrollX,
+                        },
                       },
                     },
-                  },
-                ],
-                { useNativeDriver: false },
-              )}
-              ref={this.eventsGridRef}
-              windowSize={windowSize}
-              initialNumToRender={initialNumToRender}
-              maxToRenderPerBatch={maxToRenderPerBatch}
-              updateCellsBatchingPeriod={updateCellsBatchingPeriod}
-              removeClippedSubviews={removeClippedSubviews}
-              disableVirtualization={disableVirtualization}
-              accessible
-              accessibilityLabel="Grid with horizontal scroll"
-              accessibilityHint="Grid with horizontal scroll"
-            />
+                  ],
+                  { useNativeDriver: false },
+                )}
+                ref={this.eventsGridRef}
+                windowSize={windowSize}
+                initialNumToRender={initialNumToRender}
+                maxToRenderPerBatch={maxToRenderPerBatch}
+                updateCellsBatchingPeriod={updateCellsBatchingPeriod}
+                removeClippedSubviews={removeClippedSubviews}
+                disableVirtualization={disableVirtualization}
+                accessible
+                accessibilityLabel="Grid with horizontal scroll"
+                accessibilityHint="Grid with horizontal scroll"
+              />
+            </RunGesturesOnJSContext.Provider>
           </View>
         </ScrollView>
       </GestureHandlerRootView>
@@ -832,6 +836,7 @@ WeekView.propTypes = {
   updateCellsBatchingPeriod: PropTypes.number,
   removeClippedSubviews: PropTypes.bool,
   disableVirtualization: PropTypes.bool,
+  runOnJS: PropTypes.bool,
 };
 
 WeekView.defaultProps = {
@@ -854,4 +859,5 @@ WeekView.defaultProps = {
   updateCellsBatchingPeriod: 50, // RN default
   removeClippedSubviews: true,
   disableVirtualization: false,
+  runOnJS: false,
 };

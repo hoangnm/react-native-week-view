@@ -17,6 +17,7 @@ import {
   EditEventConfigPropType,
   DragEventConfigPropType,
 } from '../utils/types';
+import { RunGesturesOnJSContext } from '../utils/gestures';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
@@ -87,6 +88,8 @@ const Event = ({
   const isDragEnabled =
     !!onDrag && editingEventId == null && !event.disableDrag;
 
+  const runGesturesOnJS = React.useContext(RunGesturesOnJSContext);
+
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
   const onPressWrapper = () => onPress && onPress(event);
@@ -146,6 +149,7 @@ const Event = ({
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
+    .runOnJS(runGesturesOnJS)
     .onTouchesDown(() => {
       dragStatus.value = DRAG_STATUS.PRESSING;
     })
@@ -195,6 +199,7 @@ const Event = ({
     .enabled(
       dragAfterLongPress === 0 && !!onLongPress && !event.disableLongPress,
     )
+    .runOnJS(runGesturesOnJS)
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -210,6 +215,7 @@ const Event = ({
 
   const pressGesture = Gesture.Tap()
     .enabled(!!onPress && !event.disablePress)
+    .runOnJS(runGesturesOnJS)
     .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
@@ -231,6 +237,7 @@ const Event = ({
 
   const buildCircleGesture = (side) =>
     Gesture.Pan()
+      .runOnJS(runGesturesOnJS)
       .onUpdate((panEvt) => {
         const { translationX, translationY } = panEvt;
         switch (side) {

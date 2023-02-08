@@ -228,6 +228,7 @@ const App = ({}) => {
           onEditEvent={onEditEvent}
           editEventConfig={EDIT_EVENT_CONFIG}
           dragEventConfig={DRAG_EVENT_CONFIG}
+          runOnJS
         />
       </SafeAreaView>
     </>
