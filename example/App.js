@@ -32,7 +32,7 @@ const sampleEvents = [
 
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),
-  buildEvent(24 * 7 - 48, 3, 'lightblue', {
+  buildEvent(24 * 7 - 48, 3, 'green', {
     style: {
       borderWidth: 5,
     },
@@ -45,6 +45,9 @@ const sampleEvents = [
   // Two more weeks
   buildEvent(48 * 7, 2, 'pink'),
   buildEvent(48 * 7 - 54, 4, 'green'),
+  // ...Array.from({length: 1000}, (_, i) =>
+  //   buildEvent(24 + i * 5, 2, 'lightblue'),
+  // ),
 ];
 
 const sampleFixedEvents = [
@@ -198,7 +201,7 @@ const App = ({}) => {
           pageStartAt={PAGE_START_AT}
           onEventPress={handlePressEvent}
           onEventLongPress={handleLongPressEvent}
-          onGridClick={handlePressGrid}
+          onGridLongPress={handlePressGrid}
           headerStyle={styles.header}
           headerTextStyle={styles.headerText}
           hourTextStyle={styles.hourText}

@@ -25,7 +25,8 @@
     "react/no-array-index-key": 0,
     "react/destructuring-assignment": 0,
     "react/sort-comp": 0,
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "no-unused-vars": "warn"
   },
   "ignorePatterns": [
     "example/**/*.js"
