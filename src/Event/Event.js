@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -89,32 +89,10 @@ const Event = ({
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
-  const onPressWrapper = useCallback(() => onPress && onPress(event), [
-    event,
-    onPress,
-  ]);
-  const onLongPressWrapper = useCallback(
-    () => onLongPress && onLongPress(event),
-    [event, onLongPress],
-  );
-
-  const onDragRelease = useCallback(
-    (dx, dy) => {
-      if (!onDrag) {
-        return;
-      }
-
-      const newX = left + dx;
-      const newY = top + dy;
-      onDrag(event, newX, newY, width);
-    },
-    [event, left, top, width, onDrag],
-  );
-
-  const onEditRelease = useCallback(
-    (params) => onEdit && onEdit(event, params),
-    [event, onEdit],
-  );
+  const onPressWrapper = () => onPress && onPress(event);
+  const onLongPressWrapper = () => onLongPress && onLongPress(event);
+  const onDragWrapper = (...args) => onDrag && onDrag(event, ...args);
+  const onEditWrapper = (params) => onEdit && onEdit(event, params);
 
   const resizeByEdit = {
     bottom: useSharedValue(0),
@@ -191,7 +169,11 @@ const Event = ({
       currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
-      runOnJS(onDragRelease)(translationX, translationY);
+      runOnJS(onDragWrapper)(
+        currentLeft.value,
+        currentTop.value,
+        currentWidth.value,
+      );
     })
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;
@@ -306,7 +288,7 @@ const Event = ({
           default:
         }
 
-        runOnJS(onEditRelease)(params);
+        runOnJS(onEditWrapper)(params);
       });
 
   return (
