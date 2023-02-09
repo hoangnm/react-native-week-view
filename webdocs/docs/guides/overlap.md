@@ -1,3 +1,8 @@
+---
+sidebar_label: Overlapping events
+sidebar_position: 4
+---
+
 # Overlap handling
 
 The library handles the case when two or more events overlap in time.
@@ -9,7 +14,7 @@ For each event provide `resolveOverlap: <method>`, for example:
 
 |               Lane (default)               |                    Stack                     |                     Ignore                     |
 | :----------------------------------------: | :------------------------------------------: | :--------------------------------------------: |
-| ![lane](../images/overlap/simple-lane.png) | ![stack](../images/overlap/simple-stack.png) | ![ignore](../images/overlap/simple-ignore.png) |
+| ![lane](./img/overlap/simple-lane.png) | ![stack](./img/overlap/simple-stack.png) | ![ignore](./img/overlap/simple-ignore.png) |
 
 
 ```js
@@ -44,14 +49,12 @@ const awesomeEvents = [
 
 ## Advanced usage
 
-You can mix different methods and use `stackKey` for the stack method to better suit your needs.
-For example:
+You can mix different methods and use `stackKey` for the stack method to better suit your needs. For example:
 
-![mix](../images/overlap/advanced-mix.png)
+![mix](./img/overlap/advanced-mix.png)
 
 ```js
-const mixedMethods = [
-  // e.g. mix 'ignore' with 'lane' (you could also mix with 'stack')
+const mixIgnoreWithLane = [
   {
     id: 1,
     startDate: new Date(2022, 6, 21, 12, 0, 0),
@@ -78,8 +81,8 @@ const mixedMethods = [
   },
 ]
 
+// e.g. stack only certain events together by providing a 'stackKey'
 const multipleStacks = [
-  // e.g. stack only certain events together by providing a 'stackKey'
   {
     id: 4,
     startDate: new Date(2022, 6, 23, 12, 0, 0),
