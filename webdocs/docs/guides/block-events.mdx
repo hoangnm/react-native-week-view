@@ -3,14 +3,20 @@ sidebar_position: 3
 sidebar_label: Block events
 ---
 
+import CodeDemo from '@site/src/components/CodeDemo';
 
 # Block-like events
 
-![block-events](./img/block-events.png)
+Regular events that span through more than 1 day are displayed with one box per day.
+We introduce block events, that are always displayed as only one box, even if they last more than one day.
+See the following example:
 
-```js
+<CodeDemo
+  imgSrc={require('./img/block-events.png').default}
+>
+
+```js title="Block Events"
 const myEvents = [
-  // Standard events that span >1 day are displayed with one box per day
   {
     id: 1,
     description: 'Std evt1',
@@ -25,8 +31,6 @@ const myEvents = [
     endDate: new Date(2022, 6, 23, 15),
     color: 'seagreen',
   },
-  // Block events that span >1 day are displayed **just as one box**
-  // (i.e. as a block)
   {
     id: 3,
     description: 'Block evt1',
@@ -45,3 +49,5 @@ const myEvents = [
   },
 ]
 ```
+
+</CodeDemo>
