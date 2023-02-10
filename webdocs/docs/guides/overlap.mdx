@@ -3,6 +3,8 @@ sidebar_label: Overlapping events
 sidebar_position: 4
 ---
 
+import CodeDemo from '@site/src/components/CodeDemo';
+
 # Overlap handling
 
 The library handles the case when two or more events overlap in time.
@@ -17,7 +19,7 @@ For each event provide `resolveOverlap: <method>`, for example:
 | ![lane](./img/overlap/simple-lane.png) | ![stack](./img/overlap/simple-stack.png) | ![ignore](./img/overlap/simple-ignore.png) |
 
 
-```js
+```js title="Basic usage"
 const method = 'lane' | 'stack' | 'ignore'
 const awesomeEvents = [
   {
@@ -49,11 +51,12 @@ const awesomeEvents = [
 
 ## Advanced usage
 
-You can mix different methods and use `stackKey` for the stack method to better suit your needs. For example:
+You can mix different methods and use `stackKey` for the stack method to better suit your needs.
+For example, using `'lane'` and `'ignore'`:
 
-![mix](./img/overlap/advanced-mix.png)
+<CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
 
-```js
+```js title="Lane and Ignore"
 const mixIgnoreWithLane = [
   {
     id: 1,
@@ -80,8 +83,15 @@ const mixIgnoreWithLane = [
     resolveOverlap: 'lane',
   },
 ]
+```
+</CodeDemo>
 
-// e.g. stack only certain events together by providing a 'stackKey'
+
+You can stack only certain events together by providing a `stackKey`:
+
+<CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
+
+```js title="Multiple stacks"
 const multipleStacks = [
   {
     id: 4,
@@ -121,3 +131,5 @@ const multipleStacks = [
   },
 ]
 ```
+
+</CodeDemo>
