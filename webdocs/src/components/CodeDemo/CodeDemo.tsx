@@ -11,8 +11,16 @@ type Props = {
 const CodeDemo: React.FC<Props> = ({ imgSrc, children, alt = 'image' }) => {
   return (
     <div className={styles.container}>
-      <div>
-        <img className={styles.demo} src={imgSrc} alt={alt} />
+      <div className={styles.imagesContainer}>
+        {!!imgSrc && (
+          <img
+            className={styles.demo}
+            src={imgSrc}
+            alt={alt}
+            width={223}
+            height={427}
+          />
+        )}
       </div>
       <div>{children}</div>
     </div>

@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.imagesContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+/* .container>div {
+  display: flex;
+  flex-direction: column;
+} */
+
+/* FIXME: widths are hard-coded */
+/* .container>div:first-child {
+  min-width: 30%;
+}
+
+.container>div:last-child {
+  min-width: 70%;
+} */
