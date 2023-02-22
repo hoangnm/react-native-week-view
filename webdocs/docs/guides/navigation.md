@@ -1,6 +1,7 @@
 ---
-sidebar_label: Scrolling and navigating
 sidebar_position: 90
+sidebar_label: Scrolling and navigating
+description: Move the component through dates
 ---
 
 # Pages navigation

@@ -1,6 +1,7 @@
 ---
 sidebar_position: 100
 sidebar_label: Locale
+description: Customize to any language
 ---
 
 # Locales customization
