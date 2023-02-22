@@ -7,17 +7,27 @@ import CodeDemo from '@site/src/components/CodeDemo';
 
 # Overlap handling
 
-The library handles the case when two or more events overlap in time.
+The library handles the case when two or more events overlap in time. By default, events are shrinked in width to fit the day:
 
-## Simple usage
+<img
+  src={require("./img/overlap/simple-lane.png").default}
+  alt="img"
+  width={223}
+  height={427}
+/>
 
-For each event provide `resolveOverlap: <method>`, for example:
+But you can change this behavior per event to suit your needs.
 
 
-|               Lane (default)               |                    Stack                     |                     Ignore                     |
-| :----------------------------------------: | :------------------------------------------: | :--------------------------------------------: |
+## Available methods
+
+There are three way to solve overlaps: split in _lanes_ (default), _stack_ or _ignore_. See the following example:
+
+| Lane (default) | Stack | Ignore |
+| :---: | :---: | :---: |
 | ![lane](./img/overlap/simple-lane.png) | ![stack](./img/overlap/simple-stack.png) | ![ignore](./img/overlap/simple-ignore.png) |
 
+To choose the method you need to provide `resolveOverlap: <method>` to each event:
 
 ```js title="Basic usage"
 const method = 'lane' | 'stack' | 'ignore'
@@ -51,8 +61,9 @@ const awesomeEvents = [
 
 ## Advanced usage
 
-You can mix different methods and use `stackKey` for the stack method to better suit your needs.
-For example, using `'lane'` and `'ignore'`:
+To better suit your needs you can: use different methods for each event, and for the _stack_ method you can provide `stackKey` to create multiple stacks. See the following examples.
+
+### Example: lane and ignore
 
 <CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
 
@@ -87,6 +98,7 @@ const mixIgnoreWithLane = [
 </CodeDemo>
 
 
+### Example: using stack keys
 You can stack only certain events together by providing a `stackKey`:
 
 <CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
