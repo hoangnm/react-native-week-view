@@ -13,6 +13,11 @@
   "bugs": {
     "url": "https://github.com/hoangnm/react-native-week-view/issues"
   },
+  "files": [
+    "src/",
+    "index.d.ts",
+    "index.js"
+  ],
   "keywords": [
     "android",
     "ios",
