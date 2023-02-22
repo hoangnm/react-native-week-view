@@ -17,6 +17,7 @@ export const makeBuilder = () => {
     const stackKey = index % 2 === 0 ? 'A' : 'B';
     return {
       id: index,
+      title: `E${index}`,
       description: `Event ${index}`,
       startDate: generateDates(start),
       endDate: generateDates(start + duration),
@@ -47,4 +48,50 @@ export const buildDateCycler = (dates = []) => {
       return nextDate;
     },
   };
+};
+
+export const eventsWithUpdate = (prevEvents, actionPayload) => {
+  const {event, newStartDate, newEndDate} = actionPayload;
+  return [
+    ...prevEvents.filter(e => e.id !== event.id),
+    {
+      ...event,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    },
+  ];
+};
+
+export const createDummyEvent = ({startDate, duration}) => {
+  const endDate = new Date(startDate.getTime());
+  endDate.setHours(startDate.getHours() + duration);
+  return {
+    description: 'New Event',
+    color: 'lightblue',
+    startDate,
+    endDate,
+  };
+};
+
+export const eventsWithAdd = (prevEvents, payload) => {
+  // Just an example reducer, you'll probably use your own
+  const maxId = Math.max(...prevEvents.map(e => e.id));
+  return [
+    ...prevEvents,
+    {
+      ...payload,
+      id: maxId + 1,
+    },
+  ];
+};
+
+export const eventsWithAddAndUpdate = (prevEvents, action) => {
+  switch (action.type) {
+    case 'updateEvent':
+      return eventsWithUpdate(prevEvents, action.payload);
+    case 'addEvent':
+      return eventsWithAdd(prevEvents, action.payload);
+    default:
+      return prevEvents;
+  }
 };
