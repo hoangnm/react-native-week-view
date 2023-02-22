@@ -1,9 +1,9 @@
 ---
 sidebar_position: 1
-sidebar_label: Installation
+sidebar_label: Setup
 ---
 
-# Installation
+# Setup
 
 ## Requirements
 
