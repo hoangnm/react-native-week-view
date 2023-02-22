@@ -634,7 +634,6 @@ export default class WeekView extends Component {
             showTitle={showTitle}
             style={headerStyle}
             textStyle={headerTextStyle}
-            numberOfDays={numberOfDays}
             selectedDate={currentMoment}
             onMonthPress={onMonthPress}
             width={timeLabelsWidth}

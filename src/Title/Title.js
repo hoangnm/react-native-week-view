@@ -2,20 +2,12 @@ import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { getCurrentMonth, availableNumberOfDays } from '../utils/dates';
+import { getCurrentMonth } from '../utils/dates';
 import styles from './Title.styles';
-
-const getFontSizeHeader = (numberOfDays) => {
-  if (numberOfDays > 1) {
-    return 12;
-  }
-  return 16;
-};
 
 const Title = ({
   style,
   showTitle,
-  numberOfDays,
   selectedDate,
   textStyle,
   onMonthPress,
@@ -31,24 +23,13 @@ const Title = ({
       onPress={() => onMonthPress && onMonthPress(selectedDate, formattedMonth)}
       disabled={!onMonthPress}
     >
-      <Text
-        style={[
-          {
-            fontSize: getFontSizeHeader(numberOfDays),
-            textAlign: 'center',
-          },
-          textStyle,
-        ]}
-      >
-        {formattedMonth}
-      </Text>
+      <Text style={[styles.text, textStyle]}>{formattedMonth}</Text>
     </TouchableOpacity>
   );
 };
 
 Title.propTypes = {
   showTitle: PropTypes.bool,
-  numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
   textStyle: PropTypes.object,
