@@ -1,5 +1,5 @@
 ---
-sidebar_label: Scrolling and Navigation
+sidebar_label: Scrolling and navigating
 sidebar_position: 200
 ---
 

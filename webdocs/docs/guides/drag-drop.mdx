@@ -1,6 +1,6 @@
 ---
 sidebar_position: 21
-sidebar_label: Drag and Drop
+sidebar_label: Drag and drop events
 ---
 
 # Drag and drop
@@ -11,7 +11,7 @@ You can enable drag and dropping of events. See an example:
 
 ```js title="Drag and drop"
 const eventsReducer = (prevEvents, payload) => {
-  // Just an example reducer
+  // Just an example reducer, you'll probably use your own
   const {event, newStartDate, newEndDate} = payload;
   return [
     ...prevEvents.filter(e => e.id !== event.id),
