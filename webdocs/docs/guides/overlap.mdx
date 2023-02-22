@@ -6,21 +6,19 @@ description: Handle events that occur at the same time
 
 # Overlap handling
 
-The library handles the case when two or more events overlap in time. By default, events are shrinked in width to fit the day:
+The library handles cases where two or more events overlap in time. By default, events are shrinked in width to fit the day (see next figure) but you can change this behavior per event to suit your needs.
 
 <img
   src={require("./img/overlap/simple-lane.png").default}
-  alt="img"
+  alt="default behavior"
   width={223}
   height={427}
 />
 
-But you can change this behavior per event to suit your needs.
-
 
 ## Available methods
 
-There are three way to solve overlaps: split in _lanes_ (default), _stack_ or _ignore_. See the following example:
+There are three way to solve overlaps: split in _lanes_ (default), _stack_ or _ignore_. Each method is shown next:
 
 | Lane (default) | Stack | Ignore |
 | :---: | :---: | :---: |
@@ -60,7 +58,8 @@ const awesomeEvents = [
 
 ## Advanced usage
 
-To better suit your needs you can: use different methods for each event, and for the _stack_ method you can provide `stackKey` to create multiple stacks. See the following examples.
+To better suit your needs you can: use different methods for each event, and for the _stack_ method you can provide `stackKey` to create multiple stacks.
+See the following examples for some use cases, and check more details in the [`EventItem` API](../full-api/event#special-fields).
 
 ### Example: lane and ignore
 

@@ -11,7 +11,7 @@ Further customize the week-view by providing your own components.
 
 ## Event content
 
-Use the `EventComponent` prop. The custom component will be rendered inside a `TouchableOpacity` with background color set to `event.color`, and placed with absolute position in the grid. The component receives the `event` as prop.
+Provide your custom component with the [`EventComponent` prop](../full-api/week-view-props#eventcomponent). The component will be rendered inside a `TouchableOpacity` with background color set to `event.color` and placed with absolute position in the grid. The component receives the `event` as prop.
 
 For example, to display events with a title and description:
 
@@ -67,14 +67,14 @@ First you should check if the props `headerStyle`, `headerTextStyle` and `format
 
 
 Use these props to provide your own components and fully customize the days in the header:
-* `TodayHeaderComponent`: to highlight today by rendering it differently from the other days.
-* `DayHeaderComponent`: to render every day in the header. Overrides `TodayHeaderComponent`.
+* [`TodayHeaderComponent`](../full-api/week-view-props#todayheadercomponent): to highlight today by rendering it differently from the other days.
+* [`DayHeaderComponent`](../full-api/week-view-props#dayheadercomponent): to render every day in the header. Overrides `TodayHeaderComponent`.
 
 Both components receive these props:
 * `date` _(moment Date)_ - moment date object containing today's date.
-* `formattedDate` _(String)_ - day formatted according to `formatDateHeader`, e.g. `"Mon 3"`.
-* `textStyle` _(Object)_ - text style used for every day.
-* `isToday` _(Bool)_ - indicate if the `date` is today or not.
+* `formattedDate` _(string)_ - day formatted according to `formatDateHeader`, e.g. `"Mon 3"`.
+* `textStyle` _(object)_ - text style used for every day.
+* `isToday` _(bool)_ - indicate if the `date` is today or not.
 
 Examples:
 
@@ -121,7 +121,7 @@ const MyDayComponent = ({date, formattedDate, textStyle}) => {
 
 ## Refreshing
 
-Using `isRefreshing={true}` display an activity indicator in the view. You can customize the displayed component by providing your own `RefreshComponent`.
+Setting `isRefreshing={true}` displays an activity indicator in the view. You can customize the displayed component by providing your own [`RefreshComponent`](../full-api/week-view-props#refreshcomponent).
 
 Example:
 

@@ -6,7 +6,7 @@ sidebar_label: Usage
 # Basic usage
 
 Check the following examples for a quick start.
-Go to [_Guides_](./category/guides) for more practical examples.
+See the [guides section](./category/guides) for more practical examples, and check all available props and details in the [Full API](./full-api/week-view-props).
 
 
 ## Minimal example
@@ -51,6 +51,9 @@ const MyComponent = () => (
 
 ## Press events and grid
 
+You can provide a callback to listen to UI interactions, such as pressing events or pressing the grid.
+See the following example, and more details in the [Full API](./full-api/week-view-props#press-callbacks).
+
 <CodeDemo imgSrc={require('../static/img/basic-usage/press-alerts.gif').default}>
 
 ```js
@@ -69,8 +72,7 @@ const MyComponent = () => (
 
 ## Customize styles
 
-
-You can customize the component outlook with the following props:
+You can customize the component outlook with the following props.
 
 ```js title="Style props"
 <SafeAreaView style={styles.container}>
@@ -86,7 +88,8 @@ You can customize the component outlook with the following props:
 </SafeAreaView>
 ```
 
-For example:
+See an example below, and check the [full API](./full-api/week-view-props#styles-and-formats) for more details.
+
 
 | `stylesBlue` | `stylesGreen` | `stylesDark` |
 |:---:|:---:|:---:|

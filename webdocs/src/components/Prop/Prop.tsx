@@ -1,33 +1,52 @@
 // eslint-disable-next-line no-use-before-define
 import React from 'react';
-import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
-type Props = {
+const CodeRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element => {
+  return (
+    <tr>
+      <td>{label}</td>
+      <td>
+        <code>{value}</code>
+      </td>
+    </tr>
+  );
+};
+
+const Required = () => <span className={styles.required}>(required). </span>;
+
+const Prop = ({
+  type,
+  required,
+  defaultValue,
+  children,
+}: {
   name: string;
   type: string;
   defaultValue?: string;
   required?: boolean;
   children?: JSX.Element;
-};
-
-const Prop: React.FC<Props> = ({
-  name,
-  type,
-  required,
-  defaultValue,
-  children,
-}) => {
+}): JSX.Element => {
   return (
     <div className={styles.container}>
-      <div>
-        {required && ' (required)'}
-        Type:
-        <code>{type}</code>
-        {defaultValue ? `, default: ${defaultValue}` : ''}
+      <div className={styles.description}>
+        {required && <Required />}
+        {children}
       </div>
-      <div>{children}</div>
-      <br />
+      <table className={styles.meta}>
+        <tbody>
+          <CodeRow label="type" value={type} />
+          {!required && defaultValue && (
+            <CodeRow label="default" value={defaultValue} />
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

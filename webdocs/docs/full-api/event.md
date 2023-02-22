@@ -1,10 +1,10 @@
 ---
 sidebar_position: 3
-sidebar_label: Event
-description: EventItem
+sidebar_label: EventItem
+description: Events provided
 ---
 
-# `Event`
+# `EventItem`
 
 An event looks like this:
 
@@ -17,11 +17,11 @@ const myEvent = {
  endDate: new Date(2021, 3, 15, 12, 30),
  color: 'blue',
 
- // Special fields for extra features, details below. e.g.:
+ // Special fields for extra features, e.g.:
  style: { borderColor: 'red' },
  eventKind: 'block',
 
- // ... your custom fields if needed,
+ // ... your custom fields if needed
 }
 ```
 

@@ -6,7 +6,9 @@ description: Events covering multiple days
 
 # Block like events
 
-Events that span through more than 1 day can be represented in two different ways. For example, say you have an event from _monday 15:00_ until _tuesday 17:00_. The standard way to represent this is to show the event both monday (from 15h until midnight) and tuesday (from midnight until 17h). On the other hand, we support _block events_: are displayed as one box even if they last more than one day.
+Events that span through more than 1 day can be represented in two different ways. For example, say you have an event from _monday 15:00_ until _tuesday 17:00_. The standard way to represent this is to show the event both monday (from 15h until midnight) and tuesday (from midnight until 17h).
+
+On the other hand, we support _block events_, which are displayed as one box even if they last more than one day.
 
 See the following example:
 
@@ -50,3 +52,5 @@ const myEvents = [
 ```
 
 </CodeDemo>
+
+Read more about the field [`eventKind`](../full-api/event#special-fields) in the `EventItem` API.

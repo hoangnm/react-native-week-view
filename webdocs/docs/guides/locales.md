@@ -1,12 +1,12 @@
 ---
 sidebar_position: 100
-sidebar_label: Locale
+sidebar_label: Localization
 description: Customize to any language
 ---
 
 # Locales customization
 
-There's a `addLocale` function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
+Use the [`addLocale`](../full-api/misc#addlocale) function to add customized locale for the component. The component depends on `momentjs`, you can refer to https://momentjs.com/docs/#/customization/ for more information.
 
 Example:
 ```js

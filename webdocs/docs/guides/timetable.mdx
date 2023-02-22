@@ -8,16 +8,14 @@ description: Display a fixed week
 
 You can use this component to display a fixed week, or _timetable_:
 
-* Use `fixedHorizontally={true}`
-* Use `numberOfDays` and `pageStartAt` props to customize
-* Make sure that `startDate` and `endDate` are `Date` objects within this week, otherwise events may not be displayed in the timetable. You can use the function `createFixedWeekDate(day, hour, minutes=0, seconds=0)` provided to this end
+* Set the [`fixedHorizontally`](../full-api/week-view-props#fixedhorizontally) prop to `true`
+* For each event, make sure that `startDate` and `endDate` are `Date` objects within this week, otherwise events may not be displayed in the timetable. You can use the function `createFixedWeekDate(day, hour, minutes=0, seconds=0)` provided to this end (see [full API here](../full-api/misc#createfixedweekdate)).
+* Use [`numberOfDays`](../full-api/week-view-props#numberofdays) and [`pageStartAt`](../full-api/week-view-props#pagestartat) props to suit your needs
 
 ## Demo
 
 
-<CodeDemo
-  imgSrc={require('./img/timetable.png').default}
->
+<CodeDemo imgSrc={require('./img/timetable.png').default}>
 
 ```js title="Timetable"
 import WeekView, { createFixedWeekDate } from 'react-native-week-view';
@@ -54,14 +52,4 @@ const MyComponent = () => (
 ```
 
 </CodeDemo>
-
-
-## `createFixedWeekDate`
-
-Import as: `import { createFixedWeekDate } from 'react-native-week-view'`. Parameters are: `createFixedWeekDate(day, hour, minutes=0, seconds=0)`:
-
-* `day`: _(number|string)_ - specify day of the week as number (1 is monday, 2 is tuesday, etc) or as string (will be parsed with the current locale, e.g. `"Monday"`, `"Tuesday"`, etc. for english).
-* `hour`: _(number)_ - specify hour of the day as number (from 0 to 23)
-* `minutes`: _(number)_ - specify minutes of the day as number (from 0 to 59), defaults to 0
-* `seconds`: _(number)_ - specify seconds of the day as number (from 0 to 59), defaults to 0
 

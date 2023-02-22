@@ -10,9 +10,10 @@ slug: /
 The week view component for react-native. Main features:
 
 * Supported in Android and iOS
-* Many user interactions supported: **drag and drop events**, edit events, swipe through pages, event press, grid press, etc
-* Customizable styles
-* Multiple locale support
+* Many user interactions supported: [**drag and drop events**](./guides/drag-drop), [edit events](./guides/edit-event), swipe through pages, event press, grid press, etc.
+* [Customizable styles](./basic-usage#customize-styles)
+* [Multiple locale support](./guides/locales)
+* We are actively developing! :rocket:
 
 ![weekview](../static/img/weekview-example.gif)
 
@@ -29,7 +30,7 @@ See [CHANGELOG.md](https://github.com/hoangnm/react-native-week-view/blob/master
 ## Links of interest
 
 * [Installation](./installation)
-* [Basic usage](./basic-usage)
+* [Basic usages](./basic-usage)
 * [Full API](./category/full-api)
 * [Full changelog](https://github.com/hoangnm/react-native-week-view/blob/master/CHANGELOG.md)
 * [Guides and examples](./category/guides)

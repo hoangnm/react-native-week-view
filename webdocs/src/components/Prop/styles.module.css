@@ -2,3 +2,15 @@
   display: flex;
   flex-direction: column;
 }
+
+.meta {
+  margin-bottom: 2em;
+}
+
+.required {
+  font-weight: bold;
+}
+
+.description p {
+  display: inline;
+}
