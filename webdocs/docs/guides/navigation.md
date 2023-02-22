@@ -30,4 +30,4 @@ Provide the prop `allowScrollByDay={true}` to allow scrolling horizontally by on
 | Scroll by page (default) | Scroll by day |
 | :---: | :---: |
 | `allowScrollByDay={false}` | `allowScrollByDay={true}` |
-| ![scroll-by-page](./img/scroll-one-page.gif) | ![scroll-by-day](./img/scroll-one-day.gif) |
+| ![scroll-by-page](./img/scrolling/scroll-one-page.gif) | ![scroll-by-day](./img/scrolling/scroll-one-day.gif) |

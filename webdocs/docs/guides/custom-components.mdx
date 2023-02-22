@@ -17,7 +17,7 @@ Use the `EventComponent` prop. The custom component will be rendered inside a `T
 For example, to display events with a title and description:
 
 <CodeDemo
-  imgSrc={require('./img/custom-event-component.png').default}
+  imgSrc={require('./img/custom-components/event.png').default}
 >
 
 ```js title="Custom EventComponent"
@@ -79,7 +79,7 @@ Both components receive these props:
 
 Examples:
 
-<CodeDemo imgSrc={require('./img/custom-today-component.png').default}>
+<CodeDemo imgSrc={require('./img/custom-components/today.png').default}>
 
 ```js title="Highlight today"
 const MyTodayComponent = ({formattedDate, textStyle}) => (
@@ -96,7 +96,7 @@ const MyTodayComponent = ({formattedDate, textStyle}) => (
 </CodeDemo>
 
 
-<CodeDemo imgSrc={require('./img/custom-day-component.png').default}>
+<CodeDemo imgSrc={require('./img/custom-components/day.png').default}>
 
 ```js title="Display amount of events"
 const MyDayComponent = ({date, formattedDate, textStyle}) => {
@@ -126,7 +126,7 @@ Using `isRefreshing={true}` display an activity indicator in the view. You can c
 
 Example:
 
-<CodeDemo imgSrc={require('./img/custom-refresh-component.png').default}>
+<CodeDemo imgSrc={require('./img/custom-components/refresh.png').default}>
 
 ```js title="Display text when loading"
 const MyRefreshComponent = ({style}) => (
