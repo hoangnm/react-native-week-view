@@ -1,0 +1,44 @@
+---
+sidebar_position: 21
+sidebar_label: Drag and Drop
+---
+
+import CodeDemo from '@site/src/components/CodeDemo';
+
+
+# Drag and drop
+
+You can enable drag and dropping of events. See an example:
+
+<CodeDemo imgSrc={require('./img/drag-drop.gif').default}>
+
+```js title="Drag and drop"
+const eventsReducer = (prevEvents, payload) => {
+  // Just an example reducer
+  const {event, newStartDate, newEndDate} = payload;
+  return [
+    ...prevEvents.filter(e => e.id !== event.id),
+    {
+      ...event,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    },
+  ];
+};
+
+const MyComponent = () => {
+  const [events, updateEvent] = useReducer(eventsReducer, []);
+
+  return (
+    <WeekView
+      events={events}
+      onDragEvent={(event, newStartDate, newEndDate) => {
+        // Here you must update the event in your local DB
+        updateEvent({ event, newStartDate, newEndDate })
+      }}
+    />
+  );
+}
+```
+
+</CodeDemo>
