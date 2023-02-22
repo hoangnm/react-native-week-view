@@ -6,8 +6,7 @@ sidebar_label: Usage
 # Basic usage
 
 Check the following examples for a quick start.
-
-See the [_Guides_](./category/guides) section for more examples.
+Go to [_Guides_](./category/guides) for more practical examples.
 
 
 ## Minimal example
@@ -56,20 +55,12 @@ const MyComponent = () => (
 
 ```js
 <WeekView
-  onEventPress={event => {
-    Alert.alert(`Pressed event: ${event.color} - ${event.id}`);
-  }}
-  onGridClick={(pressEvent, startHour, date) => {
-    Alert.alert(
-      `Pressed grid: ${date.toDateString()} ${date.toLocaleTimeString()}`,
-    );
-  }}
-  onDayPress={(date, formattedDate) => {
-    Alert.alert(`Pressed day: ${formattedDate}`);
-  }}
-  onMonthPress={(date, formattedDate) => {
-    Alert.alert(`Pressed month: ${formattedDate}`);
-  }}
+  onEventPress={event => Alert.alert(`Pressed event: ${event.color} - ${event.id}`)}
+  onGridClick={(pressEvent, startHour, date) => Alert.alert(
+    `Pressed grid: ${date.toDateString()} ${date.toLocaleTimeString()}`,
+  )}
+  onDayPress={(date, formattedDate) => Alert.alert(`Pressed day: ${formattedDate}`)}
+  onMonthPress={(date, formattedDate) => Alert.alert(`Pressed month: ${formattedDate}`)}
 />
 ```
 

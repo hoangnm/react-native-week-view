@@ -16,20 +16,22 @@ The week view component for react-native. Main features:
 
 ![weekview](../static/img/weekview-example.gif)
 
-:::tip
+:::tip Note
 We use [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) and [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) for smoother animations.
 :::
 
-:::info
+:::info Note
 We are still in v0.x, minor updates can include breaking changes.
 See [CHANGELOG.md](https://github.com/hoangnm/react-native-week-view/blob/master/CHANGELOG.md) for details.
 :::
 
-Links:
 
-* [Getting started guide](./getting-started)
-* [Full API](./full-api)
+## Links of interest
+
+* [Installation](./installation)
+* [Basic usage](./basic-usage)
+* [Full API](./category/full-api)
 * [Full changelog](https://github.com/hoangnm/react-native-week-view/blob/master/CHANGELOG.md)
-* [Guides and examples](./guides)
+* [Guides and examples](./category/guides)
 * [Troubleshooting](./troubleshoot)
 
