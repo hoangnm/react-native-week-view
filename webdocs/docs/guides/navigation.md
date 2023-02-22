@@ -1,6 +1,6 @@
 ---
 sidebar_label: Scrolling and navigating
-sidebar_position: 200
+sidebar_position: 90
 ---
 
 # Pages navigation
