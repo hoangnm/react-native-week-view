@@ -1,6 +1,8 @@
 /**
- * Patch a react-native-gesture-handler (RNGH) issue.
+ * react-native-gesture (RNGH) related utils
  *
+ * ************ RNGH issue patch ************
+ * ViewWithTouchable is patching a RNGH issue.
  * Goal: using a <TouchableWithoutFeedback/> that behaves correctly
  *   with the other gestures from RNGH (dragging, pressing, etc).
  *
@@ -12,15 +14,16 @@
  *     (1) the onPress and onLongPress callbacks do not provide pressEvent information
  *     (2) components have issues when using 'position: absolute' and flexbox
  *
- * This utils/gestures.js file provides the <ViewWithTouchable/> component:
- *   a simple View plus onPress and onLongPress callbacks for receiving touches.
- *   The view provides no visual feedback, but uses gestures of RNGH, so it fits our goal.
+ * The <ViewWithTouchable/> component is a View
+ * with added onPress and onLongPress callbacks for receiving touches.
+ * The view provides no visual feedback, but uses gestures of RNGH, so it fits our goal.
  *
  * ---
  *
  *
  * __Problem details:__
  *
+ * I tested this with RNGH version 2.4.1.
  * (1) Press callbacks
  *   * We need pressEvent information to get the press location, but pressEvent is not provided.
  *   * See here: https://github.com/software-mansion/react-native-gesture-handler/discussions/2093
@@ -30,8 +33,7 @@
  *     https://github.com/software-mansion/react-native-gesture-handler/issues/1163
  *     https://github.com/software-mansion/react-native-gesture-handler/issues/864
  *
- * I'm using RNGH version 2.4.1 at this moment.
- * Though I was able to make it work with absolute and flexbox:
+ * Workaround for (2):
  * ```js
  *   import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
  *
@@ -50,10 +52,15 @@ import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 
+export const RunGesturesOnJSContext = React.createContext(false);
+
 const withTouchableGestures = (Component) => {
-  const viewWithTouchable = ({ onPress, onLongPress, ...other }) => {
+  const ComponentWithTouchable = ({ onPress, onLongPress, ...other }) => {
+    const runGesturesOnJS = React.useContext(RunGesturesOnJSContext);
+
     const pressGesture = Gesture.Tap()
       .enabled(!!onPress)
+      .runOnJS(runGesturesOnJS)
       .onEnd((evt, success) => {
         if (success) {
           runOnJS(onPress)(evt);
@@ -62,6 +69,7 @@ const withTouchableGestures = (Component) => {
 
     const longPressGesture = Gesture.LongPress()
       .enabled(!!onLongPress)
+      .runOnJS(runGesturesOnJS)
       .onEnd((evt, success) => {
         if (success) {
           runOnJS(onLongPress)(evt);
@@ -76,8 +84,7 @@ const withTouchableGestures = (Component) => {
       </GestureDetector>
     );
   };
-  return viewWithTouchable;
+  return ComponentWithTouchable;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const ViewWithTouchable = withTouchableGestures(View);

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { View, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -17,6 +17,7 @@ import {
   EditEventConfigPropType,
   DragEventConfigPropType,
 } from '../utils/types';
+import { RunGesturesOnJSContext } from '../utils/gestures';
 
 const DEFAULT_COLOR = 'red';
 const UPDATE_EVENT_ANIMATION_DURATION = 150;
@@ -87,34 +88,14 @@ const Event = ({
   const isDragEnabled =
     !!onDrag && editingEventId == null && !event.disableDrag;
 
+  const runGesturesOnJS = React.useContext(RunGesturesOnJSContext);
+
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
-  const onPressWrapper = useCallback(() => onPress && onPress(event), [
-    event,
-    onPress,
-  ]);
-  const onLongPressWrapper = useCallback(
-    () => onLongPress && onLongPress(event),
-    [event, onLongPress],
-  );
-
-  const onDragRelease = useCallback(
-    (dx, dy) => {
-      if (!onDrag) {
-        return;
-      }
-
-      const newX = left + dx;
-      const newY = top + dy;
-      onDrag(event, newX, newY, width);
-    },
-    [event, left, top, width, onDrag],
-  );
-
-  const onEditRelease = useCallback(
-    (params) => onEdit && onEdit(event, params),
-    [event, onEdit],
-  );
+  const onPressWrapper = () => onPress && onPress(event);
+  const onLongPressWrapper = () => onLongPress && onLongPress(event);
+  const onDragWrapper = (...args) => onDrag && onDrag(event, ...args);
+  const onEditWrapper = (params) => onEdit && onEdit(event, params);
 
   const resizeByEdit = {
     bottom: useSharedValue(0),
@@ -168,6 +149,7 @@ const Event = ({
   const dragGesture = Gesture.Pan()
     .enabled(isDragEnabled)
     .withTestId(`dragGesture-${event.id}`)
+    .runOnJS(runGesturesOnJS)
     .onTouchesDown(() => {
       dragStatus.value = DRAG_STATUS.PRESSING;
     })
@@ -191,7 +173,11 @@ const Event = ({
       currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
-      runOnJS(onDragRelease)(translationX, translationY);
+      runOnJS(onDragWrapper)(
+        currentLeft.value,
+        currentTop.value,
+        currentWidth.value,
+      );
     })
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;
@@ -213,6 +199,7 @@ const Event = ({
     .enabled(
       dragAfterLongPress === 0 && !!onLongPress && !event.disableLongPress,
     )
+    .runOnJS(runGesturesOnJS)
     .maxDistance(20)
     .onTouchesDown(() => {
       isLongPressing.value = true;
@@ -228,6 +215,7 @@ const Event = ({
 
   const pressGesture = Gesture.Tap()
     .enabled(!!onPress && !event.disablePress)
+    .runOnJS(runGesturesOnJS)
     .withTestId(`pressGesture-${event.id}`)
     .onTouchesDown(() => {
       isPressing.value = true;
@@ -249,6 +237,7 @@ const Event = ({
 
   const buildCircleGesture = (side) =>
     Gesture.Pan()
+      .runOnJS(runGesturesOnJS)
       .onUpdate((panEvt) => {
         const { translationX, translationY } = panEvt;
         switch (side) {
@@ -306,7 +295,7 @@ const Event = ({
           default:
         }
 
-        runOnJS(onEditRelease)(params);
+        runOnJS(onEditWrapper)(params);
       });
 
   return (
