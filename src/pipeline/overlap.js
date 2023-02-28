@@ -103,11 +103,7 @@ class OverlappedEventsHandler {
     const layout = new OverlappedEventsHandler();
 
     (events || []).forEach(({ ref: event }, eventIndex) => {
-      const overlapMethod =
-        event.eventKind === EVENT_KINDS.BLOCK
-          ? OVERLAP_METHOD.IGNORE
-          : event.resolveOverlap;
-      switch (overlapMethod) {
+      switch (event.resolveOverlap) {
         case OVERLAP_METHOD.STACK:
           layout.addToNextMatchingStack(event, eventIndex);
           break;
@@ -170,8 +166,13 @@ const resolveEventOverlaps = (events) => {
   let overlappedSoFar = [];
   let lastDate = null;
   const resolvedEvents = events.reduce((accumulated, eventWithMeta) => {
-    const { box } = eventWithMeta;
-    if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
+    const { ref, box } = eventWithMeta;
+    const shouldIgnoreOverlap =
+      ref.eventKind === EVENT_KINDS.BLOCK ||
+      ref.resolveOverlap === OVERLAP_METHOD.IGNORE;
+    if (shouldIgnoreOverlap) {
+      accumulated.push(eventWithMeta);
+    } else if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
       overlappedSoFar.push(eventWithMeta);
       const endDate = moment(box.endDate);
       lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
