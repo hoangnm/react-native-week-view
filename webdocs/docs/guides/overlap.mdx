@@ -1,18 +1,32 @@
+---
+sidebar_label: Overlapping events
+sidebar_position: 23
+description: Handle events that occur at the same time
+---
+
 # Overlap handling
 
-The library handles the case when two or more events overlap in time.
+The library handles cases where two or more events overlap in time. By default, events are shrinked in width to fit the day (see next figure) but you can change this behavior per event to suit your needs.
 
-## Simple usage
-
-For each event provide `resolveOverlap: <method>`, for example:
-
-
-|               Lane (default)               |                    Stack                     |                     Ignore                     |
-| :----------------------------------------: | :------------------------------------------: | :--------------------------------------------: |
-| ![lane](../images/overlap/simple-lane.png) | ![stack](../images/overlap/simple-stack.png) | ![ignore](../images/overlap/simple-ignore.png) |
+<img
+  src={require("./img/overlap/simple-lane.png").default}
+  alt="default behavior"
+  width={223}
+  height={427}
+/>
 
 
-```js
+## Available methods
+
+There are three way to solve overlaps: split in _lanes_ (default), _stack_ or _ignore_. Each method is shown next:
+
+| Lane (default) | Stack | Ignore |
+| :---: | :---: | :---: |
+| ![lane](./img/overlap/simple-lane.png) | ![stack](./img/overlap/simple-stack.png) | ![ignore](./img/overlap/simple-ignore.png) |
+
+To choose the method you need to provide `resolveOverlap: <method>` to each event:
+
+```js title="Basic usage"
 const method = 'lane' | 'stack' | 'ignore'
 const awesomeEvents = [
   {
@@ -44,14 +58,15 @@ const awesomeEvents = [
 
 ## Advanced usage
 
-You can mix different methods and use `stackKey` for the stack method to better suit your needs.
-For example:
+To better suit your needs you can: use different methods for each event, and for the _stack_ method you can provide `stackKey` to create multiple stacks.
+See the following examples for some use cases, and check more details in the [`EventItem` API](../full-api/event#special-fields).
 
-![mix](../images/overlap/advanced-mix.png)
+### Example: lane and ignore
 
-```js
-const mixedMethods = [
-  // e.g. mix 'ignore' with 'lane' (you could also mix with 'stack')
+<CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
+
+```js title="Lane and Ignore"
+const mixIgnoreWithLane = [
   {
     id: 1,
     startDate: new Date(2022, 6, 21, 12, 0, 0),
@@ -77,9 +92,17 @@ const mixedMethods = [
     resolveOverlap: 'lane',
   },
 ]
+```
+</CodeDemo>
 
+
+### Example: using stack keys
+You can stack only certain events together by providing a `stackKey`:
+
+<CodeDemo imgSrc={require('./img/overlap/advanced-mix.png').default}>
+
+```js title="Multiple stacks"
 const multipleStacks = [
-  // e.g. stack only certain events together by providing a 'stackKey'
   {
     id: 4,
     startDate: new Date(2022, 6, 23, 12, 0, 0),
@@ -118,3 +141,5 @@ const multipleStacks = [
   },
 ]
 ```
+
+</CodeDemo>

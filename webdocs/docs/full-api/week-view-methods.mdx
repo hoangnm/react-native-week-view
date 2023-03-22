@@ -1,0 +1,51 @@
+---
+sidebar_position: 2
+sidebar_label: WeekView methods
+description: Available methods
+toc_min_heading_level: 2
+toc_max_heading_level: 4
+---
+
+
+# `WeekView` methods
+
+To use a method you need to save a reference to the component:
+```js
+const weekViewRef = React.createRef() // class components
+const weekViewRef = React.useRef() // functional components
+
+// ...
+
+<WeekView
+ ref={weekViewRef}
+ // ...
+/>
+```
+
+
+## Methods
+
+### `goToDate(date, options)`
+
+Navigate to a specified date.
+Options: `{animated = true, left: number = null}`.
+* `animated`: whether or not to animate the movement.
+* `left`: if provided with `left: value`, the target `date` will appear at `value` days from the left (e.g. use `left = 0` to show `date` at the most left). Note: `left` will require using `allowScrollByDay={true}` in most cases.
+
+### `goToNextDay(options)`
+Navigate to the next day (to the future). Options: `{animated = true}`.
+
+### `goToPrevDay(options)`
+Navigate to the previous day (to the past). Options: `{animated = true}`.
+
+### `goToNextPage(options)`
+Navigate to the next page (to the future). Options: `{animated = true}`.
+
+### `goToPrevPage(options)`
+Navigate to the previous page (to the past). Options: `{animated = true}`.
+
+### `scrollToTime(minutesInDay, options)`
+Scroll vertically to a time in the day provided in minutes. For example, scroll to 13:00 hrs: `ref.scrollToTime(13 * 60)`.
+Options: `{animated = true}`.
+
+

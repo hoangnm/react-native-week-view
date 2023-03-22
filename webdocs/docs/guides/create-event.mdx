@@ -1,0 +1,57 @@
+---
+sidebar_position: 13
+sidebar_label: Create by pressing grid
+---
+
+# Create events with the UI
+
+Long press (or just press) the grid to create an event.
+Use the props [`onGridClick`](../full-api/week-view-props#ongridclick) and  [`onGridLongPress`](../full-api/week-view-props#ongridlongpress) to setup this feature.
+
+<CodeDemo imgSrc={require('./img/press-to-create.gif').default}>
+
+```js title="Create events"
+const createDummyEvent = ({ startDate, duration }) => {
+  const endDate = new Date(startDate.getTime());
+  endDate.setHours(startDate.getHours() + duration);
+  return {
+    description: 'New Event',
+    color: 'lightblue',
+    startDate,
+    endDate,
+  };
+}
+
+const eventsWithAddingNew = (prevEvents, payload) => {
+  // Just an example reducer, you'll probably use your own
+  const maxId = Math.max(...prevEvents.map(e => e.id));
+  return [
+    ...prevEvents,
+    {
+      ...payload,
+      id: maxId + 1,
+    },
+  ];
+};
+
+const MyComponent = () => {
+  const [events, addEvent] = useReducer(eventsWithAddingNew, []);
+
+  const createSomeNewEvent = (event, startHour, date) => {
+    // Here you update the DB with some new event
+    addEvent(createDummyEvent({ startDate: date, duration: 2 }));
+  };
+
+  return (
+    <WeekView
+      events={events}
+      onGridClick={createSomeNewEvent} // create on press
+      onGridLongPress={createSomeNewEvent} // ...and/or on long-press
+    />
+  );
+}
+```
+
+</CodeDemo>
+
+

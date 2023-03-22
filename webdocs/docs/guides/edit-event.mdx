@@ -1,0 +1,94 @@
+---
+sidebar_position: 12
+sidebar_label: Edit by dragging borders
+description: Long press an event and drag its borders
+---
+
+# Edit event by dragging
+
+Use the props [`onEditEvent`](../full-api/week-view-props#oneditevent) and  [`editingEvent`](../full-api/week-view-props#editingevent) to setup this feature.
+
+The user can activate "edit-mode" by long-pressing an event, and can then drag the borders. See the following example.
+
+
+<CodeDemo imgSrc={require('./img/edit-mode.gif').default}>
+
+```js title="Edit events"
+const EDIT_EVENT_CONFIG = {
+  top: true,
+  bottom: true,
+  left: true,
+  right: true,
+};
+
+const eventsWithUpdate = (prevEvents, payload) => {
+  // Just an example reducer, you'll probably use your own
+  const {event, newStartDate, newEndDate} = payload;
+  return [
+    ...prevEvents.filter(e => e.id !== event.id),
+    {
+      ...event,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    },
+  ];
+};
+
+const MyComponent = () => {
+  const [events, updateEvent] = useReducer(eventsWithUpdate, []);
+
+  const onEditEvent = (event, newStartDate, newEndDate) => {
+    // Here you must update the event in your DB with the new date and time
+    updateEvent({event, newStartDate, newEndDate});
+  };
+
+  // You must store the event being edited
+  const [editingEventId, setEditEvent] = useState(null);
+
+  // Then you choose when to enable/disable edit mode
+  const handleLongPressEvent = event => {
+    if (editingEventId == null) {
+      // e.g. long-pressing the event enables editing mode
+      setEditEvent(event.id);
+    } else {
+      setEditEvent(null);
+    }
+  };
+
+  const handlePressEvent = event => {
+    if (editingEventId != null) {
+      // e.g. pressing the event disables editing mode
+      setEditEvent(null);
+      return;
+    }
+
+    // default action
+    console.log(`Event press ${event.id}`);
+  };
+
+  const handleGridPress = (event, startHour, date) => {
+    if (editingEventId != null) {
+      // e.g. pressing the grid disables editing mode
+      setEditEvent(null);
+      return;
+    }
+
+    console.log(`Grid press: ${date}`);
+  };
+
+  return (
+    <WeekView
+      events={events}
+      onEventPress={handlePressEvent}
+      onEventLongPress={handleLongPressEvent}
+      onGridClick={handleGridPress}
+      editingEvent={editingEventId}
+      onEditEvent={onEditEvent}
+      editEventConfig={EDIT_EVENT_CONFIG}
+    />
+  );
+}
+```
+
+</CodeDemo>
+

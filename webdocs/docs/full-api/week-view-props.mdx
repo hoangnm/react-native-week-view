@@ -1,0 +1,459 @@
+---
+sidebar_position: 1
+sidebar_label: WeekView props
+description: Full props list
+toc_min_heading_level: 2
+toc_max_heading_level: 4
+---
+
+import Prop from '@site/src/components/Prop/Prop'
+
+# `WeekView` props
+
+### `events`
+<Prop name="events" type="array of EventItem" required>
+
+Events to display, in `Event Item` format. See details in [EventItem docs](./event).
+
+</Prop>
+
+
+### `selectedDate`
+<Prop name="selectedDate" type="Date" required>
+
+  Date to show the week-view in the first render.
+
+</Prop>
+
+:::info Note
+
+Changing this prop after the first render will not have any effect in the week-view.
+To actually move the week-view, use the `goToDate()` method, for details see [navigating guide](../guides/navigation#navigate-programatically).
+
+:::
+
+
+### `numberOfDays`
+<Prop name="numberOfDays" type="1 | 3 | 5 | 7" required>
+
+  Number of days to show in one page.
+
+</Prop>
+
+
+## Styles and formats
+### `headerStyle`
+<Prop name="headerStyle" type="object" defaultValue="null">
+
+Custom styles for header container. Example: `{ backgroundColor: '#4286f4', color: '#fff', borderColor: '#fff' }`
+
+</Prop>
+
+
+### `headerTextStyle`
+<Prop name="headerTextStyle" type="object" defaultValue="{ fontSize: 12, color: 'black' }">
+
+Custom styles for text inside header. Applied to day names and month name (i.e. title).
+
+</Prop>
+
+
+### `hourTextStyle`
+<Prop name="hourTextStyle" type="object" defaultValue="{ fontSize: 12, color: 'black' }">
+
+Custom styles for text displaying hours at the left.
+
+</Prop>
+
+### `hourContainerStyle`
+<Prop name="hourContainerStyle" type="object" defaultValue="null">
+
+Custom styles for the container showing hours at the left.
+
+</Prop>
+
+
+### `eventContainerStyle`
+<Prop name="eventContainerStyle" type="object" defaultValue="{ alignItems: 'center', borderRadius: 0 }">
+
+Custom styles for each event item container. Note: the background color and (absolute) positioning are already set.
+
+</Prop>
+
+
+### `gridRowStyle`
+<Prop name="gridRowStyle" type="{ borderTopWidth: <width>, borderColor: <color> }" defaultValue="{ borderTopWidth: 1, color: '#E9EDF0' }">
+
+Prop to customize width and color of horizontal lines.
+
+</Prop>
+
+
+### `gridColumnStyle`
+<Prop name="gridColumnStyle" type="{ borderLeftWidth: <width>, borderColor: <color> }" defaultValue="{ borderLeftWidth: 1, color: '#E9EDF0' }">
+
+Prop to customize width and color of vertical lines.
+
+</Prop>
+
+### `formatDateHeader`
+<Prop name="formatDateHeader" type="string" defaultValue="'MMM D' (e.g. 'Apr 3')">
+
+Formatter for dates in the header. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/).
+
+</Prop>
+
+
+### `formatTimeLabel`
+<Prop name="formatTimeLabel" type="string" defaultValue="H:mm (24h)">
+
+Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or `"h:mm a"` for lowercase. See [all formatters in momentjs](https://momentjs.com/docs/#/displaying/format/).
+
+</Prop>
+
+
+## Custom components
+
+
+### `EventComponent`
+<Prop name="EventComponent" type="ReactComponent" defaultValue="Text">
+
+Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [custom component guide](../guides/custom-components#event-content) for an example.
+
+</Prop>
+
+
+### `TodayHeaderComponent`
+<Prop name="TodayHeaderComponent" type="ReactComponent" defaultValue="null">
+
+Custom component to highlight today in the header (by default, *today* looks the same than every day). See [custom component guide](../guides/custom-components#header-days) for an example.
+
+</Prop>
+
+
+### `DayHeaderComponent`
+<Prop name="DayHeaderComponent" type="ReactComponent" defaultValue="null">
+
+Custom component to show each day in the header. If provided, overrides `TodayHeaderComponent`. See [custom component guide](../guides/custom-components#header-days) for an example.
+
+</Prop>
+
+
+### `RefreshComponent`
+<Prop name="RefreshComponent" type="ReactComponent" defaultValue="ActivityIndicator">
+
+Custom component used when `isRefreshing` is `true`. See [custom component guide](../guides/custom-components#refreshing) for an example
+
+</Prop>
+
+
+## Day pages configuration
+
+### `pageStartAt`
+<Prop name="pageStartAt" type="{left: number, weekday: number}" defaultValue="{left:0}">
+
+Indicates what date to show in the top-left corner.
+If `left: value` provided, the `selectedDate` will appear at `value` days from the left. If `weekday: value` _(e.g. tuesday = 2)_ is provided, the latest tuesday will appear in the left.
+
+</Prop>
+
+
+### `allowScrollByDay`
+<Prop name="allowScrollByDay" type="bool" defaultValue="false">
+
+When `true`, the component can scroll horizontally one day at the time. When `false`, the horizontal scroll can only be done one page at the time (i.e. `numberOfDays` at the time).
+
+</Prop>
+
+
+## Time of day configurations
+
+
+### `startHour`
+<Prop name="startHour" type="number (hours)" defaultValue="8 am">
+
+  Vertical position of the week-view in the first render (vertically in the agenda).
+
+</Prop>
+
+
+
+### `hoursInDisplay`
+<Prop name="hoursInDisplay" type="number (hours)" defaultValue="6">
+
+Amount of hours to display vertically in the agenda. Increasing this number will make the events look smaller.
+
+</Prop>
+
+
+### `beginAgendaAt`
+<Prop name="beginAgendaAt" type="number (minutes)" defaultValue="0">
+
+Time of day to start the agenda at the top (grid above is left out). For example, for 8 am set `beginAgendaAt={8*60}`.
+
+</Prop>
+
+
+### `endAgendaAt`
+<Prop name="endAgendaAt" type="number (minutes)" defaultValue="24*60">
+
+Time of day to end the agenda at the bottom (anything past that time is left out). For example, set `engAgendaAt={22*60}` for 10pm.
+
+</Prop>
+
+
+### `timeStep`
+<Prop name="timeStep" type="number (minutes)" defaultValue="60">
+
+Number of minutes to use as step in the time labels at the left. Increasing this number will increase the vertical space between grid lines.
+
+</Prop>
+
+
+## More configurations
+
+### `showNowLine`
+<Prop name="showNowLine" type="boolean" defaultValue="false">
+
+If `true`, displays a line indicating the time right now.
+
+</Prop>
+
+
+### `nowLineColor`
+<Prop name="nowLineColor" type="string" defaultValue="#E53935 (red)">
+
+Color used for the now-line.
+
+</Prop>
+
+
+### `showTitle`
+<Prop name="showTitle" type="bool" defaultValue="true">
+
+Show or hide the selected month and year in the top-left corner (a.k.a the title).
+
+</Prop>
+
+
+
+### `timesColumnWidth`
+<Prop name="timesColumnWidth" type="number" defaultValue="0.18 (18% of screen-width)">
+
+Customize the width of the times column at the left. If the value is in range `0..1` indicates a percentage of the screen width (e.g. 0.18 --> 18%). Otherwise is the amount of pixels (e.g. 40 pixels).
+
+</Prop>
+
+
+
+
+### `locale`
+<Prop name="locale" type="string" defaultValue="en">
+
+Locale for the dates (e.g. header). There's an `addLocale()` function to add your own locale, see details in the [localization guide](../guides/locales).
+
+</Prop>
+
+
+### `fixedHorizontally`
+<Prop name="fixedHorizontally" type="boolean" defaultValue="false">
+
+If `true`, the component cannot scroll horizontally.
+
+</Prop>
+
+
+### `isRefreshing`
+<Prop name="isRefreshing" type="boolean" defaultValue="false">
+
+When `true`, the week-view will show an `<ActivityIndicator />` in the middle of the grid.
+
+</Prop>
+
+
+
+### `rightToLeft`
+<Prop name="rightToLeft" type="boolean" defaultValue="false">
+
+If `true`, render older days to the right and more recent days to the left.
+
+</Prop>
+
+
+
+## Press callbacks
+
+
+
+### `onEventPress`
+<Prop name="onEventPress" type="function">
+
+  Callback when an event item is pressed, receives the event-item pressed: `(event) => {}`.
+
+</Prop>
+
+
+### `onEventLongPress`
+<Prop name="onEventLongPress" type="function" defaultValue="null">
+
+  Callback when an event item is long pressed, same signature as `onEventPress`. Signature: `(event) => {}`
+
+</Prop>
+
+
+### `onGridClick`
+<Prop name="onGridClick" type="function" defaultValue="null">
+
+  Callback when the grid view is pressed. Arguments: `pressEvent`: object passed by the [react-native-gesture-handler touch events](https://docs.swmansion.com/react-native-gesture-handler/docs/api/gestures/touch-events) (not an event item); `startHour`: _Number_, hour pressed; `date` _Date_, date object indicating day and time pressed with precision up to seconds. Note: `startHour` is redundant (can be extracted from `date`), but is kept for backward-compatibility. Signature: `(pressEvent, startHour, date) => {}`
+
+</Prop>
+
+
+### `onGridLongPress`
+<Prop name="onGridLongPress" type="function" defaultValue="null">
+
+  Callback when the grid view is long-pressed. Same signature as `onGridClick` Signature: `(pressEvent, startHour, date) => {}`
+
+</Prop>
+
+
+### `onDayPress`
+<Prop name="onDayPress" type="function" defaultValue="null">
+
+  Callback when a day from the header is pressed. Signature: `(date, formattedDate) => {}`
+
+</Prop>
+
+
+### `onMonthPress`
+<Prop name="onMonthPress" type="function" defaultValue="null">
+
+  Callback when the month at the top left (title) is pressed. Signature: `(date, formattedDate) => {}`
+
+</Prop>
+
+
+
+## Scroll callbacks
+### `onSwipeNext`
+<Prop name="onSwipeNext" type="function" defaultValue="null">
+
+  Callback when week-view is swiped to next week/days, receives new date shown. Signature: `(date) => {}`
+
+</Prop>
+
+
+### `onSwipePrev`
+<Prop name="onSwipePrev" type="function" defaultValue="null">
+
+  Callback when week-view is swiped to previous week/days, same signature as `onSwipeNext`. Signature: `(date) => {}`
+
+</Prop>
+
+### `onTimeScrolled`
+<Prop name="onTimeScrolled" type="function" defaultValue="null">
+
+  Callback when the agenda is scrolled vertically. Signature: `(dateWithTime) => {}`
+
+</Prop>
+
+
+
+## Drag props
+### `onDragEvent`
+<Prop name="onDragEvent" type="function" defaultValue="null">
+
+  Callback when an event item is dragged to another position. Arguments: `event`: event-item moved, and the `newStartDate` and `newEndDate` are `Date` objects with day and hour of the new position (precision up to minutes). **With this callback you must trigger an update on the `events` prop (i.e. update your DB), with the updated information from the event.** Signature: `(event, newStartDate, newEndDate) => update DB`
+
+</Prop>
+
+### `dragEventConfig`
+<Prop
+  name="dragEventConfig"
+  type="{afterLongPressDuration: milliseconds}"
+  defaultValue="{afterLongPressDuration: 0}">
+
+If provided, events are only draggable after being long pressed for some time. **Requires rn-gesture-handler v2.6.0 or higher.** Disables the `onLongPress` callback.
+
+</Prop>
+
+
+## Edit props
+### `onEditEvent`
+<Prop name="onEditEvent" type="function" defaultValue="null">
+
+Callback when an event item is edited by dragging its borders. Signature: `(event, newStartDate, newEndDate) => update DB`.
+
+</Prop>
+
+
+### `editingEvent`
+<Prop name="editingEvent" type="number | string" defaultValue="null">
+
+  Event id indicating the event currently being edited.
+
+</Prop>
+
+
+### `editEventConfig`
+<Prop name="editEventConfig" type="{ bottom: bool, top: bool, left: bool, right: bool }" defaultValue="{ bottom: true }">
+
+Sides allowed to be edited.
+
+</Prop>
+
+
+
+## Horizontal list optimizations
+
+
+### `windowSize`
+<Prop name="windowSize" type="number" defaultValue="5">
+
+Number of pages to render at the same time. One page is composed by `numberOfDays` days. See in [_optimizing FlatList docs_](https://reactnative.dev/docs/optimizing-flatlist-configuration#windowsize)
+
+</Prop>
+
+
+### `initialNumToRender`
+<Prop name="initialNumToRender" type="number" defaultValue="5">
+
+Initial number of pages to render. See in [_optimizing FlatList docs_](https://reactnative.dev/docs/optimizing-flatlist-configuration#maxtorenderperbatch)
+
+</Prop>
+
+
+### `maxToRenderPerBatch`
+<Prop name="maxToRenderPerBatch" type="number" defaultValue="2">
+
+See in [_optimizing FlatList docs_](https://reactnative.dev/docs/optimizing-flatlist-configuration#maxtorenderperbatch).
+
+</Prop>
+
+
+### `updateCellsBatchingPeriod`
+<Prop name="updateCellsBatchingPeriod" type="number" defaultValue="50">
+
+See in [_optimizing FlatList docs_](https://reactnative.dev/docs/optimizing-flatlist-configuration#updatecellsbatchingperiod)
+
+</Prop>
+
+
+## Patch props
+
+
+### `prependMostRecent`
+<Prop name="prependMostRecent" type="bool" defaultValue="false">
+
+If `true`, the horizontal prepending is done in the most recent dates when scrolling. See [known issues](../troubleshoot#glitch-when-swiping-to-new-pages).
+
+</Prop>
+
+
+### `runOnJS`
+<Prop name="runOnJS" type="bool" defaultValue="false">
+
+Passed to react-native-gesture-handler. Might be needed to prevent an ANR bug in android, see details in [this issue]([this issue](https://github.com/hoangnm/react-native-week-view/issues/259))
+
+</Prop>
+

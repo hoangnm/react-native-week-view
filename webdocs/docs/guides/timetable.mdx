@@ -1,0 +1,55 @@
+---
+sidebar_position: 29
+sidebar_label: Timetable
+description: Display a fixed week
+---
+
+# Timetable
+
+You can use this component to display a fixed week, or _timetable_:
+
+* Set the [`fixedHorizontally`](../full-api/week-view-props#fixedhorizontally) prop to `true`
+* For each event, make sure that `startDate` and `endDate` are `Date` objects within this week, otherwise events may not be displayed in the timetable. You can use the function `createFixedWeekDate(day, hour, minutes=0, seconds=0)` provided to this end (see [full API here](../full-api/misc#createfixedweekdate)).
+* Use [`numberOfDays`](../full-api/week-view-props#numberofdays) and [`pageStartAt`](../full-api/week-view-props#pagestartat) props to suit your needs
+
+## Demo
+
+
+<CodeDemo imgSrc={require('./img/timetable.png').default}>
+
+```js title="Timetable"
+import WeekView, { createFixedWeekDate } from 'react-native-week-view';
+
+const myEvents = [
+  {
+    id: 1,
+    description: 'Event 1',
+    startDate: createFixedWeekDate('Monday', 12), // Day may be passed as string
+    endDate: createFixedWeekDate(1, 14), // Or as number, 1 = monday
+    color: 'blue',
+  },
+  {
+    id: 2,
+    description: 'Event 2',
+    startDate: createFixedWeekDate('wed', 16),
+    endDate: createFixedWeekDate(3, 16, 30),
+    color: 'red',
+  },
+];
+
+const MyComponent = () => (
+  <WeekView
+    events={myEvents}
+    fixedHorizontally={true}
+    // Recommended props:
+    showTitle={false} // if true, shows this month and year
+    numberOfDays={7}
+    formatDateHeader="ddd" // display short name days, e.g. Mon, Tue, etc
+    pageStartAt={{ weekday: 1 }} // start week on mondays
+    // ... other props
+  />
+);
+```
+
+</CodeDemo>
+

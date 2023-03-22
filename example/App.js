@@ -7,16 +7,10 @@
  */
 
 import React, {useState, useReducer, useRef, useCallback} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  StatusBar,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, StatusBar, Alert, Text} from 'react-native';
 
 import WeekView, {createFixedWeekDate} from 'react-native-week-view';
-import {buildDateCycler, makeBuilder} from './debug-utils';
+import {buildDateCycler, makeBuilder, eventsWithUpdate} from './debug-utils';
 
 const buildEvent = makeBuilder();
 
@@ -72,8 +66,8 @@ const showFixedComponent = false;
 const INITIAL_EVENTS = showFixedComponent ? sampleFixedEvents : sampleEvents;
 
 const MyRefreshComponent = ({style}) => (
-  // Just an example
-  <ActivityIndicator style={style} color="red" size="large" />
+  // eslint-disable-next-line react-native/no-inline-styles
+  <Text style={[style, {fontSize: 20, color: 'black'}]}>Loading...</Text>
 );
 
 const DRAG_EVENT_CONFIG = {
@@ -89,18 +83,6 @@ const EDIT_EVENT_CONFIG = {
 
 const PAGE_START_AT = {
   weekday: 1,
-};
-
-const eventsReducer = (prevEvents, actionPayload) => {
-  const {event, newStartDate, newEndDate} = actionPayload;
-  return [
-    ...prevEvents.filter(e => e.id !== event.id),
-    {
-      ...event,
-      startDate: newStartDate,
-      endDate: newEndDate,
-    },
-  ];
 };
 
 const onDayPress = (date, formattedDate) => {
@@ -124,7 +106,7 @@ const dateCycler = buildDateCycler([
 const App = ({}) => {
   const componentRef = useRef(null);
 
-  const [events, updateEvent] = useReducer(eventsReducer, INITIAL_EVENTS);
+  const [events, updateEvent] = useReducer(eventsWithUpdate, INITIAL_EVENTS);
 
   const onDragEvent = useCallback(
     (event, newStartDate, newEndDate) => {

@@ -1,0 +1,133 @@
+---
+sidebar_position: 22
+sidebar_label: Block events
+description: Events covering multiple days
+---
+
+# Block like events
+
+Events that span through more than 1 day can be represented in two different ways. For example, say you have an event from _monday 15:00_ until _tuesday 17:00_. The standard way to represent this is to show the event both monday (from 15h until midnight) and tuesday (from midnight until 17h).
+
+On the other hand, we support _block events_, which are displayed as one box even if they last more than one day.
+You need to provide `eventKind: 'block'` to the event (read more about `EventItem` special fields in the [full API](../full-api/event#special-fields)).
+
+See the following examples and applications.
+
+## Basic example
+
+<CodeDemo imgSrc={require('./img/block-events.png').default}>
+
+```js title="Block Events"
+const myEvents = [
+  {
+    id: 1,
+    description: 'Std evt1',
+    startDate: new Date(2022, 6, 18, 15),
+    endDate: new Date(2022, 6, 19, 17),
+    color: 'orange',
+  },
+  {
+    id: 2,
+    description: 'Std evt2',
+    startDate: new Date(2022, 6, 23, 12),
+    endDate: new Date(2022, 6, 23, 15),
+    color: 'seagreen',
+  },
+  {
+    id: 3,
+    description: 'Block evt1',
+    startDate: new Date(2022, 6, 20, 6, 0),
+    endDate: new Date(2022, 6, 21, 9, 0),
+    color: 'steelblue',
+    eventKind: 'block',
+  },
+  {
+    id: 4,
+    description: 'Block evt2',
+    startDate: new Date(2022, 6, 20, 19, 0),
+    endDate: new Date(2022, 6, 24, 23, 0),
+    color: 'darkred',
+    eventKind: 'block',
+  },
+]
+```
+
+</CodeDemo>
+
+## Fixed timeslots
+
+Blocks do not shrink in size when overlapping with other events, thus can be useful to display as availabilty timeslots or business hours.
+See the following example, where the light green boxes can represent available times.
+
+<CodeDemo imgSrc={require('./img/timeslots.png').default}>
+
+```js title="Availabilty timeslots"
+const timeslotFields = {
+  description: '',
+  color: 'rgba(0,255,0,0.2)',
+  eventKind: 'block',
+  style: {
+    borderWidth: 0,
+  },
+  disablePress: true,
+  disableDrag: true,
+  disableLongPress: true,
+};
+const sampleEvents = [
+  // Regular events
+  {
+    id: 1,
+    description: 'Event 1',
+    startDate: new Date(2023, 1, 21, 15),
+    endDate: new Date(2023, 1, 21, 16, 30),
+    color: 'blue',
+  },
+  {
+    id: 2,
+    description: 'Event 2',
+    startDate: new Date(2023, 1, 23, 12),
+    endDate: new Date(2023, 1, 23, 14, 30),
+    color: 'orange',
+  },
+  {
+    id: 3,
+    description: 'Event 3',
+    startDate: new Date(2023, 1, 21, 12),
+    endDate: new Date(2023, 1, 21, 16),
+    color: 'red',
+  },
+  // Timeslot events:
+  {
+    id: 10,
+    startDate: new Date(2023, 1, 20, 9),
+    endDate: new Date(2023, 1, 20, 17),
+    ...timeslotFields,
+  },
+  {
+    id: 11,
+    startDate: new Date(2023, 1, 21, 9),
+    endDate: new Date(2023, 1, 21, 17),
+    ...timeslotFields,
+  },
+  {
+    id: 12,
+    startDate: new Date(2023, 1, 22, 9),
+    endDate: new Date(2023, 1, 22, 17),
+    ...timeslotFields,
+  },
+  {
+    id: 13,
+    startDate: new Date(2023, 1, 23, 9),
+    endDate: new Date(2023, 1, 23, 17),
+    ...timeslotFields,
+  },
+  {
+    id: 14,
+    startDate: new Date(2023, 1, 24, 9),
+    endDate: new Date(2023, 1, 24, 13),
+    ...timeslotFields,
+  },
+];
+```
+
+</CodeDemo>

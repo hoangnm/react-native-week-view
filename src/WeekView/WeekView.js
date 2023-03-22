@@ -541,6 +541,7 @@ export default class WeekView extends Component {
       headerStyle,
       headerTextStyle,
       hourTextStyle,
+      hourContainerStyle,
       gridRowStyle,
       gridColumnStyle,
       eventContainerStyle,
@@ -636,7 +637,6 @@ export default class WeekView extends Component {
             showTitle={showTitle}
             style={headerStyle}
             textStyle={headerTextStyle}
-            numberOfDays={numberOfDays}
             selectedDate={currentMoment}
             onMonthPress={onMonthPress}
             width={timeLabelsWidth}
@@ -699,6 +699,7 @@ export default class WeekView extends Component {
           <View style={styles.scrollViewContent}>
             <Times
               times={times}
+              containerStyle={hourContainerStyle}
               textStyle={hourTextStyle}
               timeLabelHeight={timeLabelHeight}
               width={timeLabelsWidth}
@@ -804,6 +805,7 @@ WeekView.propTypes = {
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
+  hourContainerStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
   gridRowStyle: GridRowPropType,
   gridColumnStyle: GridColumnPropType,

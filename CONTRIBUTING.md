@@ -1,8 +1,9 @@
-# Developing
+# Contributing
+
+(More details coming...)
 
 
-## Run `example/` app:
-
+## Run `example/` app locally
 
 ### Installation
 
@@ -22,7 +23,6 @@ yarn install:local
 yarn android
 yarn start
 ```
-
 
 ### Sync changes
 

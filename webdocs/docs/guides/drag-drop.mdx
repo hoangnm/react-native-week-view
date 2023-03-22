@@ -1,0 +1,43 @@
+---
+sidebar_position: 11
+sidebar_label: Drag and drop events
+description: Use drag and drop to edit events quickly
+---
+
+# Drag and drop
+
+Use the props [`onDragEvent`](../full-api/week-view-props#ondragevent) and [`dragEventConfig`](../full-api/week-view-props#drageventconfig) to setup event drag and drop.
+See the following basic example.
+
+<CodeDemo imgSrc={require('./img/drag-drop.gif').default}>
+
+```js title="Drag and drop"
+const eventsReducer = (prevEvents, payload) => {
+  // Just an example reducer, you'll probably use your own
+  const {event, newStartDate, newEndDate} = payload;
+  return [
+    ...prevEvents.filter(e => e.id !== event.id),
+    {
+      ...event,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    },
+  ];
+};
+
+const MyComponent = () => {
+  const [events, updateEvent] = useReducer(eventsReducer, []);
+
+  return (
+    <WeekView
+      events={events}
+      onDragEvent={(event, newStartDate, newEndDate) => {
+        // Here you must update the event in your local DB
+        updateEvent({ event, newStartDate, newEndDate })
+      }}
+    />
+  );
+}
+```
+
+</CodeDemo>
