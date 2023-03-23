@@ -101,7 +101,27 @@ const Event = ({
     const newY = top + dy;
     onDrag(event, newX, newY, width);
   };
-  const onEditWrapper = (params) => onEdit && onEdit(event, params);
+  const onEditWrapper = (side, resizedAmount) => {
+    if (!onEdit) return;
+
+    const params = {};
+    switch (side) {
+      case 'top':
+        params.top = top + resizedAmount;
+        break;
+      case 'bottom':
+        params.bottom = top + height + resizedAmount;
+        break;
+      case 'left':
+        params.left = left + resizedAmount;
+        break;
+      case 'right':
+        params.right = left + width + resizedAmount;
+        break;
+      default:
+    }
+    onEdit(event, params);
+  };
 
   const resizeByEdit = {
     bottom: useSharedValue(0),
@@ -274,30 +294,25 @@ const Event = ({
         const resizedAmount = resizeByEdit[side].value;
         resizeByEdit[side].value = 0;
 
-        const params = {};
         switch (side) {
           case 'top':
             currentTop.value += resizedAmount;
             currentHeight.value -= resizedAmount;
-            params.top = currentTop.value;
             break;
           case 'bottom':
             currentHeight.value += resizedAmount;
-            params.bottom = currentTop.value + currentHeight.value;
             break;
           case 'left':
             currentLeft.value += resizedAmount;
             currentWidth.value -= resizedAmount;
-            params.left = currentLeft.value;
             break;
           case 'right':
             currentWidth.value += resizedAmount;
-            params.right = currentLeft.value + currentWidth.value;
             break;
           default:
         }
 
-        runOnJS(onEditWrapper)(params);
+        runOnJS(onEditWrapper)(side, resizedAmount);
       });
 
   return (
