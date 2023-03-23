@@ -94,7 +94,13 @@ const Event = ({
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
   const onPressWrapper = () => onPress && onPress(event);
   const onLongPressWrapper = () => onLongPress && onLongPress(event);
-  const onDragWrapper = (...args) => onDrag && onDrag(event, ...args);
+  const onDragWrapper = (dx, dy) => {
+    if (!onDrag) return;
+
+    const newX = left + dx;
+    const newY = top + dy;
+    onDrag(event, newX, newY, width);
+  };
   const onEditWrapper = (params) => onEdit && onEdit(event, params);
 
   const resizeByEdit = {
@@ -173,11 +179,7 @@ const Event = ({
       currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
-      runOnJS(onDragWrapper)(
-        currentLeft.value,
-        currentTop.value,
-        currentWidth.value,
-      );
+      runOnJS(onDragWrapper)(translationX, translationY);
     })
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;

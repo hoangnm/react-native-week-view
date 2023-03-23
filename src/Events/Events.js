@@ -109,7 +109,7 @@ class Events extends PureComponent {
       return;
     }
 
-    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth / 2);
+    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth) / 2;
 
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = this.xToDayIndex(newX + halfDayAnchor);
