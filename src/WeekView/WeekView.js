@@ -75,9 +75,9 @@ const calculateTimesArray = (
 export default class WeekView extends Component {
   constructor(props) {
     super(props);
-    this.eventsGrid = null;
-    this.verticalAgenda = null;
-    this.header = null;
+    this.eventsGrid = React.createRef();
+    this.verticalAgenda = React.createRef();
+    this.header = React.createRef();
     this.currentPageIndex = PAGES_OFFSET;
     this.eventsGridScrollX = new Animated.Value(0);
 
@@ -108,7 +108,10 @@ export default class WeekView extends Component {
       this.scrollToVerticalStart();
     });
     this.eventsGridScrollX.addListener((position) => {
-      this.header.scrollToOffset({ offset: position.value, animated: false });
+      this.header.current.scrollToOffset({
+        offset: position.value,
+        animated: false,
+      });
     });
 
     this.windowListener = Dimensions.addEventListener(
@@ -147,7 +150,7 @@ export default class WeekView extends Component {
           initialDates,
         },
         () => {
-          this.eventsGrid.scrollToIndex({
+          this.eventsGrid.current.scrollToIndex({
             index: PAGES_OFFSET,
             animated: false,
           });
@@ -156,7 +159,7 @@ export default class WeekView extends Component {
     }
     if (this.state.windowWidth !== prevState.windowWidth) {
       // NOTE: after a width change, the position may be off by a few days
-      this.eventsGrid.scrollToIndex({
+      this.eventsGrid.current.scrollToIndex({
         index: this.currentPageIndex,
         animated: false,
       });
@@ -177,7 +180,7 @@ export default class WeekView extends Component {
   };
 
   scrollToTime = (minutes, options = {}) => {
-    if (this.verticalAgenda) {
+    if (this.verticalAgenda.current) {
       const { animated = false } = options || {};
       const { beginAgendaAt } = this.props;
       const top = minutesInDayToTop(
@@ -185,7 +188,7 @@ export default class WeekView extends Component {
         this.dimensions.verticalResolution,
         beginAgendaAt,
       );
-      this.verticalAgenda.scrollTo({
+      this.verticalAgenda.current.scrollTo({
         y: top,
         x: 0,
         animated,
@@ -415,7 +418,7 @@ export default class WeekView extends Component {
     this.setState(newState, () =>
       // setTimeout is used to force calling scroll after UI is updated
       setTimeout(() => {
-        this.eventsGrid.scrollToIndex({
+        this.eventsGrid.current.scrollToIndex({
           index: moveToIndex,
           viewOffset,
           animated,
@@ -480,7 +483,7 @@ export default class WeekView extends Component {
         // to mantain visible content position (mvcp)
         this.currentPageIndex += prependNeeded;
         const scrollToCurrentIndexAndOffset = () =>
-          this.eventsGrid.scrollToIndex({
+          this.eventsGrid.current.scrollToIndex({
             index: this.currentPageIndex,
             viewOffset: VIEW_OFFSET_SIGN * dayOffset * dayWidth,
             animated: false,
@@ -509,18 +512,6 @@ export default class WeekView extends Component {
         callback(newMoment);
       }
     });
-  };
-
-  eventsGridRef = (ref) => {
-    this.eventsGrid = ref;
-  };
-
-  verticalAgendaRef = (ref) => {
-    this.verticalAgenda = ref;
-  };
-
-  headerRef = (ref) => {
-    this.header = ref;
   };
 
   bucketEventsByDate = memoizeOne(bucketEventsByDate);
@@ -646,7 +637,7 @@ export default class WeekView extends Component {
             inverted={horizontalInverted}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
-            ref={this.headerRef}
+            ref={this.header}
             data={initialDates}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
@@ -694,7 +685,7 @@ export default class WeekView extends Component {
           contentContainerStyle={Platform.OS === 'web' && styles.webScrollView}
           onMomentumScrollBegin={this.verticalScrollBegun}
           onMomentumScrollEnd={this.verticalScrollEnded}
-          ref={this.verticalAgendaRef}
+          ref={this.verticalAgenda}
         >
           <View style={styles.scrollViewContent}>
             <Times
@@ -766,7 +757,7 @@ export default class WeekView extends Component {
                   ],
                   { useNativeDriver: false },
                 )}
-                ref={this.eventsGridRef}
+                ref={this.eventsGrid}
                 windowSize={windowSize}
                 initialNumToRender={initialNumToRender}
                 maxToRenderPerBatch={maxToRenderPerBatch}
