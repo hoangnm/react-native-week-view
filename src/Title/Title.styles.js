@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   title: {
+    flex: 0,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
