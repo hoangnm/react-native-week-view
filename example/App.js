@@ -85,9 +85,7 @@ const MyRefreshComponent = ({style}) => (
   <Text style={[style, {fontSize: 20, color: 'black'}]}>Loading...</Text>
 );
 
-const DRAG_EVENT_CONFIG = {
-  afterLongPressDuration: 1000,
-};
+const DRAG_EVENT_CONFIG = null;
 
 const EDIT_EVENT_CONFIG = {
   top: true,
@@ -225,7 +223,7 @@ const App = ({}) => {
           onEditEvent={onEditEvent}
           editEventConfig={EDIT_EVENT_CONFIG}
           dragEventConfig={DRAG_EVENT_CONFIG}
-          runOnJS
+          runOnJS={false}
         />
       </SafeAreaView>
     </>
