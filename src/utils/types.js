@@ -37,6 +37,7 @@ export const EventPropType = PropTypes.shape({
   eventKind: EventKindPropType,
   resolveOverlap: ResolveOverlapPropType,
   stackKey: PropTypes.string,
+  allDay: PropTypes.bool,
 });
 
 export const EventWithMetaPropType = PropTypes.shape({
@@ -44,6 +45,14 @@ export const EventWithMetaPropType = PropTypes.shape({
   box: PropTypes.shape({
     startDate: PropTypes.instanceOf(Date).isRequired,
     endDate: PropTypes.instanceOf(Date).isRequired,
+  }).isRequired,
+});
+
+export const AllDayEventsWithMetaPropType = PropTypes.shape({
+  ref: EventPropType.isRequired,
+  overlap: PropTypes.shape({
+    lane: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
   }).isRequired,
 });
 
@@ -64,4 +73,8 @@ export const GridColumnPropType = PropTypes.shape({
 export const PageStartAtOptionsPropType = PropTypes.shape({
   left: PropTypes.number,
   weekday: PropTypes.number,
+});
+
+export const ReanimatedSharedValue = PropTypes.shape({
+  value: PropTypes.number,
 });

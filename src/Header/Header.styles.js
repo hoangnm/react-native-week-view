@@ -4,21 +4,12 @@ import { HEADER_HEIGHT } from '../utils/dimensions';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    height: HEADER_HEIGHT,
+    flexDirection: 'column',
     alignItems: 'stretch',
   },
-  column: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderLeftWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: 'black',
-  },
-  text: {
-    fontSize: 12,
-    color: 'black',
+  daysContainer: {
+    flexDirection: 'row',
+    height: HEADER_HEIGHT,
   },
 });
 

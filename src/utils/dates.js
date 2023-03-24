@@ -3,10 +3,6 @@ import moment from 'moment';
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
 
-export const getFormattedDate = (date, format) => {
-  return moment(date).format(format);
-};
-
 export const setLocale = (locale) => {
   if (locale) {
     moment.locale(locale);

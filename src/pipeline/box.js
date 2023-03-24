@@ -1,6 +1,8 @@
 import moment from 'moment';
-import { DATE_STR_FORMAT, minutesInDay } from '../utils/dates';
-import { EVENT_KINDS, OVERLAP_METHOD } from '../utils/types';
+import { AllDayLayout, getDaysSpan } from './allDay';
+import { minutesInDay } from '../utils/dates';
+import { EVENT_KINDS } from '../utils/types';
+import { RegularEventsInBuckets, AllDayEventsInBuckets } from './buckets';
 
 /**
  * Creates an array of boxes that represent a standard event.
@@ -46,59 +48,39 @@ const sanitizeEndDate = (startDate, endDate) => {
   return end.toDate();
 };
 
-const eventsWithMetaSorter = (evtA, evtB) => {
-  const backgroundDiff = evtB.box.background - evtA.box.background;
-  if (backgroundDiff !== 0) {
-    return backgroundDiff;
-  }
-  return moment(evtA.box.startDate).diff(evtB.box.startDate, 'minutes');
-};
-
 /**
- * Stores the events hashed by their date.
- * Each bucket has the events sorted by date (by the minute)
+ * Stores regular and all-day events hashed by their date.
  *
- * Supports two types of events:
+ * Each bucket has the events sorted by date (by the minute).
+ *
+ * There are two types of regular events:
  * - block --> always one box
  * - standard (default) --> multiple boxes if the event span multiple days
- *
- * @param {Array} events
- * @returns object of events bucketed by date. Events come with box metadata, e.g.:
- * { "2020-02-03": [{ ref: event1, box }, { ref: event2, box }, ...] }
  */
 const bucketEventsByDate = (events) => {
-  const sortedEvents = {};
+  const regularEvents = new RegularEventsInBuckets();
+  const allDayEvents = new AllDayEventsInBuckets();
 
-  /**
-   * Pushes an event to a bucket.
-   * @param {Date} bucketDate date indicating bucket to add the event
-   * @param {Object} eventRef event itself
-   * @param {Date} boxStartDate date indicating the start of the box
-   * @param {Date} boxEndDate date indicating the end of the box
-   */
-  const addEventToBucket = (bucketDate, eventRef, boxStartDate, boxEndDate) => {
-    const dateStr = moment(bucketDate).format(DATE_STR_FORMAT);
-    if (!sortedEvents[dateStr]) {
-      sortedEvents[dateStr] = [];
-    }
-    sortedEvents[dateStr].push({
-      ref: eventRef,
-      box: {
-        startDate: new Date(boxStartDate.getTime()),
-        endDate: new Date(boxEndDate.getTime()),
-        background:
-          eventRef.eventKind === EVENT_KINDS.BLOCK ||
-          eventRef.resolveOverlap === OVERLAP_METHOD.IGNORE,
-      },
-    });
-  };
+  const allDayLayout = new AllDayLayout();
 
   events.forEach((event) => {
+    if (event.allDay) {
+      const daysCovered = getDaysSpan(event.startDate, event.endDate);
+      const lane = allDayLayout.useNextAvailableLane(daysCovered);
+      allDayEvents.addEventToBucket(event, lane, daysCovered.length);
+      return;
+    }
+
     switch (event.eventKind) {
       case EVENT_KINDS.BLOCK: {
         const boxEndDate = sanitizeEndDate(event.startDate, event.endDate);
         if (boxEndDate != null) {
-          addEventToBucket(event.startDate, event, event.startDate, boxEndDate);
+          regularEvents.addEventToBucket(
+            event.startDate,
+            event,
+            event.startDate,
+            boxEndDate,
+          );
         }
         break;
       }
@@ -107,17 +89,25 @@ const bucketEventsByDate = (events) => {
         unrollStandardEvent(
           event,
         ).forEach(({ bucketDate, boxStartDate, boxEndDate }) =>
-          addEventToBucket(bucketDate, event, boxStartDate, boxEndDate),
+          regularEvents.addEventToBucket(
+            bucketDate,
+            event,
+            boxStartDate,
+            boxEndDate,
+          ),
         );
         break;
     }
   });
 
-  Object.keys(sortedEvents).forEach((date) => {
-    // NOTE: sorting in place
-    sortedEvents[date].sort(eventsWithMetaSorter);
-  });
-  return sortedEvents;
+  regularEvents.sortBuckets();
+
+  return {
+    regularEvents: regularEvents.buckets,
+    allDayEvents: allDayEvents.buckets,
+    computeMaxVisibleLanesInHeader: (...args) =>
+      allDayLayout.computeMaxLanesVisible(...args),
+  };
 };
 
 export default bucketEventsByDate;
