@@ -77,7 +77,9 @@ describe('Swiping pages', () => {
     const horizontalInverted = props.rightToLeft !== props.prependMostRecent;
     const scrollDirection = nextOrPrevDirection * (horizontalInverted ? -1 : 1);
 
-    fireEvent(grid, 'onMomentumScrollBegin');
+    fireEvent(grid, 'onMomentumScrollBegin', {
+      nativeEvent: {},
+    });
     fireEvent(grid, 'onMomentumScrollEnd', {
       nativeEvent: {
         /**
