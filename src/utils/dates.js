@@ -37,11 +37,10 @@ export const daysInBetweenInclusive = (startDate, endDate) => {
   return moment(endDate).diff(startDate, 'days') + 1;
 };
 
-export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
+export const calculateDaysArray = (fromDate, numberOfDays, rightToLeft) => {
   const dates = [];
   for (let i = 0; i < numberOfDays; i += 1) {
-    const currentDate = moment(date).add(i, 'd');
-    dates.push(currentDate);
+    dates.push(moment(fromDate).add(i, 'd').format(DATE_STR_FORMAT));
   }
   return rightToLeft ? dates.reverse() : dates;
 };
