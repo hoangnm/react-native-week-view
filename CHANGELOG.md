@@ -1,7 +1,9 @@
 # Changelog
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
+## 0.28.2 - 2023-03-30
 
+- Fix overlap-ignore bug (#299) [#299](https://github.com/hoangnm/react-native-week-view/pull/299)
 ## 0.28.1 - 2023-02-26
 
 - Fix ANR: Add runOnJS prop (#297) [#297](https://github.com/hoangnm/react-native-week-view/pull/297)
