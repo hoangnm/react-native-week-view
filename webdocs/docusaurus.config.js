@@ -9,7 +9,7 @@ const config = {
   title: 'react-native-week-view',
   tagline: 'Week-view component for React Native',
   favicon: 'img/favicon.ico',
-
+  deploymentBranch: 'gh-page',
   // Set the production url of your site here
   url: 'https://hoangnm.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
