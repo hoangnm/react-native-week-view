@@ -74,6 +74,22 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
+  themes: [
+    [
+      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: false,
+        docsRouteBasePath: '/',
+        hashed: true,
+        highlightSearchTermsOnTargetPage: true,
+        searchBarPosition: 'right',
+        searchResultLimits: 5,
+      },
+    ],
+  ],
 };
 
 module.exports = config;
