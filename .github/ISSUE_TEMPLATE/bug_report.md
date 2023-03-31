@@ -25,7 +25,12 @@ _Screenshots, videos or gifs to help explain your problem_
 ```
 
 **Environment:**
+
+**Important:** using your own fork makes this more difficult to reproduce and solve. We recommend trying with the latest week-view version.
+
  - `react-native-week-view`: _version X_
+ - `react-native-gesture-handler`: _version X_
+ - `react-native-reanimated`: _version X_
  - `react-native`: _version X_
  - `react`: _version X_
  - OS: android / iOS
