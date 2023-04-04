@@ -1,6 +1,9 @@
 # Changelog
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
+## 0.28.3 - 2023-04-04
+
+- Update peer dependencies (#308) [#308](https://github.com/hoangnm/react-native-week-view/pull/308)
 ## 0.28.2 - 2023-03-30
 
 - Fix overlap-ignore bug (#299) [#299](https://github.com/hoangnm/react-native-week-view/pull/299)
