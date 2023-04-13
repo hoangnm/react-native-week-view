@@ -13,6 +13,7 @@ export interface WeekViewEvent extends Record<string, any> {
   stackKey: string;
   color: string;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   disableDrag?: boolean;
   disablePress?: boolean;
   disableLongPress?: boolean;
@@ -220,6 +221,7 @@ export interface WeekViewProps {
   headerTextStyle?: StyleProp<TextStyle>;
   hourTextStyle?: StyleProp<TextStyle>;
   eventContainerStyle?: StyleProp<ViewStyle>;
+  eventTextStyle?: StyleProp<TextStyle>;
 
   // Grid lines props
   gridRowStyle?: StyleProp<ViewStyle>;
