@@ -143,6 +143,11 @@ export interface WeekViewProps {
   };
 
   /**
+   * Which event is being edited.
+   */
+  editingEvent?: number | string;
+
+  /**
    * Callback when an event item is edited by dragging its borders.
    * @param event
    * @param newStartDate
@@ -230,6 +235,8 @@ export interface WeekViewProps {
   initialNumToRender?: number;
   maxToRenderPerBatch?: number;
   updateCellsBatchingPeriod?: number;
+  removeClippedSubviews?: boolean;
+  disableVirtualization?: boolean;
 
   // Other props (patch RN bugs)
   prependMostRecent?: boolean;
