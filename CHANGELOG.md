@@ -1,6 +1,10 @@
 # Changelog
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
+## 0.28.4 - 2023-04-17
+
+- Fix UI bug (#305) [#305](https://github.com/hoangnm/react-native-week-view/pull/305)
+- Add missing props (#312) [#312](https://github.com/hoangnm/react-native-week-view/pull/312)
 ## 0.28.3 - 2023-04-04
 
 - Update peer dependencies (#308) [#308](https://github.com/hoangnm/react-native-week-view/pull/308)
