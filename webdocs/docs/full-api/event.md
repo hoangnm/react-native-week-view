@@ -51,7 +51,8 @@ There are some fields in the `EventItem` that provide extra customizations for e
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| `style` | `Object` | `null` | Extra style passed to the container |
+| `style` | `Object` | `null` | Extra style passed to the event container |
+| `textStyle` | `Object` | `null` | Extra style passed to the event text. Ignored if [`EventComponent` prop](./week-view-props.mdx#eventcomponent) is provided |
 | **_Interactions_** |
 | `disableDrag` | `bool` | `false` | Disables drag-and-drop |
 | `disablePress` | `bool` | `false` | Disables onPress |

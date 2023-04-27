@@ -75,6 +75,7 @@ const Event = ({
   onLongPress,
   EventComponent,
   containerStyle,
+  textStyle,
   onDrag,
   onEdit,
   editingEventId,
@@ -338,7 +339,9 @@ const Event = ({
             position={{ top, left, height, width }}
           />
         ) : (
-          <Text style={styles.description}>{event.description}</Text>
+          <Text style={[styles.description, textStyle, event.textStyle]}>
+            {event.description}
+          </Text>
         )}
         <Circles
           isEditing={isEditing}
@@ -359,6 +362,7 @@ Event.propTypes = {
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
+  textStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   dragEventConfig: DragEventConfigPropType,
   onDrag: PropTypes.func,

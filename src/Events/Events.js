@@ -181,6 +181,7 @@ class Events extends PureComponent {
       onEventPress,
       onEventLongPress,
       eventContainerStyle,
+      eventTextStyle,
       gridRowStyle,
       gridColumnStyle,
       EventComponent,
@@ -248,6 +249,7 @@ class Events extends PureComponent {
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
+                    textStyle={eventTextStyle}
                     onDrag={onDragEvent && this.handleDragEvent}
                     onEdit={onEditEvent && this.handleEditEvent}
                     editingEventId={editingEventId}
@@ -275,6 +277,7 @@ Events.propTypes = {
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
   eventContainerStyle: PropTypes.object,
+  eventTextStyle: PropTypes.object,
   gridRowStyle: GridRowPropType,
   gridColumnStyle: GridColumnPropType,
   EventComponent: PropTypes.elementType,

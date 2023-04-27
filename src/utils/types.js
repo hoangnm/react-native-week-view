@@ -31,6 +31,7 @@ export const EventPropType = PropTypes.shape({
   startDate: PropTypes.instanceOf(Date).isRequired,
   endDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
+  textStyle: PropTypes.object,
   disableDrag: PropTypes.bool,
   disablePress: PropTypes.bool,
   disableLongPress: PropTypes.bool,
