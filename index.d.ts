@@ -13,6 +13,7 @@ export interface WeekViewEvent extends Record<string, any> {
   stackKey: string;
   color: string;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   disableDrag?: boolean;
   disablePress?: boolean;
   disableLongPress?: boolean;
@@ -143,6 +144,11 @@ export interface WeekViewProps {
   };
 
   /**
+   * Which event is being edited.
+   */
+  editingEvent?: number | string;
+
+  /**
    * Callback when an event item is edited by dragging its borders.
    * @param event
    * @param newStartDate
@@ -220,6 +226,7 @@ export interface WeekViewProps {
   headerTextStyle?: StyleProp<TextStyle>;
   hourTextStyle?: StyleProp<TextStyle>;
   eventContainerStyle?: StyleProp<ViewStyle>;
+  eventTextStyle?: StyleProp<TextStyle>;
 
   // Grid lines props
   gridRowStyle?: StyleProp<ViewStyle>;
@@ -230,6 +237,8 @@ export interface WeekViewProps {
   initialNumToRender?: number;
   maxToRenderPerBatch?: number;
   updateCellsBatchingPeriod?: number;
+  removeClippedSubviews?: boolean;
+  disableVirtualization?: boolean;
 
   // Other props (patch RN bugs)
   prependMostRecent?: boolean;

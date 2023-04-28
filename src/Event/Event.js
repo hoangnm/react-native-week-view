@@ -75,6 +75,7 @@ const Event = ({
   onLongPress,
   EventComponent,
   containerStyle,
+  textStyle,
   onDrag,
   onEdit,
   editingEventId,
@@ -94,8 +95,34 @@ const Event = ({
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
   const onPressWrapper = () => onPress && onPress(event);
   const onLongPressWrapper = () => onLongPress && onLongPress(event);
-  const onDragWrapper = (...args) => onDrag && onDrag(event, ...args);
-  const onEditWrapper = (params) => onEdit && onEdit(event, params);
+  const onDragWrapper = (dx, dy) => {
+    if (!onDrag) return;
+
+    const newX = left + dx;
+    const newY = top + dy;
+    onDrag(event, newX, newY, width);
+  };
+  const onEditWrapper = (side, resizedAmount) => {
+    if (!onEdit) return;
+
+    const params = {};
+    switch (side) {
+      case 'top':
+        params.top = top + resizedAmount;
+        break;
+      case 'bottom':
+        params.bottom = top + height + resizedAmount;
+        break;
+      case 'left':
+        params.left = left + resizedAmount;
+        break;
+      case 'right':
+        params.right = left + width + resizedAmount;
+        break;
+      default:
+    }
+    onEdit(event, params);
+  };
 
   const resizeByEdit = {
     bottom: useSharedValue(0),
@@ -173,11 +200,7 @@ const Event = ({
       currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
-      runOnJS(onDragWrapper)(
-        currentLeft.value,
-        currentTop.value,
-        currentWidth.value,
-      );
+      runOnJS(onDragWrapper)(translationX, translationY);
     })
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;
@@ -272,30 +295,25 @@ const Event = ({
         const resizedAmount = resizeByEdit[side].value;
         resizeByEdit[side].value = 0;
 
-        const params = {};
         switch (side) {
           case 'top':
             currentTop.value += resizedAmount;
             currentHeight.value -= resizedAmount;
-            params.top = currentTop.value;
             break;
           case 'bottom':
             currentHeight.value += resizedAmount;
-            params.bottom = currentTop.value + currentHeight.value;
             break;
           case 'left':
             currentLeft.value += resizedAmount;
             currentWidth.value -= resizedAmount;
-            params.left = currentLeft.value;
             break;
           case 'right':
             currentWidth.value += resizedAmount;
-            params.right = currentLeft.value + currentWidth.value;
             break;
           default:
         }
 
-        runOnJS(onEditWrapper)(params);
+        runOnJS(onEditWrapper)(side, resizedAmount);
       });
 
   return (
@@ -321,7 +339,9 @@ const Event = ({
             position={{ top, left, height, width }}
           />
         ) : (
-          <Text style={styles.description}>{event.description}</Text>
+          <Text style={[styles.description, textStyle, event.textStyle]}>
+            {event.description}
+          </Text>
         )}
         <Circles
           isEditing={isEditing}
@@ -342,6 +362,7 @@ Event.propTypes = {
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,
+  textStyle: PropTypes.object,
   EventComponent: PropTypes.elementType,
   dragEventConfig: DragEventConfigPropType,
   onDrag: PropTypes.func,

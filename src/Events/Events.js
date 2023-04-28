@@ -102,7 +102,7 @@ class Events extends PureComponent {
       return;
     }
 
-    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth / 2);
+    const halfDayAnchor = Math.min(eventWidth, this.props.dayWidth) / 2;
 
     // NOTE: The point (newX, newY) is in the eventsColumn coordinates
     const movedDays = this.xToDayIndex(newX + halfDayAnchor);
@@ -174,6 +174,7 @@ class Events extends PureComponent {
       onEventPress,
       onEventLongPress,
       eventContainerStyle,
+      eventTextStyle,
       gridRowStyle,
       gridColumnStyle,
       EventComponent,
@@ -241,6 +242,7 @@ class Events extends PureComponent {
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
                     containerStyle={eventContainerStyle}
+                    textStyle={eventTextStyle}
                     onDrag={onDragEvent && this.handleDragEvent}
                     onEdit={onEditEvent && this.handleEditEvent}
                     editingEventId={editingEventId}
@@ -268,6 +270,7 @@ Events.propTypes = {
   onGridClick: PropTypes.func,
   onGridLongPress: PropTypes.func,
   eventContainerStyle: PropTypes.object,
+  eventTextStyle: PropTypes.object,
   gridRowStyle: GridRowPropType,
   gridColumnStyle: GridColumnPropType,
   EventComponent: PropTypes.elementType,

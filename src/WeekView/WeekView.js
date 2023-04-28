@@ -515,6 +515,7 @@ export default class WeekView extends Component {
       gridRowStyle,
       gridColumnStyle,
       eventContainerStyle,
+      eventTextStyle,
       allDayEventContainerStyle,
       AllDayEventComponent,
       DayHeaderComponent,
@@ -704,6 +705,7 @@ export default class WeekView extends Component {
                         timeLabelHeight={timeLabelHeight}
                         EventComponent={EventComponent}
                         eventContainerStyle={eventContainerStyle}
+                        eventTextStyle={eventTextStyle}
                         gridRowStyle={gridRowStyle}
                         gridColumnStyle={gridColumnStyle}
                         rightToLeft={rightToLeft}
@@ -752,6 +754,7 @@ WeekView.propTypes = {
   hourTextStyle: PropTypes.object,
   hourContainerStyle: PropTypes.object,
   eventContainerStyle: PropTypes.object,
+  eventTextStyle: PropTypes.object,
   allDayEventContainerStyle: PropTypes.object,
   gridRowStyle: GridRowPropType,
   gridColumnStyle: GridColumnPropType,
