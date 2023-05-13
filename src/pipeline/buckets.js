@@ -34,7 +34,7 @@ const regularEventsWithMetaSorter = (evtA, evtB) => {
   if (backgroundDiff !== 0) {
     return backgroundDiff;
   }
-  return moment(evtA.box.startDate).diff(evtB.box.startDate, 'minutes');
+  return evtA.box.startTimestamp - evtB.box.startTimestamp;
 };
 
 export class RegularEventsInBuckets {
@@ -57,8 +57,8 @@ export class RegularEventsInBuckets {
     this.buckets[dateStr].push({
       ref: eventRef,
       box: {
-        startDate: new Date(boxStartDate.getTime()),
-        endDate: new Date(boxEndDate.getTime()),
+        startTimestamp: boxStartDate.getTime(),
+        endTimestamp: boxEndDate.getTime(),
         background:
           eventRef.eventKind === EVENT_KINDS.BLOCK ||
           eventRef.resolveOverlap === OVERLAP_METHOD.IGNORE,

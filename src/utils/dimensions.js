@@ -25,27 +25,11 @@
 export const HEADER_HEIGHT = 50;
 export const CONTENT_TOP_PADDING = 16;
 
-export const computeVerticalDimensions = (
-  totalHeight,
-  hoursInDisplay,
-  minutesStep,
-) => {
-  const minutesInDisplay = hoursInDisplay * 60;
-  const timeLabelsInDisplay = Math.ceil(minutesInDisplay / minutesStep);
-
-  const minutesResolution = totalHeight / minutesInDisplay;
-
-  return {
-    timeLabelHeight: totalHeight / timeLabelsInDisplay,
-    resolution: minutesResolution,
-  };
-};
-
 /**
  * Convert time in the day (expressed in minutes) to top (pixels in y dim).
  *
  * @param {Number} minutes Minutes to convert
- * @param {Number} verticalResolution resolution in minutes
+ * @param {ReanimatedValue} verticalResolution resolution in minutes
  * @param {Number} minutesOffset offset, e.g. beginAgendaAt
  * @returns pixels
  */
@@ -57,19 +41,22 @@ export const minutesInDayToTop = (
   'worklet';
 
   return (
-    (minutes - (minutesOffset || 0)) * verticalResolution + CONTENT_TOP_PADDING
+    (minutes - (minutesOffset || 0)) * verticalResolution.value +
+    CONTENT_TOP_PADDING
   );
 };
 
 /**
  * Convert period of time (in minutes) to height (pixels in y dim).
  *
- * @param {*} minutesDelta period of time in minutes
- * @param {*} verticalResolution resolution in minutes
+ * @param {number} minutesDelta period of time in minutes
+ * @param {ReanimatedValue} verticalResolution resolution in minutes
  * @returns pixels
  */
 export const minutesToHeight = (minutesDelta, verticalResolution) => {
-  return minutesDelta * verticalResolution;
+  'worklet';
+
+  return minutesDelta * verticalResolution.value;
 };
 
 /**
@@ -78,7 +65,7 @@ export const minutesToHeight = (minutesDelta, verticalResolution) => {
  * The output precision is up to seconds (arbitrary choice).
  *
  * @param {Number} yValue top position in pixels
- * @param {Number} verticalResolution resolution in minutes
+ * @param {ReanimatedValue} verticalResolution resolution in minutes
  * @param {Number} minutesOffset offset, e.g. beginAgendaAt
  * @returns amount of seconds
  */
@@ -87,7 +74,7 @@ export const topToSecondsInDay = (
   verticalResolution,
   minutesOffset = 0,
 ) => {
-  const secondsResolution = verticalResolution / 60;
+  const secondsResolution = verticalResolution.value / 60;
   const secondsInDay = (yValue - CONTENT_TOP_PADDING) / secondsResolution;
   return secondsInDay + minutesOffset * 60;
 };

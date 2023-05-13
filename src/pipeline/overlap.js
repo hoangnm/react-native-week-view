@@ -1,21 +1,18 @@
 /* eslint-disable max-classes-per-file */
-import moment from 'moment';
 import { EVENT_KINDS, OVERLAP_METHOD } from '../utils/types';
 
-const ALLOW_OVERLAP_SECONDS = 2;
+const ALLOW_OVERLAP_MILLISECONDS = 2000;
 
-const areEventsOverlapped = (event1EndDate, event2StartDate) => {
-  if (!event1EndDate || !event2StartDate) return false;
+const areEventsOverlapped = (event1EndTimestamp, event2StartTimestamp) => {
+  if (event1EndTimestamp == null || event2StartTimestamp == null) return false;
 
-  const endDate = moment(event1EndDate);
-  endDate.subtract(ALLOW_OVERLAP_SECONDS, 'seconds');
-  return endDate.isSameOrAfter(event2StartDate);
+  return event1EndTimestamp - ALLOW_OVERLAP_MILLISECONDS > event2StartTimestamp;
 };
 
 class Lane {
   constructor() {
     this.event2StackPosition = {};
-    this.latestDate = null;
+    this.latestTimestamp = -1;
 
     this.resetStack();
   }
@@ -25,21 +22,26 @@ class Lane {
     this.stackKey = null;
   };
 
-  addToStack = (event, eventIndex) => {
-    this.latestDate =
-      this.latestDate == null
-        ? moment(event.endDate)
-        : moment.max(moment(event.endDate), this.latestDate);
-    this.stackKey = event.stackKey || null;
+  addToStack = (eventWithMeta, eventIndex) => {
+    this.latestTimestamp = Math.max(
+      eventWithMeta.box.endTimestamp,
+      this.latestTimestamp,
+    );
+    this.stackKey = eventWithMeta.ref.stackKey || null;
     this.event2StackPosition[eventIndex] = this.currentStackLength;
     this.currentStackLength += 1;
   };
 
-  addEvent = (event, eventIndex) => {
-    if (!areEventsOverlapped(this.latestDate, event.startDate)) {
+  addEvent = (eventWithMeta, eventIndex) => {
+    if (
+      !areEventsOverlapped(
+        this.latestTimestamp,
+        eventWithMeta.box.startTimestamp,
+      )
+    ) {
       this.resetStack();
     }
-    this.addToStack(event, eventIndex);
+    this.addToStack(eventWithMeta, eventIndex);
   };
 }
 
@@ -56,42 +58,43 @@ class OverlappedEventsHandler {
     this.ignoredEvents = {};
   }
 
-  saveEventToLane = (event, eventIndex, laneIndex) => {
-    this.lanes[laneIndex].addEvent(event, eventIndex);
+  saveEventToLane = (eventWithMeta, eventIndex, laneIndex) => {
+    this.lanes[laneIndex].addEvent(eventWithMeta, eventIndex);
 
     this.event2LaneIndex[eventIndex] = laneIndex;
   };
 
-  findFirstLaneNotOverlapping = (startDate) =>
+  findFirstLaneNotOverlapping = (boxStartTimestamp) =>
     this.lanes.findIndex(
-      (lane) => !areEventsOverlapped(lane.latestDate, startDate),
+      (lane) => !areEventsOverlapped(lane.latestTimestamp, boxStartTimestamp),
     );
 
-  addToNextAvailableLane = (event, eventIndex) => {
-    let laneIndex = this.findFirstLaneNotOverlapping(event.startDate);
+  addToNextAvailableLane = (eventWithMeta, eventIndex) => {
+    let laneIndex = this.findFirstLaneNotOverlapping(
+      eventWithMeta.box.startTimestamp,
+    );
     if (laneIndex === -1) {
       this.lanes.push(new Lane());
       laneIndex = this.lanes.length - 1;
     }
-    this.saveEventToLane(event, eventIndex, laneIndex);
+    this.saveEventToLane(eventWithMeta, eventIndex, laneIndex);
   };
 
-  findLaneWithOverlapAndKey = (startDate, targetKey = null) =>
-    this.lanes.findIndex(
+  findLaneWithOverlapAndKey = (eventWithMeta) => {
+    const { ref: event, box } = eventWithMeta;
+    return this.lanes.findIndex(
       (lane) =>
-        (targetKey == null || targetKey === lane.stackKey) &&
-        areEventsOverlapped(lane.latestDate, startDate),
+        (event.targetKey == null || event.targetKey === lane.stackKey) &&
+        areEventsOverlapped(lane.latestTimestamp, box.startTimestamp),
     );
+  };
 
-  addToNextMatchingStack = (event, eventIndex) => {
-    const laneIndex = this.findLaneWithOverlapAndKey(
-      event.startDate,
-      event.stackKey,
-    );
+  addToNextMatchingStack = (eventWithMeta, eventIndex) => {
+    const laneIndex = this.findLaneWithOverlapAndKey(eventWithMeta);
     if (laneIndex !== -1) {
-      this.saveEventToLane(event, eventIndex, laneIndex);
+      this.saveEventToLane(eventWithMeta, eventIndex, laneIndex);
     } else {
-      this.addToNextAvailableLane(event, eventIndex);
+      this.addToNextAvailableLane(eventWithMeta, eventIndex);
     }
   };
 
@@ -99,20 +102,20 @@ class OverlappedEventsHandler {
     this.ignoredEvents[eventIndex] = true;
   };
 
-  static buildFromOverlappedEvents = (events) => {
+  static buildFromOverlappedEvents = (eventsWithMeta) => {
     const layout = new OverlappedEventsHandler();
 
-    (events || []).forEach(({ ref: event }, eventIndex) => {
-      switch (event.resolveOverlap) {
+    (eventsWithMeta || []).forEach((eventWithMeta, eventIndex) => {
+      switch (eventWithMeta.ref.resolveOverlap) {
         case OVERLAP_METHOD.STACK:
-          layout.addToNextMatchingStack(event, eventIndex);
+          layout.addToNextMatchingStack(eventWithMeta, eventIndex);
           break;
         case OVERLAP_METHOD.IGNORE:
           layout.addAsIgnored(eventIndex);
           break;
         case OVERLAP_METHOD.LANE:
         default:
-          layout.addToNextAvailableLane(event, eventIndex);
+          layout.addToNextAvailableLane(eventWithMeta, eventIndex);
           break;
       }
     });
@@ -164,7 +167,7 @@ const addOverlappedToArray = (baseArr, overlappedArr) => {
 
 const resolveEventOverlaps = (events) => {
   let overlappedSoFar = [];
-  let lastDate = null;
+  let latestTimestamp = -1;
   const resolvedEvents = events.reduce((accumulated, eventWithMeta) => {
     const { ref, box } = eventWithMeta;
     const shouldIgnoreOverlap =
@@ -172,14 +175,16 @@ const resolveEventOverlaps = (events) => {
       ref.resolveOverlap === OVERLAP_METHOD.IGNORE;
     if (shouldIgnoreOverlap) {
       accumulated.push(eventWithMeta);
-    } else if (!lastDate || areEventsOverlapped(lastDate, box.startDate)) {
+    } else if (
+      latestTimestamp === -1 ||
+      areEventsOverlapped(latestTimestamp, box.startTimestamp)
+    ) {
       overlappedSoFar.push(eventWithMeta);
-      const endDate = moment(box.endDate);
-      lastDate = lastDate ? moment.max(endDate, lastDate) : endDate;
+      latestTimestamp = Math.max(box.endTimestamp, latestTimestamp);
     } else {
       addOverlappedToArray(accumulated, overlappedSoFar);
       overlappedSoFar = [eventWithMeta];
-      lastDate = moment(box.endDate);
+      latestTimestamp = box.endTimestamp;
     }
     return accumulated;
   }, []);

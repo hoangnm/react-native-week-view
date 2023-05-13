@@ -19,18 +19,17 @@ export const getCurrentMonth = (date) => {
 
 /**
  * Get the amount of minutes in a day of a date.
- * @param {Date} date
+ * @param {Date|Number} timestampOrDate
  * @returns amount of minutes in the day.
  */
-export const minutesInDay = (date) => {
-  const dateObj = moment(date);
-  if (!dateObj || !dateObj.isValid()) return 0;
-  return dateObj.hours() * 60 + dateObj.minutes();
-};
+export const minutesInDay = (timestampOrDate) => {
+  'worklet';
 
-export const daysInBetweenInclusive = (startDate, endDate) => {
-  if (!startDate || !endDate) return 0;
-  return moment(endDate).diff(startDate, 'days') + 1;
+  const date =
+    timestampOrDate instanceof Date
+      ? timestampOrDate
+      : new Date(timestampOrDate);
+  return date.getHours() * 60 + date.getMinutes();
 };
 
 export const calculateDaysArray = (fromDate, numberOfDays, rightToLeft) => {
