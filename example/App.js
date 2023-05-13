@@ -224,6 +224,7 @@ const App = ({}) => {
           editEventConfig={EDIT_EVENT_CONFIG}
           dragEventConfig={DRAG_EVENT_CONFIG}
           runOnJS={false}
+          enableVerticalPinch
         />
       </SafeAreaView>
     </>

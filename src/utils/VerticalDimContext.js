@@ -6,6 +6,7 @@ import { Gesture } from 'react-native-gesture-handler';
 export const VerticalDimensionContext = React.createContext(null);
 
 const useSetupDimensions = ({
+  enableVerticalPinch,
   hoursInDisplay,
   beginAgendaAt,
   endAgendaAt,
@@ -26,7 +27,7 @@ const useSetupDimensions = ({
   const MAX_HOURS_IN_DISPLAY = endAgendaAt - beginAgendaAt / 60;
 
   const verticalPinchGesture = Gesture.Pinch()
-    // TODO: add enabled prop
+    .enabled(enableVerticalPinch)
     .onUpdate((pinchEvt) => {
       const newValue = savedVerticalScale.value * pinchEvt.scale;
       const newHoursInDisplay = hoursInDisplay / newValue;

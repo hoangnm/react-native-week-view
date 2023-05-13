@@ -499,6 +499,7 @@ export default class WeekView extends Component {
       onEditEvent,
       editEventConfig,
       editingEvent,
+      enableVerticalPinch,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -612,6 +613,7 @@ export default class WeekView extends Component {
             />
           )}
           <VerticalDimensionsProvider
+            enableVerticalPinch={enableVerticalPinch}
             hoursInDisplay={hoursInDisplay}
             beginAgendaAt={beginAgendaAt}
             endAgendaAt={endAgendaAt}
@@ -708,6 +710,7 @@ WeekView.propTypes = {
   onEditEvent: PropTypes.func,
   editEventConfig: EditEventConfigPropType,
   dragEventConfig: DragEventConfigPropType,
+  enableVerticalPinch: PropTypes.bool,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
@@ -762,6 +765,7 @@ WeekView.defaultProps = {
   startHour: 8,
   showTitle: true,
   rightToLeft: false,
+  enableVerticalPinch: false,
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
   windowSize: DEFAULT_WINDOW_SIZE,
