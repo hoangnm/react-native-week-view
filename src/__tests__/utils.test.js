@@ -1,22 +1,23 @@
+import moment from 'moment';
 import { calculateDaysArray } from '../utils/dates';
 
 describe('calculateDaysArray', () => {
-  const expectToBeMomentArray = (daysArray) =>
-    daysArray.forEach((day) => expect(day.toDate()).toBeValidDate());
+  const expectToBeDateStringArray = (daysArray) =>
+    daysArray.forEach((day) => expect(moment(day).toDate()).toBeValidDate());
 
   describe('Given correct inputs', () => {
     it('Given 5 days, returns array of dates', () => {
       const daysArray = calculateDaysArray(new Date(2021, 1, 1), 5, false);
 
       expect(daysArray).toBeArrayOfSize(5);
-      expectToBeMomentArray(daysArray);
+      expectToBeDateStringArray(daysArray);
     });
 
     it('Given 1 day, returns array of dates', () => {
       const daysArray = calculateDaysArray(new Date(2021, 1, 1), 1, false);
 
       expect(daysArray).toBeArrayOfSize(1);
-      expectToBeMomentArray(daysArray);
+      expectToBeDateStringArray(daysArray);
     });
 
     it('Given 6 days, returns correlative days', () => {
@@ -26,7 +27,7 @@ describe('calculateDaysArray', () => {
 
       expect(daysArray).toBeArrayOfSize(nDays);
       for (let i = 0; i < nDays; i += 1) {
-        const date = daysArray[i].toDate();
+        const date = moment(daysArray[i]).toDate();
         expect(date).toBeValidDate();
         expect(date.getDate()).toBe(initialDay.getDate() + i);
       }
@@ -39,7 +40,7 @@ describe('calculateDaysArray', () => {
 
       expect(daysArray).toBeArrayOfSize(nDays);
       for (let i = 0; i < nDays; i += 1) {
-        const date = daysArray[nDays - 1 - i].toDate();
+        const date = moment(daysArray[nDays - 1 - i]).toDate();
 
         expect(date).toBeValidDate();
         expect(date.getDate()).toBe(day.getDate() + i);

@@ -87,6 +87,13 @@ Custom styles for the event text. Ignored if `EventComponent` is provided.
 
 </Prop>
 
+### `allDayEventContainerStyle`
+<Prop name="allDayEventContainerStyle" type="object" defaultValue="null">
+
+Custom styles for each all-day event container. Note: the background color and (absolute) positioning are already set.
+
+</Prop>
+
 
 ### `gridRowStyle`
 <Prop name="gridRowStyle" type="{ borderTopWidth: <width>, borderColor: <color> }" defaultValue="{ borderTopWidth: 1, color: '#E9EDF0' }">
@@ -126,6 +133,14 @@ Formatter for the time labels at the left. Other examples, AM/PM: `"h:mm A"` or 
 <Prop name="EventComponent" type="ReactComponent" defaultValue="Text">
 
 Custom component rendered inside an event. By default, is a `Text` with the `event.description`. See [custom component guide](../guides/custom-components#event-content) for an example.
+
+</Prop>
+
+
+### `AllDayEventComponent`
+<Prop name="AllDayEventComponent" type="ReactComponent" defaultValue="<Text numberOfLines={1} ellipsizeMode='tail'/>">
+
+Custom component rendered inside an all-day event. By default, is a `Text` with the `event.description`.
 
 </Prop>
 

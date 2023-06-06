@@ -1,21 +1,27 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollViewContent: {
+  scrollViewContentContainer:
+    Platform.OS === 'web'
+      ? {
+          height: '100vh',
+        }
+      : { flex: 0 },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewChild: {
     flexDirection: 'row',
   },
-  headerContainer: {
+  headerAndTitleContainer: {
     flexDirection: 'row',
   },
   loadingSpinner: {
     position: 'absolute',
     zIndex: 2,
-  },
-  webScrollView: {
-    height: '100vh',
   },
 });
 

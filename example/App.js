@@ -24,6 +24,13 @@ const sampleEvents = [
   buildEvent(1, 3, 'red', {resolveOverlap: 'lane'}),
   buildEvent(-18, 48 + 5, 'green', {eventKind: 'block'}),
 
+  buildEvent(0 - 24, 2, 'blue', {
+    allDay: true,
+    description: 'Long description is wrapped',
+  }),
+  buildEvent(1, 3, 'red', {allDay: true}),
+  buildEvent(-18, 48 + 5, 'green', {allDay: true}),
+
   // Next week
   buildEvent(24 * 7, 2, 'magenta'),
   buildEvent(24 * 7 - 48, 3, 'green', {
@@ -35,10 +42,18 @@ const sampleEvents = [
     disableLongPress: true,
   }),
   buildEvent(24 * 7 + 6, 6, 'brown', {resolveOverlap: 'ignore'}),
+  buildEvent(24 * 7 + 13, 2, 'lightgreen', {
+    allDay: true,
+    description: 'Long description is wrapped',
+  }),
+  buildEvent(24 * 7 - 18, 48 + 5, 'lightgreen', {allDay: true}),
 
   // Two more weeks
   buildEvent(48 * 7, 2, 'pink'),
   buildEvent(48 * 7 - 54, 4, 'green'),
+  buildEvent(48 * 7 + 1, 3, 'lightgreen', {allDay: true}),
+
+  // Many events
   // ...Array.from({length: 1000}, (_, i) =>
   //   buildEvent(24 + i * 5, 2, 'lightblue'),
   // ),
@@ -70,9 +85,7 @@ const MyRefreshComponent = ({style}) => (
   <Text style={[style, {fontSize: 20, color: 'black'}]}>Loading...</Text>
 );
 
-const DRAG_EVENT_CONFIG = {
-  afterLongPressDuration: 1000,
-};
+const DRAG_EVENT_CONFIG = null;
 
 const EDIT_EVENT_CONFIG = {
   top: true,
@@ -210,7 +223,7 @@ const App = ({}) => {
           onEditEvent={onEditEvent}
           editEventConfig={EDIT_EVENT_CONFIG}
           dragEventConfig={DRAG_EVENT_CONFIG}
-          runOnJS
+          runOnJS={false}
         />
       </SafeAreaView>
     </>

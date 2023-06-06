@@ -1,16 +1,16 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  title: {
-    flex: 0,
-    justifyContent: 'center',
+  container: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderLeftWidth: 1,
     borderBottomWidth: 1,
     borderColor: 'black',
   },
   text: {
     fontSize: 12,
-    textAlign: 'center',
     color: 'black',
   },
 });

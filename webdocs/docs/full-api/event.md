@@ -43,12 +43,6 @@ You can use any custom field you may need, as long as the key does not collide w
 
 There are some fields in the `EventItem` that provide extra customizations for each event.
 
-* Styles
-* Disable user interactions (e.g. drag, press)
-* Overlap handling (details in the [overlaps guide](../guides/overlap))
-* Block-like events (details in the [block-events guide](../guides/block-events))
-
-
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | `style` | `Object` | `null` | Extra style passed to the event container |
@@ -57,9 +51,11 @@ There are some fields in the `EventItem` that provide extra customizations for e
 | `disableDrag` | `bool` | `false` | Disables drag-and-drop |
 | `disablePress` | `bool` | `false` | Disables onPress |
 | `disableLongPress` | `bool` | `false` | Disables onLongPress |
-| **_Overlap handling_** |
+| [**_Overlap handling_**](../guides/overlap) |
 | `resolveOverlap` | `lane` \| `stack` \| `ignore` | `lane` | Choose overlap method for that event |
 | `stackKey` | _String_ | `null` | Determine events it can be stacked with. If is `null`, it can be stacked with any other event. Only useful if `resolveOverlap: stack` |
-| **_Block events_** |
+| [**_Block events_**](../guides/block-events) |
 | `eventKind` | `block` \| `standard` | `standard` | Defines the type of event |
+| [**_All-day events_**](../guides/all-day-events) |
+| `allDay` | `bool` | `false` | Whether or not is an all-day event |
 

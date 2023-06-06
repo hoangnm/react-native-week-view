@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { getCurrentMonth } from '../utils/dates';
@@ -8,29 +8,28 @@ import styles from './Title.styles';
 const Title = ({
   style,
   showTitle,
-  selectedDate,
+  currentDate,
   textStyle,
   onMonthPress,
   width,
 }) => {
-  if (!showTitle) {
-    return <View style={[styles.title, { width }, style]} />;
-  }
-  const formattedMonth = getCurrentMonth(selectedDate);
+  const formattedMonth = getCurrentMonth(currentDate);
   return (
     <TouchableOpacity
       style={[styles.title, { width }, style]}
-      onPress={() => onMonthPress && onMonthPress(selectedDate, formattedMonth)}
-      disabled={!onMonthPress}
+      onPress={() => onMonthPress && onMonthPress(currentDate, formattedMonth)}
+      disabled={!showTitle || !onMonthPress}
     >
-      <Text style={[styles.text, textStyle]}>{formattedMonth}</Text>
+      {showTitle && (
+        <Text style={[styles.text, textStyle]}>{formattedMonth}</Text>
+      )}
     </TouchableOpacity>
   );
 };
 
 Title.propTypes = {
   showTitle: PropTypes.bool,
-  selectedDate: PropTypes.instanceOf(Date).isRequired,
+  currentDate: PropTypes.instanceOf(Date).isRequired,
   style: PropTypes.object,
   textStyle: PropTypes.object,
   onMonthPress: PropTypes.func,

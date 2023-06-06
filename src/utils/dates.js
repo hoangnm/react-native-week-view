@@ -3,10 +3,6 @@ import moment from 'moment';
 export const DATE_STR_FORMAT = 'YYYY-MM-DD';
 export const availableNumberOfDays = [1, 3, 5, 7];
 
-export const getFormattedDate = (date, format) => {
-  return moment(date).format(format);
-};
-
 export const setLocale = (locale) => {
   if (locale) {
     moment.locale(locale);
@@ -37,11 +33,10 @@ export const daysInBetweenInclusive = (startDate, endDate) => {
   return moment(endDate).diff(startDate, 'days') + 1;
 };
 
-export const calculateDaysArray = (date, numberOfDays, rightToLeft) => {
+export const calculateDaysArray = (fromDate, numberOfDays, rightToLeft) => {
   const dates = [];
   for (let i = 0; i < numberOfDays; i += 1) {
-    const currentDate = moment(date).add(i, 'd');
-    dates.push(currentDate);
+    dates.push(moment(fromDate).add(i, 'd').format(DATE_STR_FORMAT));
   }
   return rightToLeft ? dates.reverse() : dates;
 };

@@ -15,11 +15,7 @@ import {
   GridRowPropType,
   GridColumnPropType,
 } from '../utils/types';
-import {
-  calculateDaysArray,
-  DATE_STR_FORMAT,
-  availableNumberOfDays,
-} from '../utils/dates';
+import { calculateDaysArray, availableNumberOfDays } from '../utils/dates';
 import { topToSecondsInDay as topToSecondsInDayFromUtils } from '../utils/dimensions';
 import { ViewWithTouchable } from '../utils/gestures';
 
@@ -42,10 +38,7 @@ const processEvents = (
   // example: [[event1, event2], [event3, event4], [event5]], each child array
   // is events for specific day in range
   const dates = calculateDaysArray(initialDate, numberOfDays, rightToLeft);
-  return dates.map((date) => {
-    const dateStr = date.format(DATE_STR_FORMAT);
-    return resolveEventOverlaps(eventsByDate[dateStr] || []);
-  });
+  return dates.map((date) => resolveEventOverlaps(eventsByDate[date] || []));
 };
 
 const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {

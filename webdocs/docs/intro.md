@@ -10,7 +10,8 @@ slug: /
 The week view component for react-native. Main features:
 
 * Supported in Android and iOS
-* Many user interactions supported: [**drag and drop events**](./guides/drag-drop), [edit events](./guides/edit-event), swipe through pages, event press, grid press, etc.
+* Many user interactions supported: [**drag and drop events**](./guides/drag-drop), [edit events](./guides/edit-event), swipe through pages, event press, grid press, etc.}
+* Support [all-day events](./guides/all-day-events)
 * [Customizable styles](./basic-usage#customize-styles)
 * [Multiple locale support](./guides/locales)
 * We are actively developing! :rocket:

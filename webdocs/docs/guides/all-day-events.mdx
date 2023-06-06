@@ -1,0 +1,61 @@
+---
+sidebar_position: 2
+sidebar_label: All-day events
+description: Mark events as all-day
+title: All-day events
+---
+
+You can mark an event as lasting all-day to display it at the top of the week-view, right below the header.
+You need to provide `allDay: true` to the event (find more details in the [`EventItem` full API](../full-api/event#special-fields)).
+
+All-day events behave somewhat similar to regular events:
+
+* When pressed, invoke the same handlers `onEventPress` and `onEventLongPress`
+* You can provide special fields `disablePress`, `disableLongPress` and `style`
+* Use props `AllDayEventComponent` and `allDayEventContainerStyle` to customize the all-day events outlook, analogous to `EventComponent` and `eventContainerStyle` for regular events (find more details in the [full props API](../full-api/week-view-props))
+
+But also have some differences:
+* Does not support drag-and-drop
+* Does not support edit-mode with long press behavior
+* Always behave as a block (i.e. are represented as one box)
+* Overlapping configurations are ignored
+* Only date is considered from `startDate` and `endDate` (times are ignored)
+
+
+
+## Example
+
+
+<CodeDemo imgSrc={require('./img/all-day-events.gif').default}>
+
+```js
+<WeekView
+  events={[
+    {
+      id: 1,
+      startDate: new Date(2023, 2, 24, 9),
+      endDate: new Date(2023, 2, 24, 11),
+      color: 'blue',
+      description: 'E1',
+    },
+    {
+      id: 2,
+      startDate: new Date(2023, 2, 23),
+      endDate: new Date(2023, 2, 23),
+      color: 'brown',
+      description: 'E2',
+      allDay: true,
+    },
+    {
+      id: 3,
+      startDate: new Date(2023, 2, 23),
+      endDate: new Date(2023, 2, 25),
+      color: 'green',
+      description: 'E3',
+      allDay: true,
+    },
+  ]}
+/>
+```
+
+</CodeDemo>
