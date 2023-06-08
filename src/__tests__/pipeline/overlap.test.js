@@ -9,8 +9,8 @@ const makeEventWithMetaBuilder = () => {
     return {
       box: {
         background: false,
-        startDate,
-        endDate,
+        startTimestamp: startDate.getTime(),
+        endTimestamp: endDate.getTime(),
       },
       ref: {
         id: nextId,
