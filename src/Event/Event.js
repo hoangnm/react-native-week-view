@@ -4,9 +4,7 @@ import { View, Text } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
-  useAnimatedReaction,
   useSharedValue,
-  withTiming,
   withSpring,
   runOnJS,
   useDerivedValue,
@@ -18,25 +16,16 @@ import {
   DragEventConfigPropType,
 } from '../utils/types';
 import { RunGesturesOnJSContext } from '../utils/gestures';
+import {
+  computeHeight,
+  computeWidth,
+  computeLeft,
+  computeTop,
+} from '../pipeline/position';
+import { useVerticalDimensionContext } from '../utils/VerticalDimContext';
 
 const DEFAULT_COLOR = 'red';
-const UPDATE_EVENT_ANIMATION_DURATION = 150;
 const SIDES = ['bottom', 'top', 'left', 'right'];
-
-const useCurrentDimension = (dimension) => {
-  const currentDimension = useSharedValue(dimension);
-  useAnimatedReaction(
-    () => dimension,
-    (newValue) => {
-      if (currentDimension.value !== newValue) {
-        currentDimension.value = withTiming(newValue, {
-          duration: UPDATE_EVENT_ANIMATION_DURATION,
-        });
-      }
-    },
-  );
-  return currentDimension;
-};
 
 const Circle = ({ side }) => (
   <View
@@ -67,10 +56,12 @@ const DRAG_STATUS = {
 
 const Event = ({
   event,
-  top,
-  left,
-  height,
-  width,
+  boxStartTimestamp,
+  boxEndTimestamp,
+  lane,
+  nLanes,
+  stackPosition,
+  dayWidth,
   onPress,
   onLongPress,
   EventComponent,
@@ -90,39 +81,16 @@ const Event = ({
     !!onDrag && editingEventId == null && !event.disableDrag;
 
   const runGesturesOnJS = React.useContext(RunGesturesOnJSContext);
+  const { verticalResolution, beginAgendaAt } = useVerticalDimensionContext();
 
   // Wrappers are needed due to RN-reanimated runOnJS behavior. See docs:
   // https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS
   const onPressWrapper = () => onPress && onPress(event);
   const onLongPressWrapper = () => onLongPress && onLongPress(event);
-  const onDragWrapper = (dx, dy) => {
-    if (!onDrag) return;
-
-    const newX = left + dx;
-    const newY = top + dy;
-    onDrag(event, newX, newY, width);
-  };
-  const onEditWrapper = (side, resizedAmount) => {
-    if (!onEdit) return;
-
-    const params = {};
-    switch (side) {
-      case 'top':
-        params.top = top + resizedAmount;
-        break;
-      case 'bottom':
-        params.bottom = top + height + resizedAmount;
-        break;
-      case 'left':
-        params.left = left + resizedAmount;
-        break;
-      case 'right':
-        params.right = left + width + resizedAmount;
-        break;
-      default:
-    }
-    onEdit(event, params);
-  };
+  const onDragWrapper = (newX, newY, width) =>
+    onDrag && onDrag(event, newX, newY, width);
+  const onEditWrapper = (side, newPosition) =>
+    onEdit && onEdit(event, side, newPosition);
 
   const resizeByEdit = {
     bottom: useSharedValue(0),
@@ -132,10 +100,25 @@ const Event = ({
   };
 
   const translatedByDrag = useSharedValue({ x: 0, y: 0 });
-  const currentWidth = useCurrentDimension(width);
-  const currentLeft = useCurrentDimension(left);
-  const currentTop = useCurrentDimension(top);
-  const currentHeight = useCurrentDimension(height);
+  const currentWidth = useDerivedValue(() =>
+    computeWidth(
+      boxStartTimestamp,
+      boxEndTimestamp,
+      nLanes,
+      stackPosition,
+      dayWidth,
+    ),
+  );
+  const currentLeft = useDerivedValue(
+    () => computeLeft(lane, nLanes, stackPosition, dayWidth),
+    [boxStartTimestamp, lane, nLanes, stackPosition, dayWidth],
+  );
+  const currentTop = useDerivedValue(() =>
+    computeTop(boxStartTimestamp, verticalResolution, beginAgendaAt),
+  );
+  const currentHeight = useDerivedValue(() =>
+    computeHeight(boxStartTimestamp, boxEndTimestamp, verticalResolution),
+  );
 
   const dragStatus = useSharedValue(DRAG_STATUS.STATIC);
   const isPressing = useSharedValue(false);
@@ -196,11 +179,17 @@ const Event = ({
       }
       const { translationX, translationY } = evt;
 
+      // NOTE: do not delete these auxiliar variables
+      // currentDimension.value might be updated asyncly in some cases
+      const newX = currentLeft.value + translationX;
+      const newY = currentTop.value + translationY;
+      const width = currentWidth.value;
+
       currentTop.value += translationY;
       currentLeft.value += translationX;
       translatedByDrag.value = { x: 0, y: 0 };
 
-      runOnJS(onDragWrapper)(translationX, translationY);
+      runOnJS(onDragWrapper)(newX, newY, width);
     })
     .onFinalize(() => {
       dragStatus.value = DRAG_STATUS.STATIC;
@@ -265,22 +254,22 @@ const Event = ({
         const { translationX, translationY } = panEvt;
         switch (side) {
           case 'top':
-            if (translationY < height) {
+            if (translationY < currentHeight.value) {
               resizeByEdit.top.value = translationY;
             }
             break;
           case 'bottom':
-            if (translationY > -height) {
+            if (translationY > -currentHeight.value) {
               resizeByEdit.bottom.value = translationY;
             }
             break;
           case 'left':
-            if (translationX < width) {
+            if (translationX < currentWidth.value) {
               resizeByEdit.left.value = translationX;
             }
             break;
           case 'right':
-            if (translationX > -width) {
+            if (translationX > -currentWidth.value) {
               resizeByEdit.right.value = translationX;
             }
             break;
@@ -294,26 +283,37 @@ const Event = ({
         }
         const resizedAmount = resizeByEdit[side].value;
         resizeByEdit[side].value = 0;
+        let newPosition = 0;
 
         switch (side) {
           case 'top':
+            newPosition = currentTop.value + resizedAmount;
+
             currentTop.value += resizedAmount;
             currentHeight.value -= resizedAmount;
             break;
           case 'bottom':
+            newPosition =
+              currentTop.value + currentHeight.value + resizedAmount;
+
             currentHeight.value += resizedAmount;
             break;
           case 'left':
+            newPosition = currentLeft.value + resizedAmount;
+
             currentLeft.value += resizedAmount;
             currentWidth.value -= resizedAmount;
             break;
           case 'right':
+            newPosition =
+              currentLeft.value + currentWidth.value + resizedAmount;
+
             currentWidth.value += resizedAmount;
             break;
           default:
         }
 
-        runOnJS(onEditWrapper)(side, resizedAmount);
+        runOnJS(onEditWrapper)(side, newPosition);
       });
 
   return (
@@ -334,10 +334,7 @@ const Event = ({
         ]}
       >
         {EventComponent ? (
-          <EventComponent
-            event={event}
-            position={{ top, left, height, width }}
-          />
+          <EventComponent event={event} />
         ) : (
           <Text style={[styles.description, textStyle, event.textStyle]}>
             {event.description}
@@ -355,10 +352,12 @@ const Event = ({
 
 Event.propTypes = {
   event: EventPropType.isRequired,
-  top: PropTypes.number.isRequired,
-  left: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
+  boxStartTimestamp: PropTypes.number.isRequired,
+  boxEndTimestamp: PropTypes.number.isRequired,
+  lane: PropTypes.number,
+  nLanes: PropTypes.number,
+  stackPosition: PropTypes.number,
+  dayWidth: PropTypes.number.isRequired,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
   containerStyle: PropTypes.object,

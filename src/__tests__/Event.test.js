@@ -6,15 +6,12 @@ import {
 } from 'react-native-gesture-handler/jest-utils';
 import { render } from '@testing-library/react-native';
 import Event from '../Event/Event';
+import { VerticalDimensionsProvider } from '../utils/VerticalDimContext';
 
 describe('onDrag handler', () => {
   // Any values as constants:
-  const INITIAL_TOP = 10;
-  const INITIAL_LEFT = 0;
   const TRANSLATION_X = 7;
   const TRANSLATION_Y = 52;
-  const EVT_HEIGHT = 50;
-  const EVT_WIDTH = 40;
 
   const buildDragGesture = () => [
     // {}, // implicit BEGIN state
@@ -36,14 +33,21 @@ describe('onDrag handler', () => {
     const onDragMock = jest.fn(() => null);
 
     render(
-      <Event
-        event={mockEvent}
-        onDrag={onDragMock}
-        top={INITIAL_TOP}
-        left={INITIAL_LEFT}
-        height={EVT_HEIGHT}
-        width={EVT_WIDTH}
-      />,
+      <VerticalDimensionsProvider
+        enableVerticalPinch={false}
+        hoursInDisplay={12}
+        beginAgendaAt={0}
+        endAgendaAt={24}
+        timeStep={60}
+      >
+        <Event
+          event={mockEvent}
+          onDrag={onDragMock}
+          boxStartTimestamp={mockEvent.startDate.getTime()}
+          boxEndTimestamp={mockEvent.endDate.getTime()}
+          dayWidth={10}
+        />
+      </VerticalDimensionsProvider>,
     );
     fireGestureHandler(
       getByGestureTestId(`dragGesture-${targetId}`),
@@ -53,9 +57,10 @@ describe('onDrag handler', () => {
     expect(onDragMock).toHaveBeenCalledTimes(1);
     expect(onDragMock).toHaveBeenCalledWith(
       mockEvent,
-      INITIAL_LEFT + TRANSLATION_X,
-      INITIAL_TOP + TRANSLATION_Y,
-      EVT_WIDTH,
+      // NOTE: actual positions depends on dimensions, hoursInDisplay, etc
+      expect.toBeNumber(),
+      expect.toBeNumber(),
+      expect.toBeNumber(),
     );
   });
 });

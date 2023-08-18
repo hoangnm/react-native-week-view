@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
-  ScrollView,
   InteractionManager,
   ActivityIndicator,
   Dimensions,
@@ -15,6 +14,7 @@ import Events from '../Events/Events';
 import Header from '../Header/Header';
 import Title from '../Title/Title';
 import Times from '../Times/Times';
+import VerticalAgenda from '../VerticalAgenda/VerticalAgenda';
 import styles from './WeekView.styles';
 import bucketEventsByDate from '../pipeline/box';
 import {
@@ -27,12 +27,7 @@ import {
   setLocale,
 } from '../utils/dates';
 import { mod } from '../utils/misc';
-import {
-  minutesInDayToTop,
-  topToSecondsInDay,
-  computeVerticalDimensions,
-  computeHorizontalDimensions,
-} from '../utils/dimensions';
+import { computeHorizontalDimensions } from '../utils/dimensions';
 import {
   GridRowPropType,
   GridColumnPropType,
@@ -48,6 +43,7 @@ import {
   DEFAULT_WINDOW_SIZE,
 } from '../utils/pages';
 import { RunGesturesOnJSContext } from '../utils/gestures';
+import { VerticalDimensionsProvider } from '../utils/VerticalDimContext';
 
 /** For some reason, this sign is necessary in all cases. */
 const VIEW_OFFSET_SIGN = -1;
@@ -174,49 +170,16 @@ export default class WeekView extends Component {
 
   scrollToTime = (minutes, options = {}) => {
     if (this.verticalAgenda.current) {
-      const { animated = false } = options || {};
-      const { beginAgendaAt } = this.props;
-      const top = minutesInDayToTop(
-        minutes,
-        this.dimensions.verticalResolution,
-        beginAgendaAt,
-      );
-      this.verticalAgenda.current.scrollTo({
-        y: top,
-        x: 0,
-        animated,
-      });
+      this.verticalAgenda.current.scrollToTime(minutes, options);
     }
   };
 
-  verticalScrollBegun = () => {
-    this.isScrollingVertical = true;
-  };
-
-  verticalScrollEnded = (scrollEvent) => {
-    if (!this.isScrollingVertical) {
-      // Ensure the callback is called only once, same as with horizontal case
-      return;
-    }
-    this.isScrollingVertical = false;
-
-    const { onTimeScrolled, beginAgendaAt } = this.props;
+  handleTimeScrolled = (secondsInDay) => {
+    const { onTimeScrolled } = this.props;
 
     if (!onTimeScrolled) {
       return;
     }
-
-    const {
-      nativeEvent: { contentOffset },
-    } = scrollEvent;
-    const { y: yPosition } = contentOffset;
-
-    const secondsInDay = topToSecondsInDay(
-      yPosition,
-      this.dimensions.verticalResolution,
-      beginAgendaAt,
-    );
-
     const date = moment(this.state.currentMoment)
       .startOf('day')
       .seconds(secondsInDay)
@@ -536,6 +499,7 @@ export default class WeekView extends Component {
       onEditEvent,
       editEventConfig,
       editingEvent,
+      enableVerticalPinch,
       EventComponent,
       prependMostRecent,
       rightToLeft,
@@ -555,6 +519,7 @@ export default class WeekView extends Component {
       removeClippedSubviews,
       disableVirtualization,
       runOnJS,
+      onTimeScrolled,
     } = this.props;
     const {
       currentMoment,
@@ -587,15 +552,9 @@ export default class WeekView extends Component {
       timesColumnWidth,
     );
 
-    const {
-      timeLabelHeight,
-      resolution: verticalResolution,
-    } = computeVerticalDimensions(windowHeight, hoursInDisplay, timeStep);
-
     this.dimensions = {
       dayWidth,
       pageWidth,
-      verticalResolution,
     };
 
     const horizontalScrollProps = allowScrollByDay
@@ -653,79 +612,81 @@ export default class WeekView extends Component {
               ]}
             />
           )}
-          <ScrollView
-            contentContainerStyle={styles.scrollViewContentContainer}
-            style={styles.scrollView}
-            onMomentumScrollBegin={this.verticalScrollBegun}
-            onMomentumScrollEnd={this.verticalScrollEnded}
-            ref={this.verticalAgenda}
+          <VerticalDimensionsProvider
+            enableVerticalPinch={enableVerticalPinch}
+            hoursInDisplay={hoursInDisplay}
+            beginAgendaAt={beginAgendaAt}
+            endAgendaAt={endAgendaAt}
+            timeStep={timeStep}
           >
-            <View style={styles.scrollViewChild}>
-              <Times
-                times={times}
-                containerStyle={hourContainerStyle}
-                textStyle={hourTextStyle}
-                timeLabelHeight={timeLabelHeight}
-                width={timeLabelsWidth}
-              />
-              <RunGesturesOnJSContext.Provider value={runOnJS}>
-                <HorizontalSyncFlatList
-                  data={initialDates}
-                  getItemLayout={this.getListItemLayout}
-                  keyExtractor={identity}
-                  initialScrollIndex={PAGES_OFFSET}
-                  scrollEnabled={!fixedHorizontally}
-                  horizontal
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...horizontalScrollProps}
-                  horizontalScrollEnded={this.horizontalScrollEnded}
-                  inverted={horizontalInverted}
-                  ref={this.eventsGrid}
-                  windowSize={windowSize}
-                  initialNumToRender={initialNumToRender}
-                  maxToRenderPerBatch={maxToRenderPerBatch}
-                  updateCellsBatchingPeriod={updateCellsBatchingPeriod}
-                  removeClippedSubviews={removeClippedSubviews}
-                  disableVirtualization={disableVirtualization}
-                  accessible
-                  accessibilityLabel="Grid with horizontal scroll"
-                  accessibilityHint="Grid with horizontal scroll"
-                  renderItem={({ item }) => {
-                    return (
-                      <Events
-                        times={times}
-                        eventsByDate={eventsByDate}
-                        initialDate={item}
-                        numberOfDays={numberOfDays}
-                        onEventPress={onEventPress}
-                        onEventLongPress={onEventLongPress}
-                        onGridClick={onGridClick}
-                        onGridLongPress={onGridLongPress}
-                        beginAgendaAt={beginAgendaAt}
-                        timeLabelHeight={timeLabelHeight}
-                        EventComponent={EventComponent}
-                        eventContainerStyle={eventContainerStyle}
-                        eventTextStyle={eventTextStyle}
-                        gridRowStyle={gridRowStyle}
-                        gridColumnStyle={gridColumnStyle}
-                        rightToLeft={rightToLeft}
-                        showNowLine={showNowLine}
-                        nowLineColor={nowLineColor}
-                        onDragEvent={onDragEvent}
-                        pageWidth={pageWidth}
-                        dayWidth={dayWidth}
-                        verticalResolution={verticalResolution}
-                        onEditEvent={onEditEvent}
-                        editingEventId={editingEvent}
-                        editEventConfig={editEventConfig}
-                        dragEventConfig={dragEventConfig}
-                      />
-                    );
-                  }}
+            <VerticalAgenda
+              onTimeScrolled={onTimeScrolled && this.handleTimeScrolled}
+              ref={this.verticalAgenda}
+            >
+              <View style={styles.scrollViewChild}>
+                <Times
+                  times={times}
+                  containerStyle={hourContainerStyle}
+                  textStyle={hourTextStyle}
+                  width={timeLabelsWidth}
                 />
-              </RunGesturesOnJSContext.Provider>
-            </View>
-          </ScrollView>
+                <RunGesturesOnJSContext.Provider value={runOnJS}>
+                  <HorizontalSyncFlatList
+                    data={initialDates}
+                    getItemLayout={this.getListItemLayout}
+                    keyExtractor={identity}
+                    initialScrollIndex={PAGES_OFFSET}
+                    scrollEnabled={!fixedHorizontally}
+                    horizontal
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...horizontalScrollProps}
+                    horizontalScrollEnded={this.horizontalScrollEnded}
+                    inverted={horizontalInverted}
+                    ref={this.eventsGrid}
+                    windowSize={windowSize}
+                    initialNumToRender={initialNumToRender}
+                    maxToRenderPerBatch={maxToRenderPerBatch}
+                    updateCellsBatchingPeriod={updateCellsBatchingPeriod}
+                    removeClippedSubviews={removeClippedSubviews}
+                    disableVirtualization={disableVirtualization}
+                    accessible
+                    accessibilityLabel="Grid with horizontal scroll"
+                    accessibilityHint="Grid with horizontal scroll"
+                    renderItem={({ item }) => {
+                      return (
+                        <Events
+                          times={times}
+                          eventsByDate={eventsByDate}
+                          initialDate={item}
+                          numberOfDays={numberOfDays}
+                          onEventPress={onEventPress}
+                          onEventLongPress={onEventLongPress}
+                          onGridClick={onGridClick}
+                          onGridLongPress={onGridLongPress}
+                          beginAgendaAt={beginAgendaAt}
+                          EventComponent={EventComponent}
+                          eventContainerStyle={eventContainerStyle}
+                          eventTextStyle={eventTextStyle}
+                          gridRowStyle={gridRowStyle}
+                          gridColumnStyle={gridColumnStyle}
+                          rightToLeft={rightToLeft}
+                          showNowLine={showNowLine}
+                          nowLineColor={nowLineColor}
+                          onDragEvent={onDragEvent}
+                          pageWidth={pageWidth}
+                          dayWidth={dayWidth}
+                          onEditEvent={onEditEvent}
+                          editingEventId={editingEvent}
+                          editEventConfig={editEventConfig}
+                          dragEventConfig={dragEventConfig}
+                        />
+                      );
+                    }}
+                  />
+                </RunGesturesOnJSContext.Provider>
+              </View>
+            </VerticalAgenda>
+          </VerticalDimensionsProvider>
         </HeaderRefContextProvider>
       </GestureHandlerRootView>
     );
@@ -749,6 +710,7 @@ WeekView.propTypes = {
   onEditEvent: PropTypes.func,
   editEventConfig: EditEventConfigPropType,
   dragEventConfig: DragEventConfigPropType,
+  enableVerticalPinch: PropTypes.bool,
   headerStyle: PropTypes.object,
   headerTextStyle: PropTypes.object,
   hourTextStyle: PropTypes.object,
@@ -803,6 +765,7 @@ WeekView.defaultProps = {
   startHour: 8,
   showTitle: true,
   rightToLeft: false,
+  enableVerticalPinch: false,
   prependMostRecent: false,
   RefreshComponent: ActivityIndicator,
   windowSize: DEFAULT_WINDOW_SIZE,

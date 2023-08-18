@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import { minutesInDay } from '../utils/dates';
 import { minutesInDayToTop } from '../utils/dimensions';
 import styles from './NowLine.styles';
+import { useVerticalDimensionContext } from '../utils/VerticalDimContext';
 
 const UPDATE_EVERY_MILLISECONDS = 60 * 1000; // 1 minute
 
@@ -27,7 +28,8 @@ const useMinutesNow = (updateEvery = UPDATE_EVERY_MILLISECONDS) => {
   return minutesInDay(now);
 };
 
-const NowLine = ({ verticalResolution, beginAgendaAt, color, width }) => {
+const NowLine = ({ beginAgendaAt, color, width }) => {
+  const { verticalResolution } = useVerticalDimensionContext();
   const minutesNow = useMinutesNow();
 
   const currentTop = useDerivedValue(() =>
@@ -63,7 +65,6 @@ const NowLine = ({ verticalResolution, beginAgendaAt, color, width }) => {
 
 NowLine.propTypes = {
   width: PropTypes.number.isRequired,
-  verticalResolution: PropTypes.number.isRequired,
   beginAgendaAt: PropTypes.number,
   color: PropTypes.string,
 };

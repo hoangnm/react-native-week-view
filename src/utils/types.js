@@ -44,8 +44,8 @@ export const EventPropType = PropTypes.shape({
 export const EventWithMetaPropType = PropTypes.shape({
   ref: EventPropType.isRequired,
   box: PropTypes.shape({
-    startDate: PropTypes.instanceOf(Date).isRequired,
-    endDate: PropTypes.instanceOf(Date).isRequired,
+    startTimestamp: PropTypes.number.isRequired,
+    endTimestamp: PropTypes.number.isRequired,
   }).isRequired,
 });
 

@@ -6,16 +6,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import styles from './Times.styles';
+import { useVerticalDimensionContext } from '../utils/VerticalDimContext';
 
-const Times = ({
-  times,
-  containerStyle,
-  textStyle,
-  width,
-  timeLabelHeight,
-}) => {
+const Times = ({ times, containerStyle, textStyle, width }) => {
+  const { timeLabelHeight } = useVerticalDimensionContext();
   const lineStyle = useAnimatedStyle(() => ({
-    height: withTiming(timeLabelHeight),
+    height: withTiming(timeLabelHeight.value),
   }));
   return (
     <View style={[styles.container, containerStyle, { width }]}>
@@ -32,7 +28,6 @@ Times.propTypes = {
   times: PropTypes.arrayOf(PropTypes.string).isRequired,
   textStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   width: PropTypes.number.isRequired,
-  timeLabelHeight: PropTypes.number.isRequired,
 };
 
 export default React.memo(Times);

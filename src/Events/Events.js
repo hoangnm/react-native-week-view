@@ -18,15 +18,13 @@ import {
 import { calculateDaysArray, availableNumberOfDays } from '../utils/dates';
 import { topToSecondsInDay as topToSecondsInDayFromUtils } from '../utils/dimensions';
 import { ViewWithTouchable } from '../utils/gestures';
+import {
+  VerticalDimensionContext,
+  useVerticalDimensionContext,
+} from '../utils/VerticalDimContext';
 
 import styles from './Events.styles';
 import resolveEventOverlaps from '../pipeline/overlap';
-import {
-  computeHeight,
-  computeWidth,
-  computeLeft,
-  computeTop,
-} from '../pipeline/position';
 
 const processEvents = (
   eventsByDate,
@@ -41,9 +39,10 @@ const processEvents = (
   return dates.map((date) => resolveEventOverlaps(eventsByDate[date] || []));
 };
 
-const Lines = ({ initialDate, times, timeLabelHeight, gridRowStyle }) => {
+const Lines = ({ initialDate, times, gridRowStyle }) => {
+  const { timeLabelHeight } = useVerticalDimensionContext();
   const heightStyle = useAnimatedStyle(() => ({
-    height: withTiming(timeLabelHeight),
+    height: withTiming(timeLabelHeight.value),
   }));
   return times.map((time) => (
     <Animated.View
@@ -57,7 +56,7 @@ class Events extends PureComponent {
   topToSecondsInDay = (yValue) =>
     topToSecondsInDayFromUtils(
       yValue,
-      this.props.verticalResolution,
+      this.context.verticalResolution,
       this.props.beginAgendaAt,
     );
 
@@ -120,40 +119,44 @@ class Events extends PureComponent {
     onDragEvent(event, newStartDate, newEndDate);
   };
 
-  handleEditEvent = (event, params) => {
+  handleEditEvent = (event, side, newPosition) => {
     const { onEditEvent } = this.props;
     if (!onEditEvent) {
-      return;
-    }
-    if (!params || Object.keys(params).length === 0) {
       return;
     }
 
     let newStartDate = moment(event.startDate);
     let newEndDate = moment(event.endDate);
 
-    if (params.left != null) {
-      const daysToLeft = this.xToDayIndex(params.left);
-      newStartDate = newStartDate.add(daysToLeft, 'days');
-    }
-    if (params.right != null) {
-      const newRightIndex = this.xToDayIndex(params.right);
-      const prevRightIndex = moment(event.endDate).diff(
-        event.startDate,
-        'days',
-      );
-      const movedRight = newRightIndex - prevRightIndex;
-      newEndDate = newEndDate.add(movedRight, 'days');
-    }
-    if (params.top != null) {
-      newStartDate = newStartDate
-        .startOf('day')
-        .seconds(this.topToSecondsInDay(params.top));
-    }
-    if (params.bottom != null) {
-      newEndDate = newEndDate
-        .startOf('day')
-        .seconds(this.topToSecondsInDay(params.bottom));
+    switch (side) {
+      case 'left': {
+        const daysToLeft = this.xToDayIndex(newPosition);
+        newStartDate = newStartDate.add(daysToLeft, 'days');
+        break;
+      }
+      case 'right': {
+        const newRightIndex = this.xToDayIndex(newPosition);
+        const prevRightIndex = moment(event.endDate).diff(
+          event.startDate,
+          'days',
+        );
+        const movedRight = newRightIndex - prevRightIndex;
+        newEndDate = newEndDate.add(movedRight, 'days');
+        break;
+      }
+      case 'top': {
+        newStartDate = newStartDate
+          .startOf('day')
+          .seconds(this.topToSecondsInDay(newPosition));
+        break;
+      }
+      case 'bottom': {
+        newEndDate = newEndDate
+          .startOf('day')
+          .seconds(this.topToSecondsInDay(newPosition));
+        break;
+      }
+      default:
     }
 
     onEditEvent(event, newStartDate.toDate(), newEndDate.toDate());
@@ -187,8 +190,6 @@ class Events extends PureComponent {
       onGridLongPress,
       dayWidth,
       pageWidth,
-      timeLabelHeight,
-      verticalResolution,
       onEditEvent,
       editingEventId,
       editEventConfig,
@@ -206,7 +207,6 @@ class Events extends PureComponent {
         <Lines
           initialDate={initialDate}
           times={times}
-          timeLabelHeight={timeLabelHeight}
           gridRowStyle={gridRowStyle}
         />
         <ViewWithTouchable
@@ -223,7 +223,6 @@ class Events extends PureComponent {
               {showNowLine && this.isToday(dayIndex) && (
                 <NowLine
                   color={nowLineColor}
-                  verticalResolution={verticalResolution}
                   width={dayWidth}
                   beginAgendaAt={beginAgendaAt}
                 />
@@ -234,10 +233,12 @@ class Events extends PureComponent {
                   <Event
                     key={event.id}
                     event={event}
-                    top={computeTop(box, verticalResolution, beginAgendaAt)}
-                    height={computeHeight(box, verticalResolution)}
-                    left={computeLeft(overlap, dayWidth)}
-                    width={computeWidth(box, overlap, dayWidth)}
+                    boxStartTimestamp={box.startTimestamp}
+                    boxEndTimestamp={box.endTimestamp}
+                    lane={overlap.lane}
+                    nLanes={overlap.nLanes}
+                    stackPosition={overlap.stackPosition}
+                    dayWidth={dayWidth}
                     onPress={onEventPress && this.handlePressEvent}
                     onLongPress={onEventLongPress && this.handleLongPressEvent}
                     EventComponent={EventComponent}
@@ -258,6 +259,8 @@ class Events extends PureComponent {
     );
   }
 }
+
+Events.contextType = VerticalDimensionContext;
 
 Events.propTypes = {
   numberOfDays: PropTypes.oneOf(availableNumberOfDays).isRequired,
@@ -281,8 +284,6 @@ Events.propTypes = {
   onDragEvent: PropTypes.func,
   pageWidth: PropTypes.number.isRequired,
   dayWidth: PropTypes.number.isRequired,
-  verticalResolution: PropTypes.number.isRequired,
-  timeLabelHeight: PropTypes.number.isRequired,
   onEditEvent: PropTypes.func,
   editingEventId: PropTypes.number,
 };
