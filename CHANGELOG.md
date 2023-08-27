@@ -1,6 +1,10 @@
 # Changelog
 
 Minor version updates before v1.0.0 can include breaking changes, which will always be listed here.
+
+## 0.30.0 - 2023-08-27
+
+- Pinch vertical gesture [#316](https://github.com/hoangnm/react-native-week-view/pull/316)
 ## 0.29.0 - 2023-07-19
 
 - Support all-day events [#306](https://github.com/hoangnm/react-native-week-view/pull/306)
