@@ -5,13 +5,13 @@ import { Moment } from 'moment';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface WeekViewEvent extends Record<string, any> {
   id: number;
-  description: string;
+  description?: string;
   startDate: Date;
   endDate: Date;
-  eventKind: 'block' | 'standard';
-  resolveOverlap: 'stack' | 'lane' | 'ignore';
-  stackKey: string;
-  color: string;
+  eventKind?: 'block' | 'standard';
+  resolveOverlap?: 'stack' | 'lane' | 'ignore';
+  stackKey?: string;
+  color?: string;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   disableDrag?: boolean;
@@ -35,13 +35,18 @@ export interface EventComponentProps {
     width: number;
   };
 }
-
-export interface PageStartAtOptions {
-  left: number;
-  weekday: number;
+export interface RefreshComponentProps {
+  style: ViewStyle;
 }
 
+export interface PageStartAtOptions {
+  left?: number;
+  weekday?: number;
+}
+
+
 export interface WeekViewProps {
+  ref: React.MutableRefObject;
   events: WeekViewEvent[];
   selectedDate: Date;
   numberOfDays: 1 | 3 | 5 | 7;
@@ -141,12 +146,12 @@ export interface WeekViewProps {
    */
   dragEventConfig?: {
     afterLongPressDuration: number;
-  };
+  } | null;
 
   /**
    * Which event is being edited.
    */
-  editingEvent?: number | string;
+  editingEvent?: number | string | null;
 
   /**
    * Callback when an event item is edited by dragging its borders.
@@ -207,16 +212,17 @@ export interface WeekViewProps {
   formatTimeLabel?: string;
   timesColumnWidth?: number;
 
-  EventComponent?: React.FC<EventComponentProps>;
-  TodayHeaderComponent?: React.FC<HeaderComponentProps>;
-  DayHeaderComponent?: React.FC<HeaderComponentProps>;
+  EventComponent?: React.ComponentType<EventComponentProps>;
+  TodayHeaderComponent?: React.ComponentType<HeaderComponentProps>;
+  DayHeaderComponent?: React.ComponentType<HeaderComponentProps>;
 
   showNowLine?: boolean;
   nowLineColor?: string;
   fixedHorizontally?: boolean;
   isRefreshing?: boolean;
+  enableVerticalPinch?: boolean;
 
-  RefreshComponent?: React.Component;
+  RefreshComponent?: React.ComponentType<RefreshComponentProps>;
 
   locale?: string;
   rightToLeft?: boolean;
@@ -242,6 +248,7 @@ export interface WeekViewProps {
 
   // Other props (patch RN bugs)
   prependMostRecent?: boolean;
+  runOnJS?: boolean;
 }
 
 declare const WeekView: React.ComponentType<WeekViewProps>;

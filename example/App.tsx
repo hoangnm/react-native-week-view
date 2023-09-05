@@ -7,9 +7,18 @@
  */
 
 import React, {useState, useReducer, useRef, useCallback} from 'react';
-import {SafeAreaView, StyleSheet, StatusBar, Alert, Text} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  StatusBar,
+  Alert,
+  Text,
+  ViewStyle,
+} from 'react-native';
 
+// @ts-ignore (FIXME)
 import WeekView, {createFixedWeekDate} from 'react-native-week-view';
+import type {WeekViewEvent} from 'react-native-week-view/index';
 import {buildDateCycler, makeBuilder, eventsWithUpdate} from './debug-utils';
 
 const buildEvent = makeBuilder();
@@ -80,7 +89,7 @@ const sampleFixedEvents = [
 const showFixedComponent = false;
 const INITIAL_EVENTS = showFixedComponent ? sampleFixedEvents : sampleEvents;
 
-const MyRefreshComponent = ({style}) => (
+const MyRefreshComponent = ({style}: {style: ViewStyle}) => (
   // eslint-disable-next-line react-native/no-inline-styles
   <Text style={[style, {fontSize: 20, color: 'black'}]}>Loading...</Text>
 );
@@ -98,16 +107,18 @@ const PAGE_START_AT = {
   weekday: 1,
 };
 
-const onDayPress = (date, formattedDate) => {
+const onDayPress = (date: Date, formattedDate: string) => {
   console.log('Day: ', date, formattedDate);
 };
 
-const onSwipeNext = d => console.log('Swipe next', d.toDateString());
-const onSwipePrev = d => console.log('Swipe prev', d.toDateString());
-const onTimeScrolled = d => console.log('Time scrolled', d.toTimeString());
+const onSwipeNext = (d: Date) => console.log('Swipe next', d.toDateString());
+const onSwipePrev = (d: Date) => console.log('Swipe prev', d.toDateString());
+const onTimeScrolled = (d: Date) =>
+  console.log('Time scrolled', d.toTimeString());
 
 // Use this to manually debug navigate through dates
-// eslint-disable-next-line no-unused-vars
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const dateCycler = buildDateCycler([
   // // Example:
   // // selectedDate={new Date(2022, 7, 14)}
@@ -116,29 +127,29 @@ const dateCycler = buildDateCycler([
   // new Date(2022, 7, 2),
 ]);
 
-const App = ({}) => {
+function App(): JSX.Element {
   const componentRef = useRef(null);
 
   const [events, updateEvent] = useReducer(eventsWithUpdate, INITIAL_EVENTS);
 
   const onDragEvent = useCallback(
-    (event, newStartDate, newEndDate) => {
+    (event: WeekViewEvent, newStartDate: Date, newEndDate: Date) => {
       updateEvent({event, newStartDate, newEndDate});
     },
     [updateEvent],
   );
 
   const onEditEvent = useCallback(
-    (event, newStartDate, newEndDate) => {
+    (event: WeekViewEvent, newStartDate: Date, newEndDate: Date) => {
       console.log('Editing: ', event.id, newStartDate, newEndDate);
       updateEvent({event, newStartDate, newEndDate});
     },
     [updateEvent],
   );
 
-  const [editingEvent, setEditEvent] = useState(null);
+  const [editingEvent, setEditEvent] = useState<number | null>(null);
 
-  const handleLongPressEvent = event => {
+  const handleLongPressEvent = (event: WeekViewEvent) => {
     if (editingEvent == null) {
       setEditEvent(event.id);
     } else {
@@ -146,7 +157,7 @@ const App = ({}) => {
     }
   };
 
-  const handlePressEvent = event => {
+  const handlePressEvent = (event: WeekViewEvent) => {
     if (editingEvent != null) {
       setEditEvent(null);
       return;
@@ -159,7 +170,11 @@ const App = ({}) => {
     );
   };
 
-  const handlePressGrid = (event, startHour, date) => {
+  const handlePressGrid = (
+    event: WeekViewEvent,
+    startHour: number,
+    date: Date,
+  ) => {
     if (editingEvent != null) {
       setEditEvent(null);
       return;
@@ -175,7 +190,7 @@ const App = ({}) => {
     Alert.alert(`${year}-${month}-${day} ${hour}:${minutes}:${seconds}`);
   };
 
-  const onMonthPress = useCallback((date, formattedDate) => {
+  const onMonthPress = useCallback((date: Date, formattedDate: string) => {
     // // Debug navigating through dates:
     // if (componentRef && componentRef.current) {
     //   componentRef.current.goToDate(dateCycler.next());
@@ -229,7 +244,7 @@ const App = ({}) => {
       </SafeAreaView>
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
