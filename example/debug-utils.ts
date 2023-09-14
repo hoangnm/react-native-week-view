@@ -1,6 +1,8 @@
 /** Debugging utilities. */
 
-export const generateDates = (hours, minutes) => {
+import {WeekViewEvent} from '..';
+
+export const generateDates = (hours: number, minutes?: number) => {
   const date = new Date();
   date.setHours(date.getHours() + hours);
   if (minutes != null) {
@@ -12,7 +14,7 @@ export const generateDates = (hours, minutes) => {
 export const makeBuilder = () => {
   let index = 0;
 
-  return (start, duration, color, more = {}) => {
+  return (start: number, duration: number, color: string, more = {}) => {
     index += 1;
     const stackKey = index % 2 === 0 ? 'A' : 'B';
     return {
@@ -50,7 +52,16 @@ export const buildDateCycler = (dates = []) => {
   };
 };
 
-export const eventsWithUpdate = (prevEvents, actionPayload) => {
+type EventsWithUpdateAction = {
+  event: WeekViewEvent;
+  newStartDate: Date;
+  newEndDate: Date;
+};
+
+export const eventsWithUpdate = (
+  prevEvents: WeekViewEvent[],
+  actionPayload: EventsWithUpdateAction,
+) => {
   const {event, newStartDate, newEndDate} = actionPayload;
   return [
     ...prevEvents.filter(e => e.id !== event.id),
@@ -62,7 +73,13 @@ export const eventsWithUpdate = (prevEvents, actionPayload) => {
   ];
 };
 
-export const createDummyEvent = ({startDate, duration}) => {
+export const createDummyEvent = ({
+  startDate,
+  duration,
+}: {
+  startDate: Date;
+  duration: number;
+}) => {
   const endDate = new Date(startDate.getTime());
   endDate.setHours(startDate.getHours() + duration);
   return {
@@ -73,7 +90,10 @@ export const createDummyEvent = ({startDate, duration}) => {
   };
 };
 
-export const eventsWithAdd = (prevEvents, payload) => {
+export const eventsWithAdd = (
+  prevEvents: WeekViewEvent[],
+  payload: WeekViewEvent,
+) => {
   // Just an example reducer, you'll probably use your own
   const maxId = Math.max(...prevEvents.map(e => e.id));
   return [
@@ -85,7 +105,15 @@ export const eventsWithAdd = (prevEvents, payload) => {
   ];
 };
 
-export const eventsWithAddAndUpdate = (prevEvents, action) => {
+type EventsWithAddAndUpdateAction = {
+  type: string;
+  payload: any;
+};
+
+export const eventsWithAddAndUpdate = (
+  prevEvents: WeekViewEvent[],
+  action: EventsWithAddAndUpdateAction,
+) => {
   switch (action.type) {
     case 'updateEvent':
       return eventsWithUpdate(prevEvents, action.payload);

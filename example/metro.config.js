@@ -1,14 +1,15 @@
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- *
- * @format
- */
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
 const path = require('path');
 const weekViewModules = path.resolve(__dirname, '..', 'node_modules');
 
-module.exports = {
+/**
+ * Metro configuration
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
   resolver: {
     // Avoid conflicts between example/ and root folder
     blockList: [
@@ -16,12 +17,6 @@ module.exports = {
       new RegExp(`${weekViewModules}/react(-test-rendered)?/.*`),
     ],
   },
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: true,
-      },
-    }),
-  },
 };
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
