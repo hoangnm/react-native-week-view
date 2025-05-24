@@ -19,7 +19,7 @@ const HeaderPage = ({
   rightToLeft,
   style,
   textStyle,
-  formatDate,
+  formatDate = 'MMM D',
   DayComponent,
   TodayComponent,
   onDayPress,
@@ -169,10 +169,6 @@ WeekViewHeader.propTypes = {
   initialNumToRender: PropTypes.number,
   maxToRenderPerBatch: PropTypes.number,
   updateCellsBatchingPeriod: PropTypes.number,
-};
-
-WeekViewHeader.defaultProps = {
-  formatDate: 'MMM D',
 };
 
 export default WeekViewHeader;
